@@ -97,7 +97,7 @@ function love.update(dt)
 	local eventGadget, eventType = minGUI:get_gadget_events()
 	
 	-- if button 1 has been clicked
-	if eventType == MG_EVENT_MOUSE_CLICK then
+	if eventType == MG_EVENT_LEFT_MOUSE_CLICK then
 		if eventGadget == 1 then
 			minGUI:set_gadget_text(3, "")
 		elseif eventGadget == 5 then
