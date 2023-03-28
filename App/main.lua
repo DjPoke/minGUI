@@ -72,6 +72,9 @@ function love.load()
 
 	minGUI:clear_canvas(21, 1, 1, 1, 1)			
 	minGUI:draw_text_to_canvas(21, tostring(timer), 1, 4, {0, 0, 0, 1})
+	
+	-- change editor position
+	minGUI:set_editor_cursor_position(20, -1, -1)
 
 	-- add a timer shown in the canvas 21
 	minGUI:start_timer(1, 1000)

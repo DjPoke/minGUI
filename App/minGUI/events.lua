@@ -306,6 +306,27 @@ function minGUI_update_events(dt)
 							end
 						end
 					end
+				elseif v.tp == MG_EDITOR then
+					-- click on an editor inside a panel...
+					if v.parent ~= nil then
+						local w = minGUI.ptree[v.parent]
+						
+						if w ~= nil then
+							if minGUI.mouse.x >= w.x + v.x and minGUI.mouse.x < w.x + v.x + v.width then
+								if minGUI.mouse.y >= w.y + v.y and minGUI.mouse.y < w.y + v.y + v.height then
+									minGUI.gfocus = i
+									getfocusFlag = true
+								end
+							end
+						end
+					else
+						if minGUI.mouse.x >= v.x and minGUI.mouse.x < v.x + v.width then
+							if minGUI.mouse.y >= v.y and minGUI.mouse.y < v.y + v.height then
+								minGUI.gfocus = i
+								getfocusFlag = true
+							end
+						end
+					end
 				end
 			end
 			
@@ -780,6 +801,73 @@ function minGUI_update_events(dt)
 								-- reset kbdelay and increment backspace
 								minGUI.kbdelay = minGUI.timer
 								minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
+							end
+						end
+					end
+				end
+			elseif minGUI.gtree[minGUI.gfocus].tp == MG_EDITOR then
+				-- if the editor gadget is editable
+				if minGUI.gtree[minGUI.gfocus].editable == true then
+					-- if backspace has not yet been pressed...
+					if minGUI.gtree[minGUI.gfocus].backspace == 0 then
+						-- if backspace is pressed now...
+						if love.keyboard.isDown("backspace") == true then
+							-- remove the last UTF-8 character.
+							local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
+
+							if byteoffset then
+								minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
+							end
+
+							-- calculate the new offset value for the text
+							minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
+
+							-- count the first backspace, and get the timer
+							minGUI.gtree[minGUI.gfocus].backspace = 1
+							minGUI.kbdelay = minGUI.timer
+						end
+					-- if backspace has been pressed...
+					elseif minGUI.gtree[minGUI.gfocus].backspace > 0 then
+						-- if backspace is released now...
+						if love.keyboard.isDown("backspace") == false then
+							minGUI.gtree[minGUI.gfocus].backspace = 0
+						else
+							-- if backspace is still pressed, and has been pressed only one time
+							if minGUI.gtree[minGUI.gfocus].backspace == 1 then
+								-- wait for keyboard slow delay
+								if minGUI.timer - minGUI.kbdelay >= MG_SLOW_DELAY then
+									-- remove the last UTF-8 character.
+									local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
+
+									if byteoffset then
+										minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
+									end
+
+									-- calculate the new offset value for the text
+									minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
+									
+									-- reset kbdelay and increment backspace
+									minGUI.kbdelay = minGUI.timer
+									minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
+								end
+							-- if backspace is still pressed, and has been pressed for multiple times
+							elseif minGUI.gtree[minGUI.gfocus].backspace > 1 then
+								-- wait for keyboard quick delay
+								if minGUI.timer - minGUI.kbdelay >= MG_QUICK_DELAY then
+									-- remove the last UTF-8 character.
+									local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
+
+									if byteoffset then
+										minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
+									end
+
+									-- calculate the new offset value for the text
+									minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
+									
+									-- reset kbdelay and increment backspace
+									minGUI.kbdelay = minGUI.timer
+									minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
+								end
 							end
 						end
 					end
