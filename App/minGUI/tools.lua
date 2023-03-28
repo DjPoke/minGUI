@@ -126,6 +126,7 @@ function DecTextValue(t)
 	return t
 end
 
+-- explode string
 function minGUI_explode(str, div)
     assert(type(str) == "string" and type(div) == "string", "invalid arguments")
 	
@@ -144,4 +145,18 @@ function minGUI_explode(str, div)
     end
 	
     return o
+end
+
+-- assemble exploded string
+function minGUI_assemble(t, div)
+	if t == nil then return "" end
+	if div == nil then return "" end
+	
+	local s = ""
+	
+	for i = 1, #t do
+		s = s .. t[i] .. div
+	end
+	
+	return s
 end

@@ -722,7 +722,7 @@ function minGUI_init()
 			
 			return minGUI.gtree[num].y
 		end,
-		get_editor_cursor_position = function(self, num)
+		get_cursor_position = function(self, num)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -732,67 +732,68 @@ function minGUI_init()
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
 			
-			-- can't use an other gadget than an editor
-			if minGUI.gtree[num].tp ~= MG_EDITOR then return end
+			-- for editor gadget...
+			if minGUI.gtree[num].tp == MG_EDITOR then
+				-- separate sentences
+				local t = {}
 			
-			-- separate sentences
-			local t = {}
+				t = minGUI_explode(minGUI.gtree[num].text, "\n")
 			
-			t = minGUI_explode(minGUI.gtree[num].text, "\n")
-			
-			if minGUI.gtree[num].cursory > #t then minGUI.gtree[num].cursory = #t end
+				if minGUI.gtree[num].cursory > #t then minGUI.gtree[num].cursory = #t end
 
-			-- start pos is zero
-			minGUI.gtree[num].position = 0
+				-- start pos is zero
+				minGUI.gtree[num].position = 0
 			
-			for i = 0, minGUI.gtree[num].cursory - 1 do
-				minGUI.gtree[num].position = minGUI.gtree[num].position + string.len(t[i + 1])
-			end
+				for i = 0, minGUI.gtree[num].cursory - 1 do
+					minGUI.gtree[num].position = minGUI.gtree[num].position + string.len(t[i + 1])
+				end
 			
-			for i = 0, minGUI.gtree[num].cursorx - 1 do
-				minGUI.gtree[num].position = minGUI.gtree[num].position + 1
+				for i = 0, minGUI.gtree[num].cursorx - 1 do
+					minGUI.gtree[num].position = minGUI.gtree[num].position + 1
+				end
 			end
 		end,
-		set_editor_cursor_position = function(self, num, x, y)
+		set_cursor_xy = function(self, num, x, y)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("Wrong x value"); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y value"); return end
-
-			if x == nil then x = 0 end
-			if y == nil then y = 0 end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
 			
-			-- can't use an other gadget than an editor
-			if minGUI.gtree[num].tp ~= MG_EDITOR then return end
+			-- for editor gadget...
+			if minGUI.gtree[num].tp == MG_EDITOR then
+				if x == nil then x = 0 end
+				if y == nil then y = 0 end
 			
-			-- set cursor position by coordinates
-			minGUI.gtree[num].cursorx = x
-			minGUI.gtree[num].cursory = y
+				-- set cursor position by coordinates
+				minGUI.gtree[num].cursorx = x
+				minGUI.gtree[num].cursory = y
 
-			-- separate sentences
-			local t = {}
-
-			t = minGUI_explode(minGUI.gtree[num].text, "\n")
-			
-			-- corrections
-			if minGUI.gtree[num].cursory == -1 then
-				minGUI.gtree[num].cursory = #t
-			end			
-
-			if minGUI.gtree[num].cursorx == -1 then
-				if t[y] == nil then
-					minGUI.gtree[num].cursorx = 0
-				else
-					minGUI.gtree[num].cursorx = string.len(t[y])
+				-- separate sentences
+				local t = {}
+	
+				t = minGUI_explode(minGUI.gtree[num].text, "\n")
+				
+				-- corrections
+				if minGUI.gtree[num].cursory == -1 then
+					minGUI.gtree[num].cursory = #t
+				end			
+	
+				if minGUI.gtree[num].cursorx == -1 then
+					if t[y] == nil then
+						minGUI.gtree[num].cursorx = 0
+					else
+						minGUI.gtree[num].cursorx = string.len(t[y])
+					end
 				end
-			end			
 			
-			minGUI:get_editor_cursor_position(num)
+				minGUI:get_cursor_position(num)
+			end
 		end,
 		-- add a panel to the panel's tree
 		add_panel = function(self, num, x, y, width, height)
