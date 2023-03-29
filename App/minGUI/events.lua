@@ -1271,7 +1271,7 @@ function minGUI_textinput(c)
 				if minGUI.gtree[minGUI.gfocus].editable == true then
 					-- add last character to the text
 					minGUI.gtree[minGUI.gfocus].text = minGUI.gtree[minGUI.gfocus].text .. c
-					
+
 					-- calculate the new offset value for the text
 					minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
 				end
