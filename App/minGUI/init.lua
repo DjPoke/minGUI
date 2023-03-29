@@ -1191,6 +1191,9 @@ function minGUI_init()
 						
 						-- set the focus to the last editable gadget
 						minGUI.gfocus = num
+						
+						-- position cursor at end
+						minGUI:set_cursor_xy(num, -1, -1)
 					end
 				end
 			end

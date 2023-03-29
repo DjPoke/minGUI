@@ -858,8 +858,7 @@ function minGUI_update_events(dt)
 									minGUI.gtree[minGUI.gfocus].cursory = #t
 								end
 							end
-						end
-							
+						end							
 					end
 
 					-- remove character at left from cursor
@@ -1185,7 +1184,7 @@ end
 
 -- function to input text, and
 -- write it  in a gadget
-function minGUI_textinput(t)
+function minGUI_textinput(c)
 	-- if a gadget has the focus...
 	if minGUI.gfocus ~= nil then
 		-- if the gadget exists
@@ -1195,7 +1194,7 @@ function minGUI_textinput(t)
 				-- if the gadget is editable...
 				if minGUI.gtree[minGUI.gfocus].editable == true then
 					-- add last character to the text
-					minGUI.gtree[minGUI.gfocus].text = minGUI.gtree[minGUI.gfocus].text .. t
+					minGUI.gtree[minGUI.gfocus].text = minGUI.gtree[minGUI.gfocus].text .. c
 					
 					-- calculate the new offset value for the text
 					minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
@@ -1203,7 +1202,7 @@ function minGUI_textinput(t)
 			elseif minGUI.gtree[minGUI.gfocus].tp == MG_SPIN then
 				if t >= "0" and t <= "9" then
 					-- add last character to the text
-					minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text .. t, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue)
+					minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text .. c, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue)
 						
 					-- calculate the new offset value for the text
 					minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
@@ -1211,8 +1210,30 @@ function minGUI_textinput(t)
 			elseif minGUI.gtree[minGUI.gfocus].tp == MG_EDITOR then
 				-- if the gadget is editable...
 				if minGUI.gtree[minGUI.gfocus].editable == true then
-					-- add last character to the text
-					minGUI.gtree[minGUI.gfocus].text = minGUI.gtree[minGUI.gfocus].text .. t
+					-- explode text
+					local t = {}
+					
+					t = minGUI_explode(minGUI.gtree[minGUI.gfocus].text, "\n")
+
+					-- add the character to the text
+					if minGUI.gtree[minGUI.gfocus].cursory == #t then
+						t[minGUI.gtree[minGUI.gfocus].cursory + 1] = c
+						minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
+						minGUI.gtree[minGUI.gfocus].cursorx = minGUI.gtree[minGUI.gfocus].cursorx + 1
+					elseif minGUI.gtree[minGUI.gfocus].cursorx == 0 then
+						local rt = string.sub(t[minGUI.gtree[minGUI.gfocus].cursory + 1], minGUI.gtree[minGUI.gfocus].cursorx + 1)
+					
+						t[minGUI.gtree[minGUI.gfocus].cursory + 1] = c .. rt
+						minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
+						minGUI.gtree[minGUI.gfocus].cursorx = minGUI.gtree[minGUI.gfocus].cursorx + 1
+					else
+						local lt = string.sub(t[minGUI.gtree[minGUI.gfocus].cursory + 1], 1, minGUI.gtree[minGUI.gfocus].cursorx)
+						local rt = string.sub(t[minGUI.gtree[minGUI.gfocus].cursory + 1], minGUI.gtree[minGUI.gfocus].cursorx + 1)
+					
+						t[minGUI.gtree[minGUI.gfocus].cursory + 1] = lt .. c .. rt
+						minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
+						minGUI.gtree[minGUI.gfocus].cursorx = minGUI.gtree[minGUI.gfocus].cursorx + 1
+					end
 				end
 			end
 		end
