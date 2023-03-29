@@ -52,6 +52,9 @@ function love.load()
 
 	minGUI:add_canvas(21, 390, 60, 100, 25)
 	
+	minGUI:add_scrollbar(22, 500, 5, 20, 100, 0, 0, 100, 5, MG_SCROLLBAR_VERTICAL)
+	minGUI:add_scrollbar(23, 525, 5, 100, 20, 0, 0, 100, 10)
+	
 	-- clear the canvas in black
 	minGUI:clear_canvas(4, 0, 0, 0, 1)
 	minGUI:clear_canvas(8, 0, 0, 0, 1)
