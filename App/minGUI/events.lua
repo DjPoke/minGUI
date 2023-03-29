@@ -862,8 +862,8 @@ function minGUI_update_events(dt)
 							
 					end
 
-					-- remove character at cursor
-					local remove_char = function(self)
+					-- remove character at left from cursor
+					local remove_left_char = function(self)
 						if minGUI.gtree[minGUI.gfocus].cursory == #t then
 							t[minGUI.gtree[minGUI.gfocus].cursory] = string.sub(t[minGUI.gtree[minGUI.gfocus].cursory], 1, -2)
 							minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
@@ -887,6 +887,27 @@ function minGUI_update_events(dt)
 							end
 						end
 					end
+
+					-- remove character at right from cursor
+					local remove_right_char = function(self)
+						if minGUI.gtree[minGUI.gfocus].cursory < #t then
+							if t[minGUI.gtree[minGUI.gfocus].cursory + 1] ~= "" then
+								if minGUI.gtree[minGUI.gfocus].cursorx < string.len(t[minGUI.gtree[minGUI.gfocus].cursory + 1]) then
+									local lt = string.sub(t[minGUI.gtree[minGUI.gfocus].cursory + 1], 1, minGUI.gtree[minGUI.gfocus].cursorx)
+									local rt = string.sub(t[minGUI.gtree[minGUI.gfocus].cursory + 1], minGUI.gtree[minGUI.gfocus].cursorx + 2)
+	
+									t[minGUI.gtree[minGUI.gfocus].cursory + 1] = lt .. rt
+	
+									minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
+								else
+									t[minGUI.gtree[minGUI.gfocus].cursory + 1] = t[minGUI.gtree[minGUI.gfocus].cursory + 1] .. t[minGUI.gtree[minGUI.gfocus].cursory + 2]
+									t[minGUI.gtree[minGUI.gfocus].cursory + 2] = ""
+	
+									minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
+								end
+							end
+						end
+					end
 					
 					-- if home key is pressed now...
 					if love.keyboard.isDown("home") == true then
@@ -904,7 +925,7 @@ function minGUI_update_events(dt)
 						-- if backspace is pressed now...
 						if love.keyboard.isDown("backspace") == true then
 							-- remove character at cursor
-							remove_char()
+							remove_left_char()
 
 							-- count the first backspace, and get the timer
 							minGUI.gtree[minGUI.gfocus].backspace = 1
@@ -921,7 +942,7 @@ function minGUI_update_events(dt)
 								-- wait for keyboard slow delay
 								if minGUI.timer - minGUI.kbdelay >= MG_SLOW_DELAY then
 									-- remove character at cursor
-									remove_char()
+									remove_left_char()
 
 									-- reset kbdelay and increment backspace
 									minGUI.kbdelay = minGUI.timer
@@ -932,11 +953,54 @@ function minGUI_update_events(dt)
 								-- wait for keyboard quick delay
 								if minGUI.timer - minGUI.kbdelay >= MG_QUICK_DELAY then
 									-- remove character at cursor
-									remove_char()
+									remove_left_char()
 									
 									-- reset kbdelay and increment backspace
 									minGUI.kbdelay = minGUI.timer
 									minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
+								end
+							end
+						end
+					end
+															
+					-- if delete key has not yet been pressed...
+					if minGUI.gtree[minGUI.gfocus].delete == 0 then
+						-- if delete key is pressed now...
+						if love.keyboard.isDown("delete") == true then
+							-- remove character at cursor
+							remove_right_char()
+
+							-- count the first delete key, and get the timer
+							minGUI.gtree[minGUI.gfocus].delete = 1
+							minGUI.kbdelay = minGUI.timer
+						end
+					-- if delete key has been pressed...
+					elseif minGUI.gtree[minGUI.gfocus].delete > 0 then
+						-- if delete key is released now...
+						if love.keyboard.isDown("delete") == false then
+							minGUI.gtree[minGUI.gfocus].delete = 0
+						else
+							-- if delete key is still pressed, and has been pressed only one time
+							if minGUI.gtree[minGUI.gfocus].delete == 1 then
+								-- wait for keyboard slow delay
+								if minGUI.timer - minGUI.kbdelay >= MG_SLOW_DELAY then
+									-- remove character at cursor
+									remove_right_char()
+
+									-- reset kbdelay and increment delete key
+									minGUI.kbdelay = minGUI.timer
+									minGUI.gtree[minGUI.gfocus].delete = minGUI.gtree[minGUI.gfocus].delete + 1
+								end
+							-- if delete key is still pressed, and has been pressed for multiple times
+							elseif minGUI.gtree[minGUI.gfocus].delete > 1 then
+								-- wait for keyboard quick delay
+								if minGUI.timer - minGUI.kbdelay >= MG_QUICK_DELAY then
+									-- remove character at cursor
+									remove_right_char()
+									
+									-- reset kbdelay and increment delete key
+									minGUI.kbdelay = minGUI.timer
+									minGUI.gtree[minGUI.gfocus].delete = minGUI.gtree[minGUI.gfocus].delete + 1
 								end
 							end
 						end
