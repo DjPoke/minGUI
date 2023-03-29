@@ -141,7 +141,7 @@ function minGUI_explode(str, div)
             break
         end
 		
-        o[#o + 1], str = str:sub(1, pos1 - 1),str:sub(pos2 + 1)
+        o[#o + 1], str = str:sub(1, pos1 - 1), str:sub(pos2 + 1)
     end
 	
     return o
