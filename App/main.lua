@@ -117,11 +117,13 @@ function love.update(dt)
 	if eventType == MG_EVENT_TIMER_TICK then
 		if eventTimer == 1 then
 			timer = timer + 1
-			
-			minGUI:clear_canvas(21, 1, 1, 1, 1)
-			minGUI:draw_text_to_canvas(21, tostring(timer), 1, 4, {0, 0, 0, 1})
 		end
 	end
+	
+	minGUI:clear_canvas(21, 1, 1, 1, 1)
+	minGUI:draw_text_to_canvas(21, tostring(timer), 1, 4, {0, 0, 0, 1})
+	minGUI:draw_text_to_canvas(21, tostring(minGUI:get_gadget_value(22)), 30, 4, {0, 0, 0, 1})
+	minGUI:draw_text_to_canvas(21, tostring(minGUI:get_gadget_value(23)), 70, 4, {0, 0, 0, 1})
 end
 
 -- default love.draw function
