@@ -2,7 +2,7 @@
 -- minGUI example
 --
 -- by DjPoke
--- (c) 2023
+-- (MIT) 2023
 --================
 
 -- require minGUI
@@ -52,7 +52,7 @@ function love.load()
 
 	minGUI:add_canvas(21, 390, 60, 100, 25)
 	
-	minGUI:add_scrollbar(22, 500, 5, 20, 100, 0, 0, 100, 5, MG_SCROLLBAR_VERTICAL)
+	minGUI:add_scrollbar(22, 500, 5, 20, 100, 0, 0, 100, 25, MG_SCROLLBAR_VERTICAL)
 	minGUI:add_scrollbar(23, 525, 5, 100, 20, 0, 0, 100, 10)
 	
 	-- clear the canvas in black
@@ -122,8 +122,8 @@ function love.update(dt)
 	
 	minGUI:clear_canvas(21, 1, 1, 1, 1)
 	minGUI:draw_text_to_canvas(21, tostring(timer), 1, 4, {0, 0, 0, 1})
-	minGUI:draw_text_to_canvas(21, tostring(minGUI:get_gadget_value(22)), 30, 4, {0, 0, 0, 1})
-	minGUI:draw_text_to_canvas(21, tostring(minGUI:get_gadget_value(23)), 70, 4, {0, 0, 0, 1})
+	minGUI:draw_text_to_canvas(21, tostring(minGUI:get_gadget_state(22)), 30, 4, {0, 0, 0, 1})
+	minGUI:draw_text_to_canvas(21, tostring(minGUI:get_gadget_state(23)), 70, 4, {0, 0, 0, 1})
 end
 
 -- default love.draw function
