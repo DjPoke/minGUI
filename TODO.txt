@@ -1,0 +1,8 @@
+TODO List:
+----------
+
+- Finish the string gadgets. Add the use of left key, right key, backspace, delete, home, end, etc.
+- Finish scrollbars inside the editor gadgets.
+- Make a combobox.
+- Make a list gadget.
+- Add colors and fonts to editor gadgets.
