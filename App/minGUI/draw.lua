@@ -323,14 +323,14 @@ function minGUI_draw_gadget(w, ox, oy)
 		love.graphics.setCanvas(w.canvas1)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		love.graphics.setColor(w.r, w.g, w.b, w.a)
 		love.graphics.polygon("fill", p1)
 
 		-- draw the text arrow on the gadget's canvas
 		love.graphics.setCanvas(w.canvas2)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		love.graphics.setColor(w.r, w.g, w.b, w.a)
 		love.graphics.polygon("fill", p2)
 		
 		-- restore drawing on the window's canvas
@@ -359,6 +359,40 @@ function minGUI_draw_gadget(w, ox, oy)
 			love.graphics.draw(w.canvas2, ox + w.x + w.width - w.size, oy + w.y)
 			love.graphics.draw(w.canvas3, ox + w.x + w.size + offset, oy + w.y)
 		end
+	end
+end
+
+-- draw a menu
+function minGUI_draw_menu(w, ox, oy)
+	-- draw menus
+	if w.tp == MG_MENU then
+		minGUI_draw_9slice(MG_MENU_UP_IMAGE, w.width, w.height, w.canvas)
+		
+		-- draw the text on the gadget's canvas
+		love.graphics.setCanvas(w.canvas)
+	
+		-- set current selected font (or default, if not changed)
+		love.graphics.setFont(minGUI.font[minGUI.numFont])
+	
+		-- set color to pen color for the gadget
+		love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
+
+		-- print each 'head' menu
+		x = 0
+		
+		for i = 1, #w.array do
+			love.graphics.print(" " .. w.array[i][1] .. " ", x, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.array[i][1])) / 2) - 1)
+			
+			x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
+		end
+		
+		-- restore drawing on the window's canvas
+		love.graphics.setCanvas()
+		
+		-- restore color
+		love.graphics.setColor(1, 1, 1, 1)
+
+		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	end
 end
 
@@ -411,14 +445,14 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		love.graphics.setCanvas(w.canvas1)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		love.graphics.setColor(w.r, w.g, w.b, w.a)
 		love.graphics.polygon("fill", p1)
 
 		-- draw the text arrow on the gadget's canvas
 		love.graphics.setCanvas(w.canvas2)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		love.graphics.setColor(w.r, w.g, w.b, w.a)
 		love.graphics.polygon("fill", p2)
 		
 		-- restore drawing on the window's canvas
@@ -506,6 +540,13 @@ function minGUI_draw_all()
 					end
 				end
 			end
+
+			-- draw sons menus
+			for j, w in ipairs(minGUI.mtree) do
+				if w.parent == v.num then
+					minGUI_draw_menu(w, v.x, v.y)
+				end
+			end
 		end
 	end
 	
@@ -545,7 +586,13 @@ function minGUI_draw_all()
 			end
 		end
 	end
-	
+
+	-- draw menus without panels
+	for j, w in ipairs(minGUI.mtree) do
+		if w.parent == nil then
+			minGUI_draw_menu(w, 0, 0)
+		end
+	end	
 end
 
 -- draw the text cursor in the focused gadget

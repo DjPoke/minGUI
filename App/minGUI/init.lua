@@ -27,6 +27,8 @@ function minGUI_init()
 	MG_SPIN_IMAGE = 6
 	MG_SPIN_BUTTON_UP_IMAGE = 7
 	MG_SPIN_BUTTON_DOWN_IMAGE = 8
+	MG_MENU_UP_IMAGE = 9
+	MG_MENU_DOWN_IMAGE = 10
 	
 	MG_LEFT_BUTTON = 1
 	MG_RIGHT_BUTTON = 2
@@ -72,10 +74,14 @@ function minGUI_init()
 	minGUI = {
 		-- attributes
 		theme = "Dark", -- colors theme
-		bgcolor = {r = 0.5, g = 0.5, b = 0.5, a = 1.0}, -- background color
+		bgcolor = {r = 0.5, g = 0.5, b = 0.5, a = 1}, -- background color
+		invtxtcolor = {r = 1, g = 1, b = 1, a = 1}, -- inverted text color
+		txtcolor = {r = 0, g = 0, b = 0, a = 1}, -- text color
+		greyedcolor = {r = 0.75, g = 0.75, b = 0.75, a = 1}, -- greyed color
 		ptree = {}, -- panel's tree
 		gtree = {}, -- gadgets's tree
 		igtree = {}, -- internal's gadgets tree
+		mtree = {}, -- menu's tree
 		mouse = {x = 0, y = 0, oldmbtn = {}, mbtn = {}, mpressed = {}, mreleased = {}}, -- mouse events
 		estack = {}, -- events stack
 		ptimer = {}, -- programmable timers
@@ -128,6 +134,8 @@ function minGUI_init()
 			minGUI_load_9slice(MG_BUTTON_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_up.png")
 			minGUI_load_9slice(MG_BUTTON_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_down.png")
 			minGUI_load_9slice(MG_SPIN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin.png")
+			minGUI_load_9slice(MG_MENU_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_up.png")
+			minGUI_load_9slice(MG_MENU_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_down.png")
 
 			-- load sprites
 			minGUI_load_sprite(MG_CHECKBOX_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/checkbox.png")
@@ -147,7 +155,7 @@ function minGUI_init()
 			-- update theme sprites
 			self.load_sprites()
 		end,
-		-- set background colors (red, green, blue, alpha)
+		-- set background color (red, green, blue, alpha)
 		set_bgcolor = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
@@ -156,6 +164,36 @@ function minGUI_init()
 			minGUI.bgcolor.g = g
 			minGUI.bgcolor.b = b
 			minGUI.bgcolor.a = a
+		end,
+		-- set text color (red, green, blue, alpha)
+		set_textcolor = function(self, r, g, b, a)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			minGUI.txtcolor.r = r
+			minGUI.txtcolor.g = g
+			minGUI.txtcolor.b = b
+			minGUI.txtcolor.a = a
+		end,
+		-- set inverted text color (red, green, blue, alpha)
+		set_invtextcolor = function(self, r, g, b, a)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			minGUI.invtxtcolor.r = r
+			minGUI.invtxtcolor.g = g
+			minGUI.invtxtcolor.b = b
+			minGUI.invtxtcolor.a = a
+		end,
+		-- set greyed color (red, green, blue, alpha)
+		set_greyedcolor = function(self, r, g, b, a)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			minGUI.greyedcolor.r = r
+			minGUI.greyedcolor.g = g
+			minGUI.greyedcolor.b = b
+			minGUI.greyedcolor.a = a
 		end,
 		load_font = function(self, num, path, size)
 			-- don't execute next instructions in case of exit process is true
@@ -494,10 +532,10 @@ function minGUI_init()
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
 			if not minGUI_check_param2(scalex, "number") then minGUI_error_message("Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(scaley, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -598,10 +636,10 @@ function minGUI_init()
 			if not minGUI_check_param(num, "number") then minGUI_error_message("Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -640,10 +678,10 @@ function minGUI_init()
 			if not minGUI_check_param2(y1, "number") then minGUI_error_message("Wrong y1 for gadget " .. num); return end
 			if not minGUI_check_param2(x2, "number") then minGUI_error_message("Wrong x2 for gadget " .. num); return end
 			if not minGUI_check_param2(y2, "number") then minGUI_error_message("Wrong y2 for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -686,10 +724,10 @@ function minGUI_init()
 			if not minGUI_check_param(radius, "number") then minGUI_error_message("Wrong radius for gadget " .. num); return end
 			if not minGUI_check_param(angle1, "number") then minGUI_error_message("Wrong 1st angle for gadget " .. num); return end
 			if not minGUI_check_param(angle2, "number") then minGUI_error_message("Wrong 2nd angle for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -729,10 +767,10 @@ function minGUI_init()
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("Wrong width for gadget " .. num); return end
 			if not minGUI_check_param(height, "number") then minGUI_error_message("Wrong height for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -772,10 +810,10 @@ function minGUI_init()
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("Wrong width for gadget " .. num); return end
 			if not minGUI_check_param(height, "number") then minGUI_error_message("Wrong height for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -814,10 +852,10 @@ function minGUI_init()
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(radius, "number") then minGUI_error_message("Wrong radius for gadget " .. num); return end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -857,10 +895,10 @@ function minGUI_init()
 			for i = 1, #vertices do
 				if type(vertices[i]) ~= "number" then minGUI_error_message("Wrong vertice value for gadget " .. num); return end
 			end
-			if color.r == nil then color.r = 0 end
-			if color.g == nil then color.g = 0 end
-			if color.b == nil then color.b = 0 end
-			if color.a == nil then color.a = 1 end
+			if color.r == nil then color.r = minGUI.txtcolor.r end
+			if color.g == nil then color.g = minGUI.txtcolor.g end
+			if color.b == nil then color.b = minGUI.txtcolor.b end
+			if color.a == nil then color.a = minGUI.txtcolor.a end
 			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("Wrong red color for gadget " .. num); return end
 			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("Wrong green color for gadget " .. num); return end
 			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("Wrong blue color for gadget " .. num); return end
@@ -1077,7 +1115,7 @@ function minGUI_init()
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_BUTTON, x = x, y = y, width = width, height = height, text = text, parent = parent, down = {left = false, right = false},
-							r = 0, g = 0, b = 0, a = 1,
+							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					end
@@ -1150,8 +1188,8 @@ function minGUI_init()
 
 						minGUI.gtree[num] = {
 							num = num, tp = MG_LABEL, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
-							rpaper = 0.5, gpaper = 0.5, bpaper = 0.5, apaper = 1,
-							rpen = 0, gpen = 0, bpen = 0, apen = 1,
+							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					end
@@ -1193,10 +1231,10 @@ function minGUI_init()
 						
 						minGUI.gtree[num] = {
 							num = num, tp = MG_STRING, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
-							rborder = 0, gborder = 0, bborder = 0, aborder = 1,
-							rpaper = 1, gpaper = 1, bpaper = 1, apaper = 1,
-							rpapergreyed = 0.75, gpapergreyed = 0.75, bpapergreyed = 0.75, apapergreyed = 1,
-							rpen = 0, gpen = 0, bpen = 0, apen = 1,
+							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
+							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
+							rpapergreyed = minGUI.greyedcolor.r, gpapergreyed = minGUI.greyedcolor.g, bpapergreyed = minGUI.greyedcolor.b, apapergreyed = minGUI.greyedcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							offset = 0, editable = true, backspace = 0,
 							canvas = love.graphics.newCanvas(width - 4, height - 4),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
@@ -1288,7 +1326,7 @@ function minGUI_init()
 						minGUI.gtree[num] = {
 							num = num, tp = MG_CHECKBOX, x = x, y = y, width = width, height = height, text = text, parent = parent,
 							checked = false,
-							r = 0, g = 0, b = 0, a = 1,
+							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					end
@@ -1320,7 +1358,7 @@ function minGUI_init()
 						minGUI.gtree[num] = {
 							num = num, tp = MG_OPTION, x = x, y = y, width = width, height = height, text = text, parent = parent,
 							checked = false,
-							r = 0, g = 0, b = 0, a = 1,
+							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					end
@@ -1363,8 +1401,8 @@ function minGUI_init()
 							num = num, tp = MG_SPIN, x = x, y = y, width = width, height = height, parent = parent,
 							down = {left = false, right = false}, btnUp = false, btnDown = false,
 							text = tostring(value), minValue = minValue, maxValue = maxValue, timer = 0,
-							rpaper = 1, gpaper = 1, bpaper = 1, apaper = 1,
-							rpen = 0, gpen = 0, bpen = 0, apen = 1,
+							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							offset = 0, backspace = 0, press = 0,
 							canvas = love.graphics.newCanvas(width, height),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
@@ -1414,10 +1452,10 @@ function minGUI_init()
 						
 						minGUI.gtree[num] = {
 							num = num, tp = MG_EDITOR, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
-							rborder = 0, gborder = 0, bborder = 0, aborder = 1,
-							rpaper = 1, gpaper = 1, bpaper = 1, apaper = 1,
-							rpapergreyed = 0.75, gpapergreyed = 0.75, bpapergreyed = 0.75, apapergreyed = 1,
-							rpen = 0, gpen = 0, bpen = 0, apen = 1,
+							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
+							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
+							rpapergreyed = minGUI.greyedcolor.r, gpapergreyed = minGUI.greyedcolor.g, bpapergreyed = minGUI.greyedcolor.b, apapergreyed = minGUI.greyedcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							editable = true, cursorx = 0, cursory = 0, position = 0,
 							backspace = 0, delete = 0, up = 0, down = 0, left = 0, right = 0, ret = 0,
 							canvas = love.graphics.newCanvas(width - 4, height - 4),
@@ -1546,7 +1584,7 @@ function minGUI_init()
 							size_width = size_width, size_height = size_height, min_size = min_size,
 							value = value, minValue = minValue, maxValue = maxValue, stepsValue = stepsValue, inc = inc,
 							timer = 0,
-							rpen = 0, gpen = 0, bpen = 0, apen = 1,
+							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							canvas = love.graphics.newCanvas(real_width, real_height),
 							canvas1 = love.graphics.newCanvas(size, size),
 							canvas2 = love.graphics.newCanvas(size, size),
@@ -1658,7 +1696,7 @@ function minGUI_init()
 							size_width = size_width, size_height = size_height, min_size = min_size,
 							value = value, minValue = minValue, maxValue = maxValue, stepsValue = stepsValue, inc = inc,
 							timer = 0,
-							rpen = 0, gpen = 0, bpen = 0, apen = 1,
+							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							canvas = love.graphics.newCanvas(real_width, real_height),
 							canvas1 = love.graphics.newCanvas(size, size),
 							canvas2 = love.graphics.newCanvas(size, size),
@@ -1695,7 +1733,44 @@ function minGUI_init()
 					end
 				end
 			end
+		end,
+		-- add a menu to the gadgets's tree
+		add_menu = function(self, num, x, y, width, height, array, parent)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			-- check for values and types of values
+			if not minGUI_check_param(num, "number") then minGUI_error_message("Wrong num value for menu"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("Wrong x for menu " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("Wrong y for menu " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("Wrong width for menu " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("Wrong height for menu " .. num); return end
+			if not minGUI_check_param2(array, "table") then minGUI_error_message("Wrong array for menu " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("Wrong parent for menu " .. num); return end
+
+			if x == nil then x = 0 end
+			if y == nil then y = 0 end
+
+			if array == nil then
+				minGUI_error_message("Wrong menu array " .. num)
+				return
+			end
+			
+			-- initialize values
+			if minGUI.mtree[num] == nil then
+				if parent == nil or minGUI.ptree[parent] ~= nil then
+					if width > 0 and height > 0 then
+						minGUI.mtree[num] = {
+							num = num, tp = MG_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false},
+							r1 = 0, g1 = 0, b1 = 0, a1 = 1,
+							r2 = 1, g2 = 1, b2 = 1, a2 = 1,
+							canvas = love.graphics.newCanvas(width, height)
+						}
+					end
+				end
+			end
 		end
+
 	}
 	
 	-- set events to default
