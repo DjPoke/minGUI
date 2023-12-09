@@ -15,6 +15,7 @@ function minGUI_init()
 	MG_SPIN = 9
 	MG_EDITOR = 10
 	MG_SCROLLBAR = 11
+	MG_MENU = 12
 	MG_INTERNAL_SCROLLBAR = 101
 	MG_INTERNAL_BOX = 102
 	
@@ -70,6 +71,7 @@ function minGUI_init()
 	-- init minGUI table
 	minGUI = {
 		-- attributes
+		theme = "Dark", -- colors theme
 		bgcolor = {r = 0.5, g = 0.5, b = 0.5, a = 1.0}, -- background color
 		ptree = {}, -- panel's tree
 		gtree = {}, -- gadgets's tree
@@ -115,6 +117,35 @@ function minGUI_init()
 			if not minGUI_check_param(num, "number") then minGUI_error_message("Wrong num value"); return end
 
 			minGUI.ptimer[num] = nil
+		end,
+		-- load all sprites and 9-slice sprites
+		load_sprites = function(self)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			-- load 9-slice sprites
+			minGUI_load_9slice(MG_PANEL_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/panel.png")
+			minGUI_load_9slice(MG_BUTTON_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_up.png")
+			minGUI_load_9slice(MG_BUTTON_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_down.png")
+			minGUI_load_9slice(MG_SPIN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin.png")
+
+			-- load sprites
+			minGUI_load_sprite(MG_CHECKBOX_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/checkbox.png")
+			minGUI_load_sprite(MG_OPTION_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/option.png")
+			minGUI_load_sprite(MG_SPIN_BUTTON_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin_buttons_up.png")
+			minGUI_load_sprite(MG_SPIN_BUTTON_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin_buttons_down.png")
+		end,
+		-- set colors theme
+		set_theme = function(self, text)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			if not minGUI_check_param2(text, "string") then minGUI_error_message("Wrong theme"); return end
+
+			minGUI.theme = text
+			
+			-- update theme sprites
+			self.load_sprites()
 		end,
 		-- set background colors (red, green, blue, alpha)
 		set_bgcolor = function(self, r, g, b, a)
@@ -1677,18 +1708,9 @@ function minGUI_init()
 		minGUI.mouse.mreleased[i] = false
 	end
 	
-	-- load 9-slice sprites
-	minGUI_load_9slice(MG_PANEL_IMAGE, "minGUI/theme/panel.png")
-	minGUI_load_9slice(MG_BUTTON_UP_IMAGE, "minGUI/theme/button_up.png")
-	minGUI_load_9slice(MG_BUTTON_DOWN_IMAGE, "minGUI/theme/button_down.png")
-	minGUI_load_9slice(MG_SPIN_IMAGE, "minGUI/theme/spin.png")
+	-- load all sprites for the theme
+	minGUI.load_sprites()
 
-	-- load sprites
-	minGUI_load_sprite(MG_CHECKBOX_IMAGE, "minGUI/theme/checkbox.png")
-	minGUI_load_sprite(MG_OPTION_IMAGE, "minGUI/theme/option.png")
-	minGUI_load_sprite(MG_SPIN_BUTTON_UP_IMAGE, "minGUI/theme/spin_buttons_up.png")
-	minGUI_load_sprite(MG_SPIN_BUTTON_DOWN_IMAGE, "minGUI/theme/spin_buttons_down.png")
-	
 	-- load default fonts
 	minGUI.font[MG_DEFAULT_FONT] = love.graphics.newFont(12)
 end

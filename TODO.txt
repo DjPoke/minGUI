@@ -6,3 +6,5 @@ TODO List:
 - Make a combobox.
 - Make a list gadget.
 - Add colors and fonts to editor gadgets.
+- Add menus and drop down menus
+
