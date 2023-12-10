@@ -381,7 +381,7 @@ function minGUI_draw_menu(w, ox, oy)
 		x = 0
 		
 		for i = 1, #w.array do
-			love.graphics.print(" " .. w.array[i][1] .. " ", x, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.array[i][1])) / 2) - 1)
+			love.graphics.print(" " .. w.array[i][1] .. " ", x, 0)
 			
 			x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
 		end
