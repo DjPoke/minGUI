@@ -16,6 +16,7 @@ function minGUI_init()
 	MG_SPIN = 10
 	MG_EDITOR = 11
 	MG_SCROLLBAR = 12
+	MG_IMAGE = 13
 	MG_INTERNAL_SCROLLBAR = 101
 	MG_INTERNAL_BOX = 102
 	MG_INTERNAL_MENU = 103
@@ -1681,6 +1682,43 @@ function minGUI_init()
 			else
 				minGUI_error_message("[add_scrollbar]Gadget already exists " .. num)
 			end			
+		end,
+		-- add an image to the gadgets's tree
+		add_image = function(self, num, x, y, width, height, image, parent)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			-- check for values and types of values
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_image]Wrong num value for button image"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_image]Wrong x for button image " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_image]Wrong y for button image " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_image]Wrong width for button image " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_image]Wrong height for button image " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_image]Wrong parent for button image " .. num); return end
+
+			if x == nil then x = 0 end
+			if y == nil then y = 0 end
+			
+			-- initialize values
+			if minGUI.gtree[num] == nil then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
+					if width > 0 and height > 0 then
+						minGUI.gtree[num] = {
+							num = num, tp = MG_IMAGE, x = x, y = y, width = width, height = height, text = text, parent = parent, down =  {left = false, right = false},
+							image = image,
+							can_have_sons = false,
+							can_have_menu = false,
+							canvas = love.graphics.newCanvas(width, height)
+						}
+					else
+						minGUI_error_message("[add_image]Wrong gadget size " .. num)
+					end
+				else
+					minGUI_error_message("[add_image]Wrong gadget parent " .. num)
+				end
+			else
+				minGUI_error_message("[add_image]Gadget already exists " .. num)
+			end
 		end,
 		-- add an internal scrollbar gadget to the internal's gadgets tree
 		add_internal_scrollbar = function(self, x, y, width, height, value, minValue, maxValue, inc, flags, parent)

@@ -376,6 +376,28 @@ function minGUI_draw_gadget(w, ox, oy)
 			love.graphics.draw(w.canvas2, ox + w.x + w.width - w.size, oy + w.y)
 			love.graphics.draw(w.canvas3, ox + w.x + w.size + offset, oy + w.y)
 		end
+	-- draw images
+	elseif w.tp == MG_IMAGE then
+		-- draw the text on the gadget's canvas
+		love.graphics.setCanvas(w.canvas)
+		
+		-- clear the canvas with transparent color
+		love.graphics.clear(0, 0, 0, 0)
+		
+		-- draw the image
+		if not w.down.left then
+			love.graphics.draw(w.image, 4, 4, 0, (w.width - 8) / w.image:getWidth(), (w.height - 8) / w.image:getHeight())
+		else
+			love.graphics.draw(w.image, 8, 8, 0, (w.width - 16) / w.image:getWidth(), (w.height - 16) / w.image:getHeight())
+		end
+		
+		-- restore drawing on the window's canvas
+		love.graphics.setCanvas()
+		
+		-- restore color
+		love.graphics.setColor(1, 1, 1, 1)
+
+		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	end
 end
 

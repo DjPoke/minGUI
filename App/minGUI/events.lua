@@ -68,7 +68,7 @@ function minGUI_update_events(dt)
 					end
 				end
 
-				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE then
+				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE or v.tp == MG_IMAGE then
 					if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 						if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 							if b == MG_LEFT_BUTTON then
@@ -280,7 +280,7 @@ function minGUI_update_events(dt)
 					end
 				end
 
-				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE then
+				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE or v.tp == MG_IMAGE then
 					if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.width then
 						if b == MG_LEFT_BUTTON then v.down.left = false end
 						if b == MG_RIGHT_BUTTON then v.down.right = false end
@@ -462,7 +462,7 @@ function minGUI_update_events(dt)
 					end
 				end
 
-				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE then
+				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE or v.tp == MG_IMAGE then
 					if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 						if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 							if b == MG_LEFT_BUTTON then
