@@ -523,7 +523,7 @@ function minGUI_draw_all()
 				if minGUI.gtree[i] ~= nil then
 					v = minGUI.gtree[i]
 					
-					minGUI_draw_cursor_on_focused_gadget(v)
+					minGUI_draw_cursor_on_focused_gadget(v, 0, 0)
 				end
 			end
 		end		
@@ -747,27 +747,27 @@ function minGUI_draw_quad(num, quad, x, y)
 end
 
 -- draw cursor on focused gadget
-function minGUI_draw_cursor_on_focused_gadget(v)
+function minGUI_draw_cursor_on_focused_gadget(v, ox, oy)
 	-- if the focused gadget is a string gadget...
 	if v.tp == MG_STRING then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 			
 		if t < 500 then
-			minGUI_draw_text_cursor(v, 0, 0)
+			minGUI_draw_text_cursor(v, ox, oy)
 		end
 	-- if the focused gadget is a spin gadget...
 	elseif v.tp == MG_SPIN then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 						
 		if t < 500 then
-			minGUI_draw_text_cursor(v, 0, 0)
+			minGUI_draw_text_cursor(v, ox, oy)
 		end
 	-- if the focused gadget is an editor gadget...
 	elseif v.tp == MG_EDITOR then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 						
 		if t < 500 then
-			minGUI_draw_editor_cursor(v, 0, 0)
+			minGUI_draw_editor_cursor(v, ox, oy)
 		end
 	end
 end
@@ -788,7 +788,7 @@ function minGUI_draw_sons(v, ox, oy)
 				if minGUI.gtree[j] ~= nil then
 					w = minGUI.gtree[j]
 				
-					minGUI_draw_cursor_on_focused_gadget(w)
+					minGUI_draw_cursor_on_focused_gadget(w, ox + v.x, oy + v.y)
 				end
 			end
 		end
