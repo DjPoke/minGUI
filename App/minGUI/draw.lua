@@ -5,6 +5,13 @@ function minGUI_draw_gadget(w, ox, oy)
 		minGUI_draw_9slice(MG_WINDOW_IMAGE, w.width, w.height, w.canvas)
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+		
+		-- draw internal menus
+		for k, z in ipairs(minGUI.igtree) do
+			if z.parent == w.num then
+				minGUI_draw_internal_gadget(z, ox + w.x, oy + w.y)
+			end
+		end
 	-- draw panels
 	elseif w.tp == MG_PANEL then
 		minGUI_draw_9slice(MG_PANEL_IMAGE, w.width, w.height, w.canvas)
@@ -372,40 +379,6 @@ function minGUI_draw_gadget(w, ox, oy)
 	end
 end
 
--- draw a menu
-function minGUI_draw_menu(w, ox, oy)
-	-- draw menus
-	if w.tp == MG_MENU then
-		minGUI_draw_9slice(MG_MENU_UP_IMAGE, w.width, w.height, w.canvas)
-		
-		-- draw the text on the gadget's canvas
-		love.graphics.setCanvas(w.canvas)
-	
-		-- set current selected font (or default, if not changed)
-		love.graphics.setFont(minGUI.font[minGUI.numFont])
-	
-		-- set color to pen color for the gadget
-		love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
-
-		-- print each 'head' menu
-		x = 0
-		
-		for i = 1, #w.array do
-			love.graphics.print(" " .. w.array[i][1] .. " ", x, 0)
-			
-			x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
-		end
-		
-		-- restore drawing on the window's canvas
-		love.graphics.setCanvas()
-		
-		-- restore color
-		love.graphics.setColor(1, 1, 1, 1)
-
-		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
-	end
-end
-
 function minGUI_draw_internal_gadget(w, ox, oy)
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
@@ -498,6 +471,35 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		-- draw the canvas to the screen		
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+	-- draw menus
+	elseif w.tp == MG_INTERNAL_MENU then
+		minGUI_draw_9slice(MG_MENU_UP_IMAGE, w.width, w.height, w.canvas)
+		
+		-- draw the text on the gadget's canvas
+		love.graphics.setCanvas(w.canvas)
+	
+		-- set current selected font (or default, if not changed)
+		love.graphics.setFont(minGUI.font[minGUI.numFont])
+	
+		-- set color to pen color for the gadget
+		love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
+
+		-- print each 'head' menu
+		x = 0
+		
+		for i = 1, #w.array do
+			love.graphics.print(" " .. w.array[i][1] .. " ", x, 0)
+			
+			x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
+		end
+		
+		-- restore drawing on the window's canvas
+		love.graphics.setCanvas()
+		
+		-- restore color
+		love.graphics.setColor(1, 1, 1, 1)
+
+		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	end
 end
 
@@ -511,6 +513,11 @@ function minGUI_draw_all()
 		if v.parent == nil then
 			minGUI_draw_gadget(v, 0, 0)
 
+			-- draw sons
+			if v.can_have_sons then
+				minGUI_draw_sons(v, 0, 0)
+			end
+			
 			-- draw cursor on focused object,if needed
 			if minGUI.gfocus ~= nil and minGUI.gfocus == i then
 				if minGUI.gtree[i] ~= nil then
@@ -519,26 +526,8 @@ function minGUI_draw_all()
 					minGUI_draw_cursor_on_focused_gadget(v)
 				end
 			end
-
-			if v.can_have_sons then
-				minGUI_draw_sons(v)
-			end
-			
-			-- draw sons menus
-			if v.can_have_menu then
-				for j, w in ipairs(minGUI.gtree) do
-					if w.parent == v.num then
-						minGUI_draw_menu(w, v.x, v.y)
-					end
-				end
-			end
 		end		
 	end
-	
-	-- draw menus
-	for j, w in ipairs(minGUI.igtree) do
-		minGUI_draw_menu(w, 0, 0)
-	end	
 end
 
 -- draw the text cursor in the focused gadget
@@ -784,25 +773,16 @@ function minGUI_draw_cursor_on_focused_gadget(v)
 end
 
 -- draw sons gadgets
-function minGUI_draw_sons(v)
-	-- draw sons gadgets
+function minGUI_draw_sons(v, ox, oy)
 	for j, w in ipairs(minGUI.gtree) do
 		if w.parent == v.num then
-			minGUI_draw_gadget(w, v.x, v.y)
-
-			if v.can_have_sons then
-				minGUI_draw_sons(v)
+			minGUI_draw_gadget(w, ox + v.x, oy + v.y)
+			
+			-- draw sons of sons
+			if w.can_have_sons then
+				minGUI_draw_sons(w, ox + v.x, oy + v.y)
 			end
 			
-			-- draw sons menus
-			if v.can_have_menu then
-				for j, w in ipairs(minGUI.gtree) do
-					if w.parent == v.num then
-						minGUI_draw_menu(w, v.x, v.y)
-					end
-				end
-			end
-
 			-- draw cursor on focused object,if needed
 			if minGUI.gfocus ~= nil and minGUI.gfocus == j then
 				if minGUI.gtree[j] ~= nil then

@@ -6,19 +6,19 @@ function minGUI_init()
 	-- constants
 	MG_WINDOW = 1
 	MG_PANEL = 2
-	MG_MENU = 3
-	MG_BUTTON = 4
-	MG_BUTTON_IMAGE = 5
-	MG_LABEL = 6
-	MG_STRING = 7
-	MG_CANVAS = 8
-	MG_CHECKBOX = 9
-	MG_OPTION = 10
-	MG_SPIN = 11
-	MG_EDITOR = 12
-	MG_SCROLLBAR = 13
+	MG_BUTTON = 3
+	MG_BUTTON_IMAGE = 4
+	MG_LABEL = 5
+	MG_STRING = 6
+	MG_CANVAS = 7
+	MG_CHECKBOX = 8
+	MG_OPTION = 9
+	MG_SPIN = 10
+	MG_EDITOR = 11
+	MG_SCROLLBAR = 12
 	MG_INTERNAL_SCROLLBAR = 101
 	MG_INTERNAL_BOX = 102
+	MG_INTERNAL_MENU = 103
 	
 	MG_WINDOW_IMAGE = 1
 	MG_PANEL_IMAGE = 2
@@ -1049,11 +1049,11 @@ function minGUI_init()
 
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height,
-							can_have_son = true,
+							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, parent = parent,
+							can_have_sons = true,
 							can_have_menu = true,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1081,11 +1081,11 @@ function minGUI_init()
 
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_PANEL, x = x, y = y, width = width, height = height,
-							can_have_son = true,
+							num = num, tp = MG_PANEL, x = x, y = y, width = width, height = height, parent = parent,
+							can_have_sons = true,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1119,12 +1119,12 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_BUTTON, x = x, y = y, width = width, height = height, text = text, parent = parent, down = {left = false, right = false},
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1156,12 +1156,12 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_BUTTON_IMAGE, x = x, y = y, width = width, height = height, text = text, parent = parent, down =  {left = false, right = false},
 							image = image,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1207,14 +1207,14 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 
 						minGUI.gtree[num] = {
 							num = num, tp = MG_LABEL, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1256,7 +1256,7 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						-- editable by default
 						if flags == nil then flags = 0 end
@@ -1268,7 +1268,7 @@ function minGUI_init()
 							rpapergreyed = minGUI.greyedcolor.r, gpapergreyed = minGUI.greyedcolor.g, bpapergreyed = minGUI.greyedcolor.b, apapergreyed = minGUI.greyedcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							offset = 0, editable = true, backspace = 0,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width - 4, height - 4),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
@@ -1321,11 +1321,11 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_CANVAS, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1369,13 +1369,13 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_CHECKBOX, x = x, y = y, width = width, height = height, text = text, parent = parent,
 							checked = false,
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1409,13 +1409,13 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_OPTION, x = x, y = y, width = width, height = height, text = text, parent = parent,
 							checked = false,
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1459,7 +1459,7 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_SPIN, x = x, y = y, width = width, height = height, parent = parent,
@@ -1468,7 +1468,7 @@ function minGUI_init()
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							offset = 0, backspace = 0, press = 0,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
@@ -1517,7 +1517,7 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						-- editable by default
 						if flags == nil then flags = 0 end
@@ -1530,7 +1530,7 @@ function minGUI_init()
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							editable = true, cursorx = 0, cursory = 0, position = 0,
 							backspace = 0, delete = 0, up = 0, down = 0, left = 0, right = 0, ret = 0,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width - 4, height - 4),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
@@ -1655,7 +1655,7 @@ function minGUI_init()
 							
 			-- initialize values
 			if minGUI.gtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_SCROLLBAR, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
@@ -1665,7 +1665,7 @@ function minGUI_init()
 							value = value, minValue = minValue, maxValue = maxValue, stepsValue = stepsValue, inc = inc,
 							timer = 0,
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(real_width, real_height),
 							canvas1 = love.graphics.newCanvas(size, size),
@@ -1775,7 +1775,7 @@ function minGUI_init()
 							
 			-- initialize values
 			if minGUI.igtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
 							num = num, tp = MG_INTERNAL_SCROLLBAR, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
@@ -1785,7 +1785,7 @@ function minGUI_init()
 							value = value, minValue = minValue, maxValue = maxValue, stepsValue = stepsValue, inc = inc,
 							timer = 0,
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(real_width, real_height),
 							canvas1 = love.graphics.newCanvas(size, size),
@@ -1820,11 +1820,11 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.igtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
 							num = num, tp = MG_INTERNAL_BOX, x = x, y = y, width = width, height = height, parent = parent,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
@@ -1865,13 +1865,13 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.igtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_son) then
+				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
-							num = num, tp = MG_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false},
 							r1 = 0, g1 = 0, b1 = 0, a1 = 1,
 							r2 = 1, g2 = 1, b2 = 1, a2 = 1,
-							can_have_son = false,
+							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
