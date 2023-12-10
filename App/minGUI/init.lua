@@ -1775,7 +1775,7 @@ function minGUI_init()
 							
 			-- initialize values
 			if minGUI.igtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
+				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
 							num = num, tp = MG_INTERNAL_SCROLLBAR, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
@@ -1820,7 +1820,7 @@ function minGUI_init()
 			
 			-- initialize values
 			if minGUI.igtree[num] == nil then
-				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
+				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
 							num = num, tp = MG_INTERNAL_BOX, x = x, y = y, width = width, height = height, parent = parent,
