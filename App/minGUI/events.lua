@@ -52,12 +52,12 @@ function minGUI_update_events(dt)
 		-- click on a gadget ?
 		if minGUI.mouse.mpressed[b] == true then
 			for i, v in ipairs(minGUI.gtree) do
-				-- get panel offset for gadgets inside a panel
+				-- get panel offset for gadgets inside a panel or a window
 				local ox = 0
 				local oy = 0
 					
 				if v.parent ~= nil then
-					local w = minGUI.ptree[v.parent]
+					local w = minGUI.gtree[v.parent]
 						
 					if w ~= nil then
 						ox = w.x
@@ -261,12 +261,12 @@ function minGUI_update_events(dt)
 		-- button continue to be down on a gadget ?
 		if minGUI.mouse.mbtn[b] == true then
 			for i, v in ipairs(minGUI.gtree) do
-				-- get panel offset for gadgets inside a panel
+				-- get panel offset for gadgets inside a panel or a window
 				local ox = 0
 				local oy = 0
 					
 				if v.parent ~= nil then
-					local w = minGUI.ptree[v.parent]
+					local w = minGUI.gtree[v.parent]
 						
 					if w ~= nil then
 						ox = w.x
@@ -440,12 +440,12 @@ function minGUI_update_events(dt)
 		-- release button on a gadget ?
 		if minGUI.mouse.mreleased[b] == true then
 			for i, v in ipairs(minGUI.gtree) do
-				-- get panel offset for gadgets inside a panel
+				-- get panel offset for gadgets inside a panel or a window
 				local ox = 0
 				local oy = 0
 					
 				if v.parent ~= nil then
-					local w = minGUI.ptree[v.parent]
+					local w = minGUI.gtree[v.parent]
 						
 					if w ~= nil then
 						ox = w.x

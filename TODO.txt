@@ -1,9 +1,9 @@
 TODO List:
 ----------
 
+- Debug windows & panels
 - Debug scrollbars buttons
-- Add windows
-- Add menus and drop down menus
+- Finish menus and drop down menus
 - Finish the string gadgets. Add the use of left key, right key, delete, home, end, etc.
 - Finish scrollbars inside the editor gadgets.
 - Make a combobox.

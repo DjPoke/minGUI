@@ -17,38 +17,38 @@ function love.load()
 	minGUI:set_bgcolor(0.5, 0.5, 0.5, 1)
 
 	-- add panels
-	minGUI:add_panel(1, 10, 120, 300, 100)
-	minGUI:add_panel(2, 320, 120, 300, 120)
+	minGUI:add_panel(31, 10, 120, 300, 100)
+	minGUI:add_panel(32, 320, 120, 300, 120)
 	
 	-- add gadgets
-	minGUI:add_button(1, 10, 10, 80, 25, "Button 1", 1)
-	minGUI:add_label(2, 10, 40, 80, 25, "Label 1", nil, 1)
-	minGUI:add_string(3, 10, 70, 80, 25, "String 1", nil, 1)
-	minGUI:add_canvas(4, 100, 10, 160, 80, nil, 1)
+	minGUI:add_button(1, 10, 10, 80, 25, "Button 1", 31)
+	minGUI:add_label(2, 10, 40, 80, 25, "Label 1", nil, 31)
+	minGUI:add_string(3, 10, 70, 80, 25, "String 1", nil, 31)
+	minGUI:add_canvas(4, 100, 10, 160, 80, nil, 31)
 	
 	minGUI:add_button(5, 10, 10, 80, 25, "Button 2")
 	minGUI:add_label(6, 10, 40, 80, 25, "Label 2")
 	minGUI:add_string(7, 10, 70, 80, 25, "String 2")
 	minGUI:add_canvas(8, 100, 10, 160, 80)
 
-	minGUI:add_checkbox(9, 10, 10, 100, 25, "Checkbox 1", 2)
-	minGUI:add_checkbox(10, 10, 35, 100, 25, "Checkbox 2", 2)
+	minGUI:add_checkbox(9, 10, 10, 100, 25, "Checkbox 1", 32)
+	minGUI:add_checkbox(10, 10, 35, 100, 25, "Checkbox 2", 32)
 
 	minGUI:add_checkbox(11, 280, 10, 100, 25, "Checkbox 3")
 	minGUI:add_checkbox(12, 280, 35, 100, 25, "Checkbox 4")
 
-	minGUI:add_option(13, 10, 60, 100, 25, "Option 1", 2)
-	minGUI:add_option(14, 10, 85, 100, 25, "Option 2", 2)
+	minGUI:add_option(13, 10, 60, 100, 25, "Option 1", 32)
+	minGUI:add_option(14, 10, 85, 100, 25, "Option 2", 32)
 
 	minGUI:add_option(15, 280, 60, 100, 25, "Option 3")
 	minGUI:add_option(16, 280, 85, 100, 25, "Option 4")
 
-	minGUI:add_button_image(17, 120, 10, 80, 40, love.graphics.newImage("image.png"), 2)
+	minGUI:add_button_image(17, 120, 10, 80, 40, love.graphics.newImage("image.png"), 32)
 
-	minGUI:add_spin(18, 120, 60, 60, 25, 1, 1, 100, 2)
+	minGUI:add_spin(18, 120, 60, 60, 25, 1, 1, 100, 32)
 	minGUI:add_spin(19, 390, 10, 60, 25, 1, 1, 100)
 	
-	minGUI:add_editor(20, 10, 260, 620, 200, "This is an example of editor gadget. You can use arrows, backspace,\ndelete, home, and end keys.\nW.I.P")
+	--minGUI:add_editor(20, 10, 260, 620, 200, "This is an example of editor gadget. You can use arrows, backspace,\ndelete, home, and end keys.\nW.I.P")
 
 	minGUI:add_canvas(21, 390, 60, 100, 25)
 	

@@ -1,7 +1,17 @@
 -- draw a gadget
 function minGUI_draw_gadget(w, ox, oy)
+	-- draw panels
+	if w.tp == MG_WINDOW then
+		minGUI_draw_9slice(MG_WINDOW_IMAGE, w.width, w.height, w.canvas)
+
+		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+	-- draw panels
+	elseif w.tp == MG_PANEL then
+		minGUI_draw_9slice(MG_PANEL_IMAGE, w.width, w.height, w.canvas)
+
+		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	-- draw buttons
-	if w.tp == MG_BUTTON then		
+	elseif w.tp == MG_BUTTON then
 		if not w.down.left then
 			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.width, w.height, w.canvas)
 		else
@@ -496,102 +506,38 @@ function minGUI_draw_all()
 	love.graphics.clear(minGUI.bgcolor.r, minGUI.bgcolor.g, minGUI.bgcolor.b, minGUI.bgcolor.a)
 	love.graphics.setColor(1, 1, 1, 1)
 
-	-- draw panels and their gadgets
-	for i, v in ipairs(minGUI.ptree) do
-		-- draw panels first
-		if v.tp == MG_PANEL then
-			minGUI_draw_9slice(MG_PANEL_IMAGE, v.width, v.height, v.canvas)
-			
-			love.graphics.draw(v.canvas, v.x, v.y)
-
-			-- draw sons gadgets
-			for j, w in ipairs(minGUI.gtree) do
-				if w.parent == v.num then
-					minGUI_draw_gadget(w, v.x, v.y)
-
-					-- draw cursor on focused object,if needed
-					if minGUI.gfocus ~= nil and minGUI.gfocus == j then
-						if minGUI.gtree[j] ~= nil then
-							w = minGUI.gtree[j]
-				
-							-- if the focused gadget is a string gadget...
-							if w.tp == MG_STRING then
-								local t = math.floor(minGUI.timer * 1000) % 1000
-
-								if t < 500 then
-									minGUI_draw_text_cursor(w, v.x, v.y)
-								end
-							-- if the focused gadget is a spin gadget...
-							elseif w.tp == MG_SPIN then
-								local t = math.floor(minGUI.timer * 1000) % 1000
-						
-								if t < 500 then
-									minGUI_draw_text_cursor(w, v.x, v.y)
-								end
-							-- if the focused gadget is an editor gadget...
-							elseif w.tp == MG_EDITOR then
-								local t = math.floor(minGUI.timer * 1000) % 1000
-						
-								if t < 500 then
-									minGUI_draw_editor_cursor(w, v.x, v.y)
-								end
-							end
-						end
-					end
-				end
-			end
-
-			-- draw sons menus
-			for j, w in ipairs(minGUI.mtree) do
-				if w.parent == v.num then
-					minGUI_draw_menu(w, v.x, v.y)
-				end
-			end
-		end
-	end
-	
-	-- draw gadgets without panels
-	for j, w in ipairs(minGUI.gtree) do
-		if w.parent == nil then
-			minGUI_draw_gadget(w, 0, 0)
+	-- draw gadgets without parent
+	for i, v in ipairs(minGUI.gtree) do
+		if v.parent == nil then
+			minGUI_draw_gadget(v, 0, 0)
 
 			-- draw cursor on focused object,if needed
-			if minGUI.gfocus ~= nil and minGUI.gfocus == j then
-				if minGUI.gtree[j] ~= nil then
-					w = minGUI.gtree[j]
+			if minGUI.gfocus ~= nil and minGUI.gfocus == i then
+				if minGUI.gtree[i] ~= nil then
+					v = minGUI.gtree[i]
+					
+					minGUI_draw_cursor_on_focused_gadget(v)
+				end
+			end
+
+			if v.can_have_sons then
+				minGUI_draw_sons(v)
+			end
 			
-					-- if the focused gadget is a string gadget...
-					if w.tp == MG_STRING then
-						local t = math.floor(minGUI.timer * 1000) % 1000
-				
-						if t < 500 then
-							minGUI_draw_text_cursor(w, 0, 0)
-						end
-					-- if the focused gadget is a spin gadget...
-					elseif w.tp == MG_SPIN then
-						local t = math.floor(minGUI.timer * 1000) % 1000
-						
-						if t < 500 then
-							minGUI_draw_text_cursor(w, 0, 0)
-						end
-					-- if the focused gadget is an editor gadget...
-					elseif w.tp == MG_EDITOR then
-						local t = math.floor(minGUI.timer * 1000) % 1000
-						
-						if t < 500 then
-							minGUI_draw_editor_cursor(w, 0, 0)
-						end
+			-- draw sons menus
+			if v.can_have_menu then
+				for j, w in ipairs(minGUI.gtree) do
+					if w.parent == v.num then
+						minGUI_draw_menu(w, v.x, v.y)
 					end
 				end
 			end
-		end
+		end		
 	end
-
-	-- draw menus without panels
-	for j, w in ipairs(minGUI.mtree) do
-		if w.parent == nil then
-			minGUI_draw_menu(w, 0, 0)
-		end
+	
+	-- draw menus
+	for j, w in ipairs(minGUI.igtree) do
+		minGUI_draw_menu(w, 0, 0)
 	end	
 end
 
@@ -809,4 +755,62 @@ end
 function minGUI_draw_quad(num, quad, x, y)
 	-- draw the quad
 	love.graphics.draw(minGUI.sprite[num], quad, x, y)
+end
+
+-- draw cursor on focused gadget
+function minGUI_draw_cursor_on_focused_gadget(v)
+	-- if the focused gadget is a string gadget...
+	if v.tp == MG_STRING then
+		local t = math.floor(minGUI.timer * 1000) % 1000
+			
+		if t < 500 then
+			minGUI_draw_text_cursor(v, 0, 0)
+		end
+	-- if the focused gadget is a spin gadget...
+	elseif v.tp == MG_SPIN then
+		local t = math.floor(minGUI.timer * 1000) % 1000
+						
+		if t < 500 then
+			minGUI_draw_text_cursor(v, 0, 0)
+		end
+	-- if the focused gadget is an editor gadget...
+	elseif v.tp == MG_EDITOR then
+		local t = math.floor(minGUI.timer * 1000) % 1000
+						
+		if t < 500 then
+			minGUI_draw_editor_cursor(v, 0, 0)
+		end
+	end
+end
+
+-- draw sons gadgets
+function minGUI_draw_sons(v)
+	-- draw sons gadgets
+	for j, w in ipairs(minGUI.gtree) do
+		if w.parent == v.num then
+			minGUI_draw_gadget(w, v.x, v.y)
+
+			if v.can_have_sons then
+				minGUI_draw_sons(v)
+			end
+			
+			-- draw sons menus
+			if v.can_have_menu then
+				for j, w in ipairs(minGUI.gtree) do
+					if w.parent == v.num then
+						minGUI_draw_menu(w, v.x, v.y)
+					end
+				end
+			end
+
+			-- draw cursor on focused object,if needed
+			if minGUI.gfocus ~= nil and minGUI.gfocus == j then
+				if minGUI.gtree[j] ~= nil then
+					w = minGUI.gtree[j]
+				
+					minGUI_draw_cursor_on_focused_gadget(w)
+				end
+			end
+		end
+	end
 end
