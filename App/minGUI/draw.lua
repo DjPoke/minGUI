@@ -2,7 +2,7 @@
 function minGUI_draw_gadget(w, ox, oy)
 	-- draw panels
 	if w.tp == MG_WINDOW then
-		minGUI_draw_9slice(MG_WINDOW_IMAGE, w.width, w.height, w.canvas)
+		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, w.height, w.canvas)
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 		
@@ -14,15 +14,15 @@ function minGUI_draw_gadget(w, ox, oy)
 		end
 	-- draw panels
 	elseif w.tp == MG_PANEL then
-		minGUI_draw_9slice(MG_PANEL_IMAGE, w.width, w.height, w.canvas)
+		minGUI_draw_9slice(MG_PANEL_IMAGE, 0, 0, w.width, w.height, w.canvas)
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	-- draw buttons
 	elseif w.tp == MG_BUTTON then
 		if not w.down.left then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.width, w.height, w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.width, w.height, w.canvas)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width, w.height, w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width, w.height, w.canvas)
 		end
 		
 		-- draw the text on the gadget's canvas
@@ -47,9 +47,9 @@ function minGUI_draw_gadget(w, ox, oy)
 	-- draw button images
 	elseif w.tp == MG_BUTTON_IMAGE then
 		if not w.down.left then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.width, w.height, w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.width, w.height, w.canvas)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width, w.height, w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width, w.height, w.canvas)
 		end
 
 		-- draw the text on the gadget's canvas
@@ -203,7 +203,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	elseif w.tp == MG_SPIN then
 		-- draw spin value
-		minGUI_draw_9slice(MG_SPIN_IMAGE, w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth() - 1, w.height, w.canvas)
+		minGUI_draw_9slice(MG_SPIN_IMAGE, 0, 0, w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth() - 1, w.height, w.canvas)
 
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
@@ -295,28 +295,28 @@ function minGUI_draw_gadget(w, ox, oy)
 	elseif w.tp == MG_SCROLLBAR then
 		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
 			-- draw vertical scrollbar bar
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width , w.height - (w.size * 2), w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width , w.height - (w.size * 2), w.canvas)
 		else
 			-- draw horizontal scrollbar bar
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width - (w.size * 2), w.height, w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width - (w.size * 2), w.height, w.canvas)
 		end
 
 		-- draw scrollbar button 1
 		if not w.down1 then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.size , w.size, w.canvas1)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size , w.size, w.canvas1)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.size , w.size, w.canvas1)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size , w.size, w.canvas1)
 		end
 
 		-- draw scrollbar button 2
 		if not w.down2 then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.size , w.size, w.canvas2)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size , w.size, w.canvas2)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.size , w.size, w.canvas2)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size , w.size, w.canvas2)
 		end
 		
 		-- draw scrollbar button 3
-		minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.size_width , w.size_height, w.canvas3)
+		minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
 		
 		-- calculate arrows position and size
 		local size = math.floor(w.size / 2)
@@ -405,28 +405,28 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
 			-- draw vertical scrollbar bar
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width , w.height - (w.size * 2), w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width , w.height - (w.size * 2), w.canvas)
 		else
 			-- draw horizontal scrollbar bar
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width - (w.size * 2), w.height, w.canvas)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width - (w.size * 2), w.height, w.canvas)
 		end
 
 		-- draw scrollbar button 1
 		if not w.down1 then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.size , w.size, w.canvas1)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size , w.size, w.canvas1)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.size , w.size, w.canvas1)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size , w.size, w.canvas1)
 		end
 
 		-- draw scrollbar button 2
 		if not w.down2 then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.size , w.size, w.canvas2)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size , w.size, w.canvas2)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.size , w.size, w.canvas2)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size , w.size, w.canvas2)
 		end
 		
 		-- draw scrollbar button 3
-		minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, w.size_width , w.size_height, w.canvas3)
+		minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
 		
 		-- calculate arrows position and size
 		local size = math.floor(w.size / 2)
@@ -488,39 +488,49 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		end
 	elseif w.tp == MG_INTERNAL_BOX then
 		-- draw a corner box
-		minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, w.width , w.height, w.canvas)
+		minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width , w.height, w.canvas)
 
 		-- draw the canvas to the screen		
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	-- draw menus
 	elseif w.tp == MG_INTERNAL_MENU then
-		minGUI_draw_9slice(MG_MENU_UP_IMAGE, w.width, w.height, w.canvas)
-		
+		-- draw each 'head' menu
+		minGUI_draw_9slice(MG_MENU_UP_IMAGE, 0, 0, w.width, w.height, w.canvas)
+
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
-	
+		
 		-- set current selected font (or default, if not changed)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
-	
-		-- set color to pen color for the gadget
-		love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
 
-		-- print each 'head' menu
 		x = 0
 		
 		for i = 1, #w.array do
+			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
+			
+			love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
+
+			if w.menu.selected == i then
+				minGUI_draw_9slice(MG_MENU_DOWN_IMAGE, x, 0, menu_width, w.height, w.canvas)
+				
+				love.graphics.setColor(w.r2, w.g2, w.b2, w.a2)
+			end
+			
+			-- draw the text on the gadget's canvas
+			love.graphics.setCanvas(w.canvas)
 			love.graphics.print(" " .. w.array[i][1] .. " ", x, 0)
 			
-			x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
+			x = x + menu_width
 		end
-		
+			
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 		
 		-- restore color
 		love.graphics.setColor(1, 1, 1, 1)
 
+		-- draw canvas to screen
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	end
 end
@@ -673,7 +683,7 @@ function minGUI_load_sprite(num, filename)
 end
 
 -- draw a 9-slice sprite
-function minGUI_draw_9slice(num, width, height, canvas)
+function minGUI_draw_9slice(num, x, y, width, height, canvas)
 	-- can't go under a special size
 	if width <= 0 then return end
 	if height <= 0 then return end
@@ -723,32 +733,32 @@ function minGUI_draw_9slice(num, width, height, canvas)
 	love.graphics.setCanvas(canvas)
 
 	-- draw top left corner
-	love.graphics.draw(minGUI.sprite[num], p[1], 0, 0, 0, sx, sy)
+	love.graphics.draw(minGUI.sprite[num], p[1], x, y, 0, sx, sy)
 
 	-- draw top right corner
-	love.graphics.draw(minGUI.sprite[num], p[3], (limitx * rsx), 0, 0, sx, sy)
+	love.graphics.draw(minGUI.sprite[num], p[3], x + (limitx * rsx), y, 0, sx, sy)
 
 	-- draw bottom left corner
-	love.graphics.draw(minGUI.sprite[num], p[7], 0, (limity * rsy), 0, sx, sy)
+	love.graphics.draw(minGUI.sprite[num], p[7], x, y + (limity * rsy), 0, sx, sy)
 			
 	-- draw bottom right corner
-	love.graphics.draw(minGUI.sprite[num], p[9], (limitx * rsx), (limity * rsy), 0, sx, sy)
+	love.graphics.draw(minGUI.sprite[num], p[9], x + (limitx * rsx), y + (limity * rsy), 0, sx, sy)
 
 	-- draw edges
 	for x9 = 1, limitx - 1 do
-		love.graphics.draw(minGUI.sprite[num], p[2], (x9 * rsx), 0, 0, sx, sy)
-		love.graphics.draw(minGUI.sprite[num], p[8], (x9 * rsx), (limity * rsy), 0, sx, sy)
+		love.graphics.draw(minGUI.sprite[num], p[2], x + (x9 * rsx), y, 0, sx, sy)
+		love.graphics.draw(minGUI.sprite[num], p[8], x + (x9 * rsx), y + (limity * rsy), 0, sx, sy)
 	end
 	
 	for y9 = 1, limity - 1 do
-		love.graphics.draw(minGUI.sprite[num], p[4], 0, (y9 * rsy), 0, sx, sy)
-		love.graphics.draw(minGUI.sprite[num], p[6], (limitx * rsx), (y9 * rsy), 0, sx, sy)
+		love.graphics.draw(minGUI.sprite[num], p[4], x, (y9 * rsy), y, sx, sy)
+		love.graphics.draw(minGUI.sprite[num], p[6], x + (limitx * rsx), y + (y9 * rsy), 0, sx, sy)
 	end
 		
 	-- draw center
 	for y9 = 1, limity - 1 do
 		for x9 = 1, limitx - 1 do		
-			love.graphics.draw(minGUI.sprite[num], p[5], (x9 * rsx), (y9 * rsy), 0, sx, sy)
+			love.graphics.draw(minGUI.sprite[num], p[5], x + (x9 * rsx), y + (y9 * rsy), 0, sx, sy)
 		end
 	end
 	

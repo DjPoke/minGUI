@@ -1906,12 +1906,13 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
-							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false}, menu = {selected = 0},
 							r1 = 0, g1 = 0, b1 = 0, a1 = 1,
 							r2 = 1, g2 = 1, b2 = 1, a2 = 1,
 							can_have_sons = false,
 							can_have_menu = false,
-							canvas = love.graphics.newCanvas(width, height)
+							canvas = love.graphics.newCanvas(width, height),
+							canvas1 = love.graphics.newCanvas(width, 1)
 						}
 					else
 						minGUI_error_message("[add_menu]Wrong gadget size " .. num)
