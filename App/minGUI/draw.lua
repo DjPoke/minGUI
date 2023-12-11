@@ -5,13 +5,6 @@ function minGUI_draw_gadget(w, ox, oy)
 		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, w.height, w.canvas)
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
-		
-		-- draw internal menus
-		for k, z in ipairs(minGUI.igtree) do
-			if z.parent == w.num then
-				minGUI_draw_internal_gadget(z, ox + w.x, oy + w.y)
-			end
-		end
 	-- draw panels
 	elseif w.tp == MG_PANEL then
 		minGUI_draw_9slice(MG_PANEL_IMAGE, 0, 0, w.width, w.height, w.canvas)
@@ -285,13 +278,6 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- draw the canvas
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.draw(w.canvas, ox + w.x + 2, oy + w.y + 2)
-		
-		-- draw internal scrollbars
-		for k, z in ipairs(minGUI.igtree) do
-			if z.parent == w.num then
-				minGUI_draw_internal_gadget(z, ox + w.x, oy + w.y)
-			end
-		end
 	elseif w.tp == MG_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar
@@ -505,6 +491,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 
 		x = 0
+		xsel = 0
 		
 		for i = 1, #w.array do
 			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i].head_menu .. " ")
@@ -512,7 +499,10 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 			
 			love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
 
-			if w.menu.selected == i then
+			-- memorize selected menu x
+			if w.menu.selected == i then xsel = x end
+			
+			if w.menu.selected == i and w.menu.hover == 0 then
 				minGUI_draw_9slice(MG_MENU_DOWN_IMAGE, x, 0, menu_width, w.height, w.canvas)
 				
 				love.graphics.setColor(w.r2, w.g2, w.b2, w.a2)
@@ -528,9 +518,61 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 		
-		-- draw the canvas to the screen		
+		-- draw the canvas to the screen
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+		
+		-- if a menu is selected...
+		if w.menu.selected > 0 then
+			-- get number of items in the menu list
+			ml = #w.array[w.menu.selected].menu_list
+
+			-- get the longest submenu item in pixels
+			mw = 0
+			
+			for i = 1, ml do
+				if minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[w.menu.selected].menu_list[i] .. " ") > mw then
+					mw = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[w.menu.selected].menu_list[i] .. " ")
+				end
+			end
+			
+			-- resize canvas1
+			w.canvas1 = love.graphics.newCanvas(mw, ((w.height + 2) * ml) + 2)
+			
+			-- draw menu list background
+			minGUI_draw_9slice(MG_SUBMENU_UP_IMAGE, 0, 0, mw, ((w.height + 2) * ml) + 2, w.canvas1)
+
+			
+			-- draw menu list items
+			for i = 1, ml do
+				-- set canvas
+				love.graphics.setCanvas(w.canvas1)
+				
+				if w.array[w.menu.selected].menu_list[i] ~= "-" then
+					if w.menu.hover == i then
+						minGUI_draw_9slice(MG_SUBMENU_DOWN_IMAGE, 0, 1 + ((w.height + 2) * (i - 1)), mw, 2 + w.height, w.canvas1)
+						
+						love.graphics.setCanvas(w.canvas1)
+						love.graphics.setColor(w.r2, w.g2, w.b2, w.a2)
+					else
+						-- set the right color
+						love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
+					end
+
+					-- draw the text on the gadget's canvas
+					love.graphics.print(" " .. w.array[w.menu.selected].menu_list[i] .. " ", 0, 2 + ((w.height + 2) * (i - 1)))
+				else
+					love.graphics.line(0, ((w.height + 2) * (i - 1 + 0.5)), mw - 1, 2 + ((w.height + 2) * (i - 1 + 0.5)))
+				end
+			end
+			
+			-- restore drawing on the window's canvas
+			love.graphics.setCanvas()
+
+			-- draw the canvas1 to the screen
+			love.graphics.setColor(1, 1, 1, 1)
+			love.graphics.draw(w.canvas1, ox + w.x + xsel, oy + w.y + w.height)
+		end
 	end
 end
 
@@ -559,6 +601,42 @@ function minGUI_draw_all()
 			end
 		end		
 	end
+	
+	-- draw internal gadgets
+	for i, v in ipairs(minGUI.igtree) do
+		-- get internal gadget's parent
+		w = minGUI.gtree[v.parent]
+		
+		if w ~= nil then
+			-- get parents offsets
+			ox = w.x
+			oy = w.y
+			
+			if v.tp ~= MG_INTERNAL_MENU then
+				oy = oy + minGUI_window_menu_height(w)
+			end
+					
+			-- while parent has parents
+			while w.parent ~= nil do
+				-- get grand-parents and others
+				w = minGUI.gtree[w.parent]
+					
+				-- if they exists...
+				if w ~= nil then
+					-- add their offset
+					ox = ox + w.x
+					oy = oy + w.y
+
+					if v.tp ~= MG_INTERNAL_MENU then
+						oy = oy + minGUI_window_menu_height(w)
+					end
+				end
+			end
+		end
+		
+		minGUI_draw_internal_gadget(v, ox, oy)
+	end
+
 end
 
 -- draw the text cursor in the focused gadget
@@ -654,13 +732,6 @@ function minGUI_draw_editor_cursor(w, ox, oy)
 
 	-- draw the full gadget's canvas
 	love.graphics.draw(w.canvas, xc1, yc1)
-	
-	-- redraw internal scrollbars
-	for k, z in ipairs(minGUI.igtree) do
-		if z.parent == w.num then
-			minGUI_draw_internal_gadget(z, ox + w.x, oy + w.y)
-		end
-	end
 end
 
 -- load 9-slice sprite

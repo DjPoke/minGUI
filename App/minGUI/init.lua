@@ -35,6 +35,8 @@ function minGUI_init()
 	MG_SPIN_BUTTON_DOWN_IMAGE = 9
 	MG_MENU_UP_IMAGE = 10
 	MG_MENU_DOWN_IMAGE = 11
+	MG_SUBMENU_UP_IMAGE = 12
+	MG_SUBMENU_DOWN_IMAGE = 13
 	
 	-- mouse buttons
 	MG_LEFT_BUTTON = 1
@@ -151,6 +153,8 @@ function minGUI_init()
 			minGUI_load_9slice(MG_SPIN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin.png")
 			minGUI_load_9slice(MG_MENU_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_up.png")
 			minGUI_load_9slice(MG_MENU_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_down.png")
+			minGUI_load_9slice(MG_SUBMENU_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/submenu_up.png")
+			minGUI_load_9slice(MG_SUBMENU_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/submenu_down.png")
 
 			-- load sprites
 			minGUI_load_sprite(MG_CHECKBOX_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/checkbox.png")
@@ -1919,7 +1923,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
-							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false}, menu = {selected = 0},
+							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
 							r1 = 0, g1 = 0, b1 = 0, a1 = 1,
 							r2 = 1, g2 = 1, b2 = 1, a2 = 1,
 							can_have_sons = false,
