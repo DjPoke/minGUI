@@ -171,3 +171,18 @@ end
 function minGUI_flag_active(flags, flag)
 	return bit.band(flags, flag) == flag
 end
+
+-- return the height of the menu in the window
+function minGUI_window_menu_height(v)
+	if v.tp == MG_WINDOW then
+		for j, w in ipairs(minGUI.igtree) do
+			if w.parent == v.num then
+				if w.tp == MG_INTERNAL_MENU then
+					return w.height
+				end
+			end
+		end
+	end
+	
+	return 0
+end

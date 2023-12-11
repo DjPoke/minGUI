@@ -508,6 +508,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		
 		for i = 1, #w.array do
 			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
+			menu_height = minGUI.font[minGUI.numFont]:getHeight(" " .. w.array[i][1] .. " ")
 			
 			love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
 
@@ -519,7 +520,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 			
 			-- draw the text on the gadget's canvas
 			love.graphics.setCanvas(w.canvas)
-			love.graphics.print(" " .. w.array[i][1] .. " ", x, 0)
+			love.graphics.print(" " .. w.array[i][1] .. " ", x, (w.height - menu_height) / 2)
 			
 			x = x + menu_width
 		end
@@ -808,11 +809,14 @@ end
 function minGUI_draw_sons(v, ox, oy)
 	for j, w in ipairs(minGUI.gtree) do
 		if w.parent == v.num then
-			minGUI_draw_gadget(w, ox + v.x, oy + v.y)
+			-- parent is a window with a menu ?
+			menu_y = minGUI_window_menu_height(v)
+
+			minGUI_draw_gadget(w, ox + v.x, oy + v.y + menu_y)
 			
 			-- draw sons of sons
 			if w.can_have_sons then
-				minGUI_draw_sons(w, ox + v.x, oy + v.y)
+				minGUI_draw_sons(w, ox + v.x, oy + v.y + menu_y)
 			end
 			
 			-- draw cursor on focused object,if needed
@@ -820,7 +824,7 @@ function minGUI_draw_sons(v, ox, oy)
 				if minGUI.gtree[j] ~= nil then
 					w = minGUI.gtree[j]
 				
-					minGUI_draw_cursor_on_focused_gadget(w, ox + v.x, oy + v.y)
+					minGUI_draw_cursor_on_focused_gadget(w, ox + v.x, oy + v.y + menu_y)
 				end
 			end
 		end

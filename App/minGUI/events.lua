@@ -60,16 +60,23 @@ function minGUI_update_events(dt)
 				local ox = 0
 				local oy = 0
 				
+				-- get internal's gadget parent
 				local w = minGUI.igtree[v.parent]
-						
+				
+				-- if there is a parent...
 				if w ~= nil then
+					-- get parents offsets
 					ox = w.x
 					oy = w.y
-				
+
+					-- while parent has parents
 					while w.parent ~= nil do
+						-- get grand-parents and others
 						w = minGUI.gtree[w.parent]
-								
+						
+						-- if they exists...
 						if w ~= nil then
+							-- add their offset
 							ox = ox + w.x
 							oy = oy + w.y
 						end
@@ -80,6 +87,7 @@ function minGUI_update_events(dt)
 					if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 						if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 							if b == MG_LEFT_BUTTON then
+								print(3)
 								v.down.left = true
 								
 								-- clicking on a menu to open it
@@ -108,7 +116,7 @@ function minGUI_update_events(dt)
 				for i, v in ipairs(minGUI.gtree) do
 					-- calculate parents offset
 					local ox = 0
-					local oy = 0
+					local oy = minGUI_window_menu_height(v)
 				
 					p = v
 					while p.parent ~= nil do
@@ -116,7 +124,7 @@ function minGUI_update_events(dt)
 							
 						if w ~= nil then
 							ox = ox + w.x
-							oy = oy + w.y
+							oy = oy + w.y + minGUI_window_menu_height(w)
 							
 							p = w
 						end
@@ -327,16 +335,23 @@ function minGUI_update_events(dt)
 				local ox = 0
 				local oy = 0
 				
+				-- get internal's gadget parent
 				local w = minGUI.igtree[v.parent]
-						
+				
+				-- if there is a parent...
 				if w ~= nil then
+					-- get parents offsets
 					ox = w.x
 					oy = w.y
-				
+
+					-- while parent has parents
 					while w.parent ~= nil do
+						-- get grand-parents and others
 						w = minGUI.gtree[w.parent]
-								
+						
+						-- if they exists...
 						if w ~= nil then
+							-- add their offset
 							ox = ox + w.x
 							oy = oy + w.y
 						end
@@ -373,7 +388,7 @@ function minGUI_update_events(dt)
 				for i, v in ipairs(minGUI.gtree) do
 					-- calculate parents offset
 					local ox = 0
-					local oy = 0
+					local oy = minGUI_window_menu_height(v)
 				
 					p = v
 					while p.parent ~= nil do
@@ -381,7 +396,7 @@ function minGUI_update_events(dt)
 							
 						if w ~= nil then
 							ox = ox + w.x
-							oy = oy + w.y
+							oy = oy + w.y + minGUI_window_menu_height(w)
 							
 							p = w
 						end
@@ -503,7 +518,6 @@ function minGUI_update_events(dt)
 								table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
 							end
 						end
-	
 						
 						if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.size then
 							if b == MG_LEFT_BUTTON then v.down1 = false end
@@ -562,16 +576,23 @@ function minGUI_update_events(dt)
 				local ox = 0
 				local oy = 0
 				
+				-- get internal's gadget parent
 				local w = minGUI.igtree[v.parent]
-						
+				
+				-- if there is a parent...
 				if w ~= nil then
+					-- get parents offsets
 					ox = w.x
 					oy = w.y
-				
+
+					-- while parent has parents
 					while w.parent ~= nil do
+						-- get grand-parents and others
 						w = minGUI.gtree[w.parent]
-								
+						
+						-- if they exists...
 						if w ~= nil then
+							-- add their offset
 							ox = ox + w.x
 							oy = oy + w.y
 						end
@@ -618,7 +639,7 @@ function minGUI_update_events(dt)
 				for i, v in ipairs(minGUI.gtree) do
 					-- calculate parents offset
 					local ox = 0
-					local oy = 0
+					local oy = minGUI_window_menu_height(v)
 				
 					p = v
 					while p.parent ~= nil do
@@ -626,7 +647,7 @@ function minGUI_update_events(dt)
 							
 						if w ~= nil then
 							ox = ox + w.x
-							oy = oy + w.y
+							oy = oy + w.y + minGUI_window_menu_height(w)
 							
 							p = w
 						end

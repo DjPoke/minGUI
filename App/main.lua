@@ -28,7 +28,7 @@ function love.load()
 	menu_array = {
 		{"File", {"Open", "Save", "Quit"}}
 	}
-	minGUI:add_menu(0, 0, 640, 16, menu_array, nil, 2)
+	minGUI:add_menu(0, 0, 640, 24, menu_array, nil, 2)
 	
 	-- add gadgets
 	minGUI:add_button(5, 10, 10, 80, 25, "Button 1", nil, 3)
