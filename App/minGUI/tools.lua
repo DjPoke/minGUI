@@ -178,7 +178,7 @@ function minGUI_window_menu_height(v)
 		for j, w in ipairs(minGUI.igtree) do
 			if w.parent == v.num then
 				if w.tp == MG_INTERNAL_MENU then
-					return w.height
+					return w.height + MG_WINDOW_TITLEBAR_HEIGHT
 				end
 			end
 		end

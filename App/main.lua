@@ -17,8 +17,8 @@ function love.load()
 	minGUI:set_bgcolor(0.5, 0.5, 0.5, 1)
 
 	-- add windows
-	minGUI:add_window(1, 10, 10, 300, 200, MG_FLAG_WINDOW_TITLEBAR)
-	minGUI:add_window(2, 100, 100, 640, 500, MG_FLAG_WINDOW_TITLEBAR + MG_FLAG_WINDOW_MINIMIZE_BUTTON + MG_FLAG_WINDOW_MAXIMIZE_BUTTON)
+	minGUI:add_window(1, 10, 10, 300, 200)
+	minGUI:add_window(2, 100, 100, 640, 520)
 	
 	-- add panels
 	minGUI:add_panel(3, 10, 120, 300, 100, nil, 2)
@@ -29,7 +29,7 @@ function love.load()
 		{head_menu = "File", menu_list = {"Open", "Save", "Quit"}},
 		{head_menu = "Help", menu_list = {"About..."}}
 	}
-	minGUI:add_menu(0, 0, 640, 24, menu_array, nil, 2)
+	minGUI:add_menu(4, 0, 632, 24, menu_array, nil, 2)
 	
 	-- add gadgets
 	minGUI:add_button(5, 10, 10, 80, 25, "Button 1", nil, 3)

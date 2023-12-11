@@ -4,6 +4,7 @@ function minGUI_init()
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	-- constants:
+	MG_WINDOW_TITLEBAR_HEIGHT = 24
 	
 	-- gadgets
 	MG_WINDOW = 1
@@ -52,9 +53,7 @@ function minGUI_init()
 	MG_QUICK_DELAY = 0.05
 
 	-- flags
-	MG_FLAG_WINDOW_TITLEBAR = 1
-	MG_FLAG_WINDOW_MINIMIZE_BUTTON = 2
-	MG_FLAG_WINDOW_MAXIMIZE_BUTTON = 4
+	MG_FLAG_WINDOW_CENTERED = 1
 	
 	MG_FLAG_NOT_EDITABLE = 1
 	MG_FLAG_NO_SCROLLBARS = 2

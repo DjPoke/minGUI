@@ -68,6 +68,12 @@ function minGUI_update_events(dt)
 					-- get parents offsets
 					ox = w.x
 					oy = w.y
+													
+					if v.tp ~= MG_INTERNAL_MENU then
+						oy = oy + minGUI_window_menu_height(w)
+					else
+						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
+					end
 					
 					-- while parent has parents
 					while w.parent ~= nil do
@@ -79,6 +85,12 @@ function minGUI_update_events(dt)
 							-- add their offset
 							ox = ox + w.x
 							oy = oy + w.y
+													
+							if v.tp ~= MG_INTERNAL_MENU then
+								oy = oy + minGUI_window_menu_height(w)
+							else
+								oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
+							end
 						end
 					end
 				end
@@ -342,7 +354,13 @@ function minGUI_update_events(dt)
 					-- get parents offsets
 					ox = w.x
 					oy = w.y
-
+													
+					if v.tp ~= MG_INTERNAL_MENU then
+						oy = oy + minGUI_window_menu_height(w)
+					else
+						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
+					end
+					
 					-- while parent has parents
 					while w.parent ~= nil do
 						-- get grand-parents and others
@@ -353,6 +371,12 @@ function minGUI_update_events(dt)
 							-- add their offset
 							ox = ox + w.x
 							oy = oy + w.y
+													
+							if v.tp ~= MG_INTERNAL_MENU then
+								oy = oy + minGUI_window_menu_height(w)
+							else
+								oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
+							end
 						end
 					end
 				end
@@ -583,7 +607,13 @@ function minGUI_update_events(dt)
 					-- get parents offsets
 					ox = w.x
 					oy = w.y
-
+													
+					if v.tp ~= MG_INTERNAL_MENU then
+						oy = oy + minGUI_window_menu_height(w)
+					else
+						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
+					end
+					
 					-- while parent has parents
 					while w.parent ~= nil do
 						-- get grand-parents and others
@@ -594,6 +624,12 @@ function minGUI_update_events(dt)
 							-- add their offset
 							ox = ox + w.x
 							oy = oy + w.y
+													
+							if v.tp ~= MG_INTERNAL_MENU then
+								oy = oy + minGUI_window_menu_height(w)
+							else
+								oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
+							end
 						end
 					end
 				end
