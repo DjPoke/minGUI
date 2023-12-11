@@ -61,14 +61,14 @@ function minGUI_update_events(dt)
 				local oy = 0
 				
 				-- get internal's gadget parent
-				local w = minGUI.igtree[v.parent]
+				local w = minGUI.gtree[v.parent]
 				
 				-- if there is a parent...
 				if w ~= nil then
 					-- get parents offsets
 					ox = w.x
 					oy = w.y
-
+					
 					-- while parent has parents
 					while w.parent ~= nil do
 						-- get grand-parents and others
@@ -335,7 +335,7 @@ function minGUI_update_events(dt)
 				local oy = 0
 				
 				-- get internal's gadget parent
-				local w = minGUI.igtree[v.parent]
+				local w = minGUI.gtree[v.parent]
 				
 				-- if there is a parent...
 				if w ~= nil then
@@ -576,7 +576,7 @@ function minGUI_update_events(dt)
 				local oy = 0
 				
 				-- get internal's gadget parent
-				local w = minGUI.igtree[v.parent]
+				local w = minGUI.gtree[v.parent]
 				
 				-- if there is a parent...
 				if w ~= nil then

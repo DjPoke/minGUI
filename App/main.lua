@@ -26,7 +26,8 @@ function love.load()
 
 	-- add menus
 	menu_array = {
-		{head_menu = "File", menu_list = {"Open", "Save", "Quit"}}
+		{head_menu = "File", menu_list = {"Open", "Save", "Quit"}},
+		{head_menu = "Help", menu_list = {"About..."}}
 	}
 	minGUI:add_menu(0, 0, 640, 24, menu_array, nil, 2)
 	
