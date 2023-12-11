@@ -166,3 +166,8 @@ function minGUI_assemble(t, div)
 	
 	return s
 end
+
+-- check if flag is set in flags
+function minGUI_flag_active(flags, flag)
+	return bit.band(flags, flag) == flag
+end

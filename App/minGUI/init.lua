@@ -3,7 +3,9 @@ function minGUI_init()
 	-- set default filter
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
-	-- constants
+	-- constants:
+	
+	-- gadgets
 	MG_WINDOW = 1
 	MG_PANEL = 2
 	MG_BUTTON = 3
@@ -21,6 +23,7 @@ function minGUI_init()
 	MG_INTERNAL_BOX = 102
 	MG_INTERNAL_MENU = 103
 	
+	-- gadget images
 	MG_WINDOW_IMAGE = 1
 	MG_PANEL_IMAGE = 2
 	MG_BUTTON_UP_IMAGE = 3
@@ -33,26 +36,35 @@ function minGUI_init()
 	MG_MENU_UP_IMAGE = 10
 	MG_MENU_DOWN_IMAGE = 11
 	
+	-- mouse buttons
 	MG_LEFT_BUTTON = 1
 	MG_RIGHT_BUTTON = 2
 	MG_MIDDLE_BUTTON = 3
 	
+	-- default font
 	MG_DEFAULT_FONT = 0
 	
+	-- delays
 	MG_SLOW_DELAY = 0.5
 	MG_MEDIUM_DELAY = 0.2
 	MG_QUICK_DELAY = 0.05
+
+	-- flags
+	MG_FLAG_WINDOW_TITLEBAR = 1
+	MG_FLAG_WINDOW_MINIMIZE_BUTTON = 2
+	MG_FLAG_WINDOW_MAXIMIZE_BUTTON = 4
 	
-	MG_ALIGN_LEFT = 1
-	MG_ALIGN_RIGHT = 2
-	MG_ALIGN_CENTER = 3
+	MG_FLAG_NOT_EDITABLE = 1
+	MG_FLAG_NO_SCROLLBARS = 2
+
+	MG_FLAG_SCROLLBAR_HORIZONTAL = 0
+	MG_FLAG_SCROLLBAR_VERTICAL = 1
+
+	MG_FLAG_ALIGN_LEFT = 1
+	MG_FLAG_ALIGN_RIGHT = 2
+	MG_FLAG_ALIGN_CENTER = 3
 	
-	MG_NOT_EDITABLE = 4
-	
-	MG_SCROLLBAR_VERTICAL = 8
-	
-	MG_NO_SCROLLBARS = 16
-	
+	-- events
 	MG_EVENT_LEFT_MOUSE_PRESSED = 1
 	MG_EVENT_LEFT_MOUSE_DOWN = 2
 	MG_EVENT_LEFT_MOUSE_RELEASED = 3
@@ -65,6 +77,7 @@ function minGUI_init()
 	
 	MG_EVENT_TIMER_TICK = 1
 
+	-- scrollbars
 	MG_MIN_SCROLLBAR_BUTTON_SIZE = 8
 	
 	MG_SCROLLBAR_MIN_VALUE = 1
@@ -396,7 +409,7 @@ function minGUI_init()
 						minGUI.gtree[num].value = math.min(math.max(math.floor(minGUI.gtree[num].value + 0.5), minGUI.gtree[num].minValue), minGUI.gtree[num].maxValue)
 
 						-- vertical or horizontal scrollbar ?
-						if bit.band(minGUI.gtree[num].flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(minGUI.gtree[num].flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							minGUI.gtree[num].internalBarSize = minGUI.gtree[num].real_height
 						else
 							minGUI.gtree[num].internalBarSize = minGUI.gtree[num].real_width
@@ -408,7 +421,7 @@ function minGUI_init()
 						minGUI.gtree[num].size_height = minGUI.gtree[num].size
 			
 						-- swap size_width & size_height ?
-						if bit.band(minGUI.gtree[num].flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(minGUI.gtree[num].flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							local swap = minGUI.gtree[num].size_height
 							minGUI.gtree[num].size_height = minGUI.gtree[num].size_width
 							minGUI.gtree[num].size_width = swap
@@ -425,7 +438,7 @@ function minGUI_init()
 						minGUI.gtree[num].value = math.min(math.max(math.floor(minGUI.gtree[num].value + 0.5), minGUI.gtree[num].minValue), minGUI.gtree[num].maxValue)
 
 						-- vertical or horizontal scrollbar ?
-						if bit.band(minGUI.gtree[num].flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(minGUI.gtree[num].flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							minGUI.gtree[num].internalBarSize = minGUI.gtree[num].real_height
 						else
 							minGUI.gtree[num].internalBarSize = minGUI.gtree[num].real_width
@@ -437,7 +450,7 @@ function minGUI_init()
 						minGUI.gtree[num].size_height = minGUI.gtree[num].size
 			
 						-- swap size_width & size_height ?
-						if bit.band(minGUI.gtree[num].flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(minGUI.gtree[num].flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							local swap = minGUI.gtree[num].size_height
 							minGUI.gtree[num].size_height = minGUI.gtree[num].size_width
 							minGUI.gtree[num].size_width = swap
@@ -452,7 +465,7 @@ function minGUI_init()
 						if minGUI.gtree[num].stepsValue < 1 then minGUI.gtree[num].stepsValue = 1 end
 						
 						-- vertical or horizontal scrollbar ?
-						if bit.band(minGUI.gtree[num].flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(minGUI.gtree[num].flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							minGUI.gtree[num].internalBarSize = minGUI.gtree[num].real_height
 						else
 							minGUI.gtree[num].internalBarSize = minGUI.gtree[num].real_width
@@ -464,7 +477,7 @@ function minGUI_init()
 						minGUI.gtree[num].size_height = minGUI.gtree[num].size
 			
 						-- swap size_width & size_height ?
-						if bit.band(minGUI.gtree[num].flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(minGUI.gtree[num].flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							local swap = minGUI.gtree[num].size_height
 							minGUI.gtree[num].size_height = minGUI.gtree[num].size_width
 							minGUI.gtree[num].size_width = swap
@@ -1037,7 +1050,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a window to the gadget's tree
-		add_window = function(self, num, x, y, width, height, parent)
+		add_window = function(self, num, x, y, width, height, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1069,7 +1082,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a panel to the gadget's tree
-		add_panel = function(self, num, x, y, width, height, parent)
+		add_panel = function(self, num, x, y, width, height, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1101,7 +1114,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a button to the gadgets's tree
-		add_button = function(self, num, x, y, width, height, text, parent)
+		add_button = function(self, num, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1140,7 +1153,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a button image to the gadgets's tree
-		add_button_image = function(self, num, x, y, width, height, image, parent)
+		add_button_image = function(self, num, x, y, width, height, image, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1196,11 +1209,11 @@ function minGUI_init()
 
 			-- default alignement to left
 			if flags == nil then
-				flags = MG_ALIGN_LEFT
+				flags = MG_FLAG_ALIGN_LEFT
 			elseif type(flags) == "number" then
-				flags = bit.band(flags, MG_ALIGN_CENTER)
+				flags = bit.band(flags, MG_FLAG_ALIGN_CENTER)
 							
-				if flags == 0 then flags = MG_ALIGN_LEFT end
+				if flags == 0 then flags = MG_FLAG_ALIGN_LEFT end
 			else
 				minGUI_error_message("[add_label]Wrong flags for label " .. num)
 				return
@@ -1276,7 +1289,7 @@ function minGUI_init()
 						}
 						
 						-- set to not editable ?
-						if bit.band(flags, MG_NOT_EDITABLE) == MG_NOT_EDITABLE then
+						if minGUI_flag_active(flags, MG_FLAG_NOT_EDITABLE) then
 							minGUI.gtree[num].editable = false
 						end
 						
@@ -1351,7 +1364,7 @@ function minGUI_init()
 			love.graphics.setCanvas()
 		end,
 		-- add a checkbox to the gadgets's tree
-		add_checkbox = function(self, num, x, y, width, height, text, parent)
+		add_checkbox = function(self, num, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1391,7 +1404,7 @@ function minGUI_init()
 			end
 		end,
 		-- add an option gadget to the gadgets's tree
-		add_option = function(self, num, x, y, width, height, text, parent)
+		add_option = function(self, num, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1431,7 +1444,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a spin gadget to the gadgets's tree
-		add_spin = function(self, num, x, y, width, height, value, minValue, maxValue, parent)
+		add_spin = function(self, num, x, y, width, height, value, minValue, maxValue, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1538,17 +1551,17 @@ function minGUI_init()
 						}
 						
 						-- set to not editable ?
-						if bit.band(flags, MG_NOT_EDITABLE) == MG_NOT_EDITABLE then
+						if minGUI_flag_active(flags, MG_FLAG_NOT_EDITABLE) then
 							minGUI.gtree[num].editable = false
 						end
 
 						-- add internal scrollbars ?
-						if bit.band(flags, MG_NO_SCROLLBARS) == MG_NO_SCROLLBARS then
+						if minGUI_flag_active(flags, MG_FLAG_NO_SCROLLBARS) then
 							-- no internal scrollbars
 						else
-							minGUI:add_internal_scrollbar(minGUI.gtree[num].width - MG_SCROLLBAR_SIZE, 0, MG_SCROLLBAR_SIZE, minGUI.gtree[num].height - MG_SCROLLBAR_SIZE, 0, 0, 1, 1, MG_SCROLLBAR_VERTICAL, num)
+							minGUI:add_internal_scrollbar(minGUI.gtree[num].width - MG_SCROLLBAR_SIZE, 0, MG_SCROLLBAR_SIZE, minGUI.gtree[num].height - MG_SCROLLBAR_SIZE, 0, 0, 1, 1, MG_FLAG_SCROLLBAR_VERTICAL, num)
 							minGUI:add_internal_scrollbar(0, minGUI.gtree[num].height - MG_SCROLLBAR_SIZE, minGUI.gtree[num].width - MG_SCROLLBAR_SIZE, MG_SCROLLBAR_SIZE, 0, 0, 1, 1, nil, num)
-							minGUI:add_internal_box(minGUI.gtree[num].width - MG_SCROLLBAR_SIZE, minGUI.gtree[num].height - MG_SCROLLBAR_SIZE, num)
+							minGUI:add_internal_box(minGUI.gtree[num].width - MG_SCROLLBAR_SIZE, minGUI.gtree[num].height - MG_SCROLLBAR_SIZE, nil, num)
 						end
 						
 						-- set the focus to the last editable gadget
@@ -1608,7 +1621,7 @@ function minGUI_init()
 			local real_height = height
 
 			-- vertical or horizontal scrollbar ?
-			if bit.band(flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+			if minGUI_flag_active(flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 				if maxValue == nil then maxValue = height end
 
 				-- get buttons size
@@ -1648,7 +1661,7 @@ function minGUI_init()
 			local size_height = size
 			
 			-- swap size_width & size_height ?
-			if bit.band(flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+			if minGUI_flag_active(flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 				local swap = size_height
 				size_height = size_width
 				size_width = swap
@@ -1684,7 +1697,7 @@ function minGUI_init()
 			end			
 		end,
 		-- add an image to the gadgets's tree
-		add_image = function(self, num, x, y, width, height, image, parent)
+		add_image = function(self, num, x, y, width, height, image, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1765,7 +1778,7 @@ function minGUI_init()
 			local real_height = height
 
 			-- vertical or horizontal scrollbar ?
-			if bit.band(flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+			if minGUI_flag_active(flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 				if maxValue == nil then maxValue = height end
 
 				-- get buttons size
@@ -1805,7 +1818,7 @@ function minGUI_init()
 			local size_height = size
 			
 			-- swap size_width & size_height ?
-			if bit.band(flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+			if minGUI_flag_active(flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 				local swap = size_height
 				size_height = size_width
 				size_width = swap
@@ -1840,7 +1853,7 @@ function minGUI_init()
 				minGUI_error_message("[add_internal_scrollbar]Gadget already exists " .. num)
 			end			
 		end,
-		add_internal_box = function(self, x, y, parent)
+		add_internal_box = function(self, x, y, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1877,7 +1890,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a menu to the gadgets's tree
-		add_menu = function(self, x, y, width, height, array, parent)
+		add_menu = function(self, x, y, width, height, array, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 

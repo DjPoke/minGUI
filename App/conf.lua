@@ -4,8 +4,8 @@ function love.conf(t)
 
     t.window.title = "minGUI"
     t.window.icon = nil
-    t.window.width = 640
-    t.window.height = 480
+    t.window.width = 1024
+    t.window.height = 768
     t.window.borderless = false
     t.window.resizable = false
     t.window.fullscreen = false

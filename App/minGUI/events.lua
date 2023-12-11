@@ -238,7 +238,7 @@ function minGUI_update_events(dt)
 					elseif v.tp == MG_SCROLLBAR then
 						local value = 0
 						
-						if bit.band(v.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(v.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.size then
 								if minGUI.mouse.y >= oy + v.y + v.size and minGUI.mouse.y < oy + v.y + v.height - v.size then
 									v.down = true
@@ -318,179 +318,232 @@ function minGUI_update_events(dt)
 		
 		-- button continue to be down on a gadget ?
 		if minGUI.mouse.mbtn[b] == true then
-			for i, v in ipairs(minGUI.gtree) do
+			-- event already done ?
+			event_done = false
+			
+			-- check for internal gadgets first
+			for i, v in ipairs(minGUI.igtree) do
 				-- calculate parents offset
 				local ox = 0
 				local oy = 0
 				
-				p = v
-				while p.parent ~= nil do
-					local w = minGUI.gtree[p.parent]
+				local w = minGUI.igtree[v.parent]
 						
-					if w ~= nil then
-						ox = ox + w.x
-						oy = oy + w.y
-						
-						p = w
+				if w ~= nil then
+					ox = w.x
+					oy = w.y
+				
+					while w.parent ~= nil do
+						w = minGUI.gtree[w.parent]
+								
+						if w ~= nil then
+							ox = ox + w.x
+							oy = oy + w.y
+						end
 					end
 				end
-
-				if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE or v.tp == MG_IMAGE then
-					if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.width then
-						if b == MG_LEFT_BUTTON then v.down.left = false end
-						if b == MG_RIGHT_BUTTON then v.down.right = false end
-					elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.height then
-						if b == MG_LEFT_BUTTON then v.down.left = false end
-						if b == MG_RIGHT_BUTTON then v.down.right = false end
-					end
-				elseif v.tp == MG_SPIN then					
-					-- get up and down buttons width & height
-					local width = minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()
-					local fullHeight = minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getHeight()
-					local height = fullHeight / 2
-
-					if minGUI.mouse.x < ox + v.x + v.width - width or minGUI.mouse.x >= ox + v.x + v.width then
-						if b == MG_LEFT_BUTTON then v.btnUp = false end
-					elseif minGUI.mouse.y < oy + v.y + ((v.height - fullHeight) / 2) or minGUI.mouse.y >= oy + v.y + ((v.height - fullHeight) / 2) + height then
-						if b == MG_LEFT_BUTTON then v.btnUp = false end
-					end
-
-					if v.btnUp == true then
-						local t = minGUI.timer - v.timer
+				
+				if v.tp == MG_INTERNAL_MENU then
+					if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
+						if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
+							if b == MG_LEFT_BUTTON then
+								-- clicking on a menu to open it
+								x = 0
 								
-						if v.press == 0 then
-							if t >= MG_SLOW_DELAY then
-								v.timer = minGUI.timer
-								v.text = frameTextValue(IncTextValue(v.text), v.minValue, v.maxValue)
-								v.press = v.press + 1
-							end
-						elseif v.press > 0 then
-							if t >= MG_QUICK_DELAY then
-								v.timer = minGUI.timer
-								v.text = frameTextValue(IncTextValue(v.text), v.minValue, v.maxValue)
-								v.press = v.press + 1
+								for i = 1, #v.array do
+									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i][1] .. " ")
+									
+									if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
+										v.menu.selected = i
+										event_done = true
+										break
+									end
+									
+									x = x + menu_width
+								end
 							end
 						end
-					end
+					end					
+				end
+			end
 
-					if minGUI.mouse.x < ox + v.x + v.width - width or minGUI.mouse.x >= ox + v.x + v.width then
-						if b == MG_LEFT_BUTTON then v.btnDown = false end
-					elseif minGUI.mouse.y < oy + v.y + ((v.height - fullHeight) / 2) + height or minGUI.mouse.y >= oy + v.y + ((v.height - fullHeight) / 2) + (2 * height) then
-						if b == MG_LEFT_BUTTON then v.btnDown = false end
-					end
+			-- event not already done ?
+			if not event_done then
+				-- check for gadgets
+				for i, v in ipairs(minGUI.gtree) do
+					-- calculate parents offset
+					local ox = 0
+					local oy = 0
+				
+					p = v
+					while p.parent ~= nil do
+						local w = minGUI.gtree[p.parent]
 							
-					if v.btnDown == true then
-						local t = minGUI.timer - v.timer
-								
-						if v.press == 0 then
-							if t >= MG_SLOW_DELAY then
-								v.timer = minGUI.timer
-								v.text = frameTextValue(DecTextValue(v.text), v.minValue, v.maxValue)
-								v.press = v.press + 1
-							end
-						elseif v.press > 0 then
-							if t >= MG_QUICK_DELAY then
-								v.timer = minGUI.timer
-								v.text = frameTextValue(DecTextValue(v.text), v.minValue, v.maxValue)
-								v.press = v.press + 1
-							end
-						end
-					end
-				elseif v.tp == MG_CANVAS then
-					if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.width then
-						if b == MG_LEFT_BUTTON then v.down.left = false end
-						if b == MG_RIGHT_BUTTON then v.down.right = false end
-					elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.height then
-						if b == MG_LEFT_BUTTON then v.down.left = false end
-						if b == MG_RIGHT_BUTTON then v.down.right = false end
-					end
-
-					if b == MG_LEFT_BUTTON then
-						if v.down.left == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN}) end
-					end
-					
-					if b == MG_RIGHT_BUTTON then
-						if v.down.right == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_DOWN}) end
-					end
-				elseif v.tp == MG_SCROLLBAR then
-					local value = 0
-					
-					if bit.band(v.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
-						if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.size then
-							if b == MG_LEFT_BUTTON then v.down = false end
-						elseif minGUI.mouse.y < oy + v.y + v.size or minGUI.mouse.y >= oy + v.y + v.height - v.size then
-							if b == MG_LEFT_BUTTON then v.down = false end
-						else
-							value = ((minGUI.mouse.y - (oy + v.y + v.size)) / v.real_height) * (v.maxValue - v.minValue)
-						end
-					else
-						if minGUI.mouse.x < ox + v.x + v.size or minGUI.mouse.x >= ox + v.x + v.width - v.size then
-							if b == MG_LEFT_BUTTON then v.down = false end
-						elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.size then
-							if b == MG_LEFT_BUTTON then v.down = false end
-						else
-							value = ((minGUI.mouse.x - (ox + v.x + v.size)) / v.real_width) * (v.maxValue - v.minValue)
-						end
-					end
-					
-					if v.down == true then
-						local lng1 = (v.maxValue - v.minValue)
-						local lng2 = lng1 / v.stepsValue
-						
-						value = value - v.minValue
-						value = math.floor(value / lng2)
-						value = value * lng1 / (v.stepsValue - 1)
-						value = value + v.minValue
-						value = math.min(math.max(value, v.minValue), v.maxValue)
-						v.value = value
-								
-						if v.value < v.minValue then v.value = v.minValue end
-						if v.value > v.maxValue then v.value = v.maxValue end
+						if w ~= nil then
+							ox = ox + w.x
+							oy = oy + w.y
 							
+							p = w
+						end
+					end
+					
+					if v.tp == MG_BUTTON or v.tp == MG_BUTTON_IMAGE or v.tp == MG_IMAGE then
+						if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.width then
+							if b == MG_LEFT_BUTTON then v.down.left = false end
+							if b == MG_RIGHT_BUTTON then v.down.right = false end
+						elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.height then
+							if b == MG_LEFT_BUTTON then v.down.left = false end
+							if b == MG_RIGHT_BUTTON then v.down.right = false end
+						end
+					elseif v.tp == MG_SPIN then					
+						-- get up and down buttons width & height
+						local width = minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()
+						local fullHeight = minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getHeight()
+						local height = fullHeight / 2
+	
+						if minGUI.mouse.x < ox + v.x + v.width - width or minGUI.mouse.x >= ox + v.x + v.width then
+							if b == MG_LEFT_BUTTON then v.btnUp = false end
+						elseif minGUI.mouse.y < oy + v.y + ((v.height - fullHeight) / 2) or minGUI.mouse.y >= oy + v.y + ((v.height - fullHeight) / 2) + height then
+							if b == MG_LEFT_BUTTON then v.btnUp = false end
+						end
+	
+						if v.btnUp == true then
+							local t = minGUI.timer - v.timer
+									
+							if v.press == 0 then
+								if t >= MG_SLOW_DELAY then
+									v.timer = minGUI.timer
+									v.text = frameTextValue(IncTextValue(v.text), v.minValue, v.maxValue)
+									v.press = v.press + 1
+								end
+							elseif v.press > 0 then
+								if t >= MG_QUICK_DELAY then
+									v.timer = minGUI.timer
+									v.text = frameTextValue(IncTextValue(v.text), v.minValue, v.maxValue)
+									v.press = v.press + 1
+								end
+							end
+						end
+	
+						if minGUI.mouse.x < ox + v.x + v.width - width or minGUI.mouse.x >= ox + v.x + v.width then
+							if b == MG_LEFT_BUTTON then v.btnDown = false end
+						elseif minGUI.mouse.y < oy + v.y + ((v.height - fullHeight) / 2) + height or minGUI.mouse.y >= oy + v.y + ((v.height - fullHeight) / 2) + (2 * height) then
+							if b == MG_LEFT_BUTTON then v.btnDown = false end
+						end
+								
+						if v.btnDown == true then
+							local t = minGUI.timer - v.timer
+									
+							if v.press == 0 then
+								if t >= MG_SLOW_DELAY then
+									v.timer = minGUI.timer
+									v.text = frameTextValue(DecTextValue(v.text), v.minValue, v.maxValue)
+									v.press = v.press + 1
+								end
+							elseif v.press > 0 then
+								if t >= MG_QUICK_DELAY then
+									v.timer = minGUI.timer
+									v.text = frameTextValue(DecTextValue(v.text), v.minValue, v.maxValue)
+									v.press = v.press + 1
+								end
+							end
+						end
+					elseif v.tp == MG_CANVAS then
+						if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.width then
+							if b == MG_LEFT_BUTTON then v.down.left = false end
+							if b == MG_RIGHT_BUTTON then v.down.right = false end
+						elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.height then
+							if b == MG_LEFT_BUTTON then v.down.left = false end
+							if b == MG_RIGHT_BUTTON then v.down.right = false end
+						end
+	
 						if b == MG_LEFT_BUTTON then
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+							if v.down.left == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN}) end
 						end
-					end
-
-					
-					if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.size then
-						if b == MG_LEFT_BUTTON then v.down1 = false end
-					elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.size then
-						if b == MG_LEFT_BUTTON then v.down1 = false end
-					end
-					
-					if v.down1 == true then
-						local t = minGUI.timer - v.timer
-								
-						if t >= MG_MEDIUM_DELAY then
-							v.timer = minGUI.timer
-							v.value = v.value - v.inc
-								
-							if v.value < v.minValue then v.value = v.minValue end
+						
+						if b == MG_RIGHT_BUTTON then
+							if v.down.right == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_DOWN}) end
+						end
+					elseif v.tp == MG_SCROLLBAR then
+						local value = 0
+						
+						if minGUI_flag_active(v.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
+							if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.size then
+								if b == MG_LEFT_BUTTON then v.down = false end
+							elseif minGUI.mouse.y < oy + v.y + v.size or minGUI.mouse.y >= oy + v.y + v.height - v.size then
+								if b == MG_LEFT_BUTTON then v.down = false end
+							else
+								value = ((minGUI.mouse.y - (oy + v.y + v.size)) / v.real_height) * (v.maxValue - v.minValue)
+							end
+						else
+							if minGUI.mouse.x < ox + v.x + v.size or minGUI.mouse.x >= ox + v.x + v.width - v.size then
+								if b == MG_LEFT_BUTTON then v.down = false end
+							elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.size then
+								if b == MG_LEFT_BUTTON then v.down = false end
+							else
+								value = ((minGUI.mouse.x - (ox + v.x + v.size)) / v.real_width) * (v.maxValue - v.minValue)
+							end
+						end
+						
+						if v.down == true then
+							local lng1 = (v.maxValue - v.minValue)
+							local lng2 = lng1 / v.stepsValue
 							
+							value = value - v.minValue
+							value = math.floor(value / lng2)
+							value = value * lng1 / (v.stepsValue - 1)
+							value = value + v.minValue
+							value = math.min(math.max(value, v.minValue), v.maxValue)
+							v.value = value
+									
+							if v.value < v.minValue then v.value = v.minValue end
+							if v.value > v.maxValue then v.value = v.maxValue end
+								
 							if b == MG_LEFT_BUTTON then
 								table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
 							end
 						end
-					end
-
-					if minGUI.mouse.x < ox + v.x + v.width - v.size or minGUI.mouse.x >= ox + v.x + v.width then
-						if b == MG_LEFT_BUTTON then v.down2 = false end
-					elseif minGUI.mouse.y < oy + v.y + v.height - v.size or minGUI.mouse.y >= oy + v.y + v.height then
-						if b == MG_LEFT_BUTTON then v.down2 = false end
-					end
-
-					if v.down2 == true then
-						local t = minGUI.timer - v.timer
+	
+						
+						if minGUI.mouse.x < ox + v.x or minGUI.mouse.x >= ox + v.x + v.size then
+							if b == MG_LEFT_BUTTON then v.down1 = false end
+						elseif minGUI.mouse.y < oy + v.y or minGUI.mouse.y >= oy + v.y + v.size then
+							if b == MG_LEFT_BUTTON then v.down1 = false end
+						end
+					
+						if v.down1 == true then
+							local t = minGUI.timer - v.timer
+									
+							if t >= MG_MEDIUM_DELAY then
+								v.timer = minGUI.timer
+								v.value = v.value - v.inc
+									
+								if v.value < v.minValue then v.value = v.minValue end
 								
-						if t >= MG_MEDIUM_DELAY then
-							v.timer = minGUI.timer
-							v.value = v.value + v.inc
-							
-							if v.value > v.maxValue then v.value = v.maxValue end
-							
-							if b == MG_LEFT_BUTTON then
-								table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+								if b == MG_LEFT_BUTTON then
+									table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+								end
+							end
+						end
+
+						if minGUI.mouse.x < ox + v.x + v.width - v.size or minGUI.mouse.x >= ox + v.x + v.width then
+							if b == MG_LEFT_BUTTON then v.down2 = false end
+						elseif minGUI.mouse.y < oy + v.y + v.height - v.size or minGUI.mouse.y >= oy + v.y + v.height then
+							if b == MG_LEFT_BUTTON then v.down2 = false end
+						end
+
+						if v.down2 == true then
+							local t = minGUI.timer - v.timer
+									
+							if t >= MG_MEDIUM_DELAY then
+								v.timer = minGUI.timer
+								v.value = v.value + v.inc
+								
+								if v.value > v.maxValue then v.value = v.maxValue end
+								
+								if b == MG_LEFT_BUTTON then
+									table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+								end
 							end
 						end
 					end
@@ -636,7 +689,7 @@ function minGUI_update_events(dt)
 							end
 						end
 					elseif v.tp == MG_SCROLLBAR then
-						if bit.band(v.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+						if minGUI_flag_active(v.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 							if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.size then
 								if minGUI.mouse.y >= oy + v.y + v.size and minGUI.mouse.y < oy + v.y + v.height - v.size then
 									if b == MG_LEFT_BUTTON then

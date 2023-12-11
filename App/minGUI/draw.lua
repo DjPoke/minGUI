@@ -84,11 +84,11 @@ function minGUI_draw_gadget(w, ox, oy)
 		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 
 		-- print the text with differents alignments
-		if w.flags == MG_ALIGN_LEFT then
+		if w.flags == MG_FLAG_ALIGN_LEFT then
 			love.graphics.print(w.text, 0, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
-		elseif w.flags == MG_ALIGN_RIGHT then
+		elseif w.flags == MG_FLAG_ALIGN_RIGHT then
 			love.graphics.print(w.text, w.width - minGUI.font[minGUI.numFont]:getWidth(w.text), ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
-		elseif w.flags == MG_ALIGN_CENTER then
+		elseif w.flags == MG_FLAG_ALIGN_CENTER then
 			love.graphics.print(w.text, ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) - 1, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
 		end
 		
@@ -293,7 +293,7 @@ function minGUI_draw_gadget(w, ox, oy)
 			end
 		end
 	elseif w.tp == MG_SCROLLBAR then
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar
 			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width , w.height - (w.size * 2), w.canvas)
 		else
@@ -328,7 +328,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		p1 = {}
 		p2 = {}
 		
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			p1 = {x1, x2, x2, x2, x3, x1}
 			p2 = {x1, x1, x2, x1, x3, x2}
 		else
@@ -356,7 +356,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
 		
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar at screen
 			love.graphics.draw(w.canvas, ox + w.x, oy + w.y + w.size)
 		else
@@ -367,7 +367,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- calculate offset of the scrollbar central button
 		local offset = math.floor((w.value - w.minValue) / w.inc) * w.min_size
 		
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			love.graphics.draw(w.canvas1, ox + w.x, oy + w.y)
 			love.graphics.draw(w.canvas2, ox + w.x, oy + w.y + w.height - w.size)
 			love.graphics.draw(w.canvas3, ox + w.x, oy + w.y + w.size + offset)
@@ -403,7 +403,7 @@ end
 
 function minGUI_draw_internal_gadget(w, ox, oy)
 	if w.tp == MG_INTERNAL_SCROLLBAR then
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar
 			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width , w.height - (w.size * 2), w.canvas)
 		else
@@ -438,7 +438,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		p1 = {}
 		p2 = {}
 		
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			p1 = {x1, x2, x2, x2, x3, x1}
 			p2 = {x1, x1, x2, x1, x3, x2}
 		else
@@ -466,7 +466,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
 		
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar at screen
 			love.graphics.draw(w.canvas, ox + w.x, oy + w.y + w.size)
 		else
@@ -477,7 +477,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		-- calculate offset of the scrollbar central button
 		local offset = math.floor((w.value - w.minValue) / w.inc) * w.min_size
 		
-		if bit.band(w.flags, MG_SCROLLBAR_VERTICAL) == MG_SCROLLBAR_VERTICAL then
+		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			love.graphics.draw(w.canvas1, ox + w.x, oy + w.y)
 			love.graphics.draw(w.canvas2, ox + w.x, oy + w.y + w.height - w.size)
 			love.graphics.draw(w.canvas3, ox + w.x, oy + w.y + w.size + offset)
