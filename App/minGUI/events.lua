@@ -87,14 +87,13 @@ function minGUI_update_events(dt)
 					if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 						if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 							if b == MG_LEFT_BUTTON then
-								print(3)
 								v.down.left = true
 								
 								-- clicking on a menu to open it
 								x = 0
 								
 								for i = 1, #v.array do
-									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i][1] .. " ")
+									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
 									
 									if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
 										v.menu.selected = i
@@ -366,7 +365,7 @@ function minGUI_update_events(dt)
 								x = 0
 								
 								for i = 1, #v.array do
-									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i][1] .. " ")
+									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
 									
 									if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
 										v.menu.selected = i
@@ -611,7 +610,7 @@ function minGUI_update_events(dt)
 								x = 0
 								
 								for i = 1, #v.array do
-									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i][1] .. " ")
+									menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
 									
 									if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
 										v.menu.selected = i

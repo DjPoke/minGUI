@@ -35,7 +35,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		love.graphics.setColor(w.r, w.g, w.b, w.a)
 
 		-- print the text centered
-		love.graphics.print(w.text, ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) - 1, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
+		love.graphics.print(w.text, ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) - 1, ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
 		
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
@@ -85,11 +85,11 @@ function minGUI_draw_gadget(w, ox, oy)
 
 		-- print the text with differents alignments
 		if w.flags == MG_FLAG_ALIGN_LEFT then
-			love.graphics.print(w.text, 0, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
+			love.graphics.print(w.text, 0, ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
 		elseif w.flags == MG_FLAG_ALIGN_RIGHT then
-			love.graphics.print(w.text, w.width - minGUI.font[minGUI.numFont]:getWidth(w.text), ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
+			love.graphics.print(w.text, w.width - minGUI.font[minGUI.numFont]:getWidth(w.text), ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
 		elseif w.flags == MG_FLAG_ALIGN_CENTER then
-			love.graphics.print(w.text, ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) - 1, ((w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2) - 1)
+			love.graphics.print(w.text, ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) - 1, ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
 		end
 		
 		-- restore drawing on the window's canvas
@@ -119,7 +119,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- print the text
 		if w.text ~= "" then
 			local text = minGUI_sub_string(w.text, w.offset + 1)
-			local y = ((w.height - 4 - minGUI.font[minGUI.numFont]:getHeight(text)) / 2) - 1
+			local y = ((w.height - 4 - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1
 
 			love.graphics.print(text, 0, y)
 		end
@@ -166,7 +166,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- draw the text at the right of the button
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 		love.graphics.setColor(w.r, w.g, w.b, w.a)
-		love.graphics.print(w.text, 16, (w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2)
+		love.graphics.print(w.text, 16, (w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2)
 
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
@@ -193,7 +193,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- draw the text at the right of the button
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 		love.graphics.setColor(w.r, w.g, w.b, w.a)
-		love.graphics.print(w.text, 16, (w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2)
+		love.graphics.print(w.text, 16, (w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2)
 		
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
@@ -227,7 +227,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		-- draw the text value in its area
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
-		love.graphics.print(w.text, (((w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()) - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2), (w.height - minGUI.font[minGUI.numFont]:getHeight(w.text)) / 2)
+		love.graphics.print(w.text, (((w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()) - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2), (w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2)
 		
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
@@ -262,7 +262,7 @@ function minGUI_draw_gadget(w, ox, oy)
 			for y = 1, #t do
 				love.graphics.print(t[y], 0, ln)
 				
-				ln = ln + minGUI.font[minGUI.numFont]:getHeight(t[y])
+				ln = ln + minGUI.font[minGUI.numFont]:getHeight()
 			end
 		end
 		
@@ -507,8 +507,8 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		x = 0
 		
 		for i = 1, #w.array do
-			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i][1] .. " ")
-			menu_height = minGUI.font[minGUI.numFont]:getHeight(" " .. w.array[i][1] .. " ")
+			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i].head_menu .. " ")
+			menu_height = minGUI.font[minGUI.numFont]:getHeight()
 			
 			love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
 
@@ -520,7 +520,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 			
 			-- draw the text on the gadget's canvas
 			love.graphics.setCanvas(w.canvas)
-			love.graphics.print(" " .. w.array[i][1] .. " ", x, (w.height - menu_height) / 2)
+			love.graphics.print(" " .. w.array[i].head_menu .. " ", x, (w.height - menu_height) / 2)
 			
 			x = x + menu_width
 		end
@@ -528,10 +528,8 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 		
-		-- restore color
+		-- draw the canvas to the screen		
 		love.graphics.setColor(1, 1, 1, 1)
-
-		-- draw canvas to screen
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	end
 end
@@ -575,18 +573,18 @@ function minGUI_draw_text_cursor(w, ox, oy)
 		xc1 = ox + w.x + 2
 		yc1 = oy + w.y + 2
 		xc2 = minGUI.font[minGUI.numFont]:getWidth(minGUI_sub_string(w.text, w.offset + 1))
-		yc2 = ((w.height - 4) - minGUI.font[minGUI.numFont]:getHeight("|")) / 2
+		yc2 = ((w.height - 4) - minGUI.font[minGUI.numFont]:getHeight()) / 2
 	elseif w.tp == MG_SPIN then
 		xc1 = ox + w.x
 		yc1 = oy + w.y
 		xc2 = (((w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()) - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) + minGUI.font[minGUI.numFont]:getWidth(w.text)
-		yc2 = ((w.height + 2) - minGUI.font[minGUI.numFont]:getHeight("|")) / 2
+		yc2 = ((w.height + 2) - minGUI.font[minGUI.numFont]:getHeight()) / 2
 	end
 	
 	-- resize cursor's canvas
 	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|") then
-		if w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight("|") then
-			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight("|"))
+		if w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
+			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
 		end
 	end
 
@@ -635,8 +633,8 @@ function minGUI_draw_editor_cursor(w, ox, oy)
 	
 	-- resize cursor's canvas
 	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|") then
-		if w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight("|") then
-			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight("|"))
+		if w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
+			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
 		end
 	end
 	
