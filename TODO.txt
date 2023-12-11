@@ -7,4 +7,4 @@ TODO List:
 - Finish scrollbars inside the editor gadgets.
 - Make a combobox.
 - Make a list gadget.
-- Add colors and fonts to editor gadgets.
+- Add custom colors and fonts to each gadget.

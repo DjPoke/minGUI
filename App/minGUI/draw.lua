@@ -3,7 +3,11 @@ function minGUI_draw_gadget(w, ox, oy)
 	-- draw panels
 	if w.tp == MG_WINDOW then
 		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, w.height, w.canvas)
-		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, MG_WINDOW_TITLEBAR_HEIGHT, w.canvas)
+		
+		-- draw title bar ?
+		if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_TITLEBAR) then
+			minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, MG_WINDOW_TITLEBAR_HEIGHT, w.canvas)
+		end
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	-- draw panels
@@ -615,9 +619,9 @@ function minGUI_draw_all()
 			
 			if v.tp ~= MG_INTERNAL_MENU then
 				oy = oy + minGUI_window_menu_height(w)
-			else
-				oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 			end
+
+			oy = oy + minGUI_window_titlebar_height(w)
 					
 			-- while parent has parents
 			while w.parent ~= nil do
@@ -632,9 +636,9 @@ function minGUI_draw_all()
 
 					if v.tp ~= MG_INTERNAL_MENU then
 						oy = oy + minGUI_window_menu_height(w)
-					else
-						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 					end
+
+					oy = oy + minGUI_window_titlebar_height(w)
 				end
 			end
 		end
@@ -885,6 +889,7 @@ function minGUI_draw_sons(v, ox, oy)
 		if w.parent == v.num then
 			-- parent is a window with a menu ?
 			menu_y = minGUI_window_menu_height(v)
+			menu_y = menu_y + minGUI_window_titlebar_height(v)
 
 			minGUI_draw_gadget(w, ox + v.x, oy + v.y + menu_y)
 			

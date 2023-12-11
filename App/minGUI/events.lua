@@ -71,9 +71,9 @@ function minGUI_update_events(dt)
 													
 					if v.tp ~= MG_INTERNAL_MENU then
 						oy = oy + minGUI_window_menu_height(w)
-					else
-						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 					end
+					
+					oy = oy + minGUI_window_titlebar_height(w)
 					
 					-- while parent has parents
 					while w.parent ~= nil do
@@ -88,9 +88,9 @@ function minGUI_update_events(dt)
 													
 							if v.tp ~= MG_INTERNAL_MENU then
 								oy = oy + minGUI_window_menu_height(w)
-							else
-								oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 							end
+							
+							oy = oy + minGUI_window_titlebar_height(w)
 						end
 					end
 				end
@@ -128,6 +128,8 @@ function minGUI_update_events(dt)
 					-- calculate parents offset
 					local ox = 0
 					local oy = minGUI_window_menu_height(v)
+					oy = oy + minGUI_window_titlebar_height(v)
+
 				
 					p = v
 					while p.parent ~= nil do
@@ -135,8 +137,10 @@ function minGUI_update_events(dt)
 							
 						if w ~= nil then
 							ox = ox + w.x
-							oy = oy + w.y + minGUI_window_menu_height(w)
-							
+							oy = oy + w.y
+							oy = oy + minGUI_window_menu_height(w)
+							oy = oy + minGUI_window_titlebar_height(w)
+
 							p = w
 						end
 					end
@@ -357,9 +361,9 @@ function minGUI_update_events(dt)
 													
 					if v.tp ~= MG_INTERNAL_MENU then
 						oy = oy + minGUI_window_menu_height(w)
-					else
-						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 					end
+					
+					oy = oy + minGUI_window_titlebar_height(w)
 					
 					-- while parent has parents
 					while w.parent ~= nil do
@@ -374,9 +378,9 @@ function minGUI_update_events(dt)
 													
 							if v.tp ~= MG_INTERNAL_MENU then
 								oy = oy + minGUI_window_menu_height(w)
-							else
-								oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 							end
+
+							oy = oy + minGUI_window_titlebar_height(w)
 						end
 					end
 				end
@@ -412,6 +416,7 @@ function minGUI_update_events(dt)
 					-- calculate parents offset
 					local ox = 0
 					local oy = minGUI_window_menu_height(v)
+					oy = oy + minGUI_window_titlebar_height(v)
 				
 					p = v
 					while p.parent ~= nil do
@@ -419,7 +424,9 @@ function minGUI_update_events(dt)
 							
 						if w ~= nil then
 							ox = ox + w.x
-							oy = oy + w.y + minGUI_window_menu_height(w)
+							oy = oy + w.y
+							oy = oy + minGUI_window_menu_height(w)
+							oy = oy + minGUI_window_titlebar_height(w)
 							
 							p = w
 						end
@@ -610,9 +617,9 @@ function minGUI_update_events(dt)
 													
 					if v.tp ~= MG_INTERNAL_MENU then
 						oy = oy + minGUI_window_menu_height(w)
-					else
-						oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 					end
+
+					oy = oy + minGUI_window_titlebar_height(w)
 					
 					-- while parent has parents
 					while w.parent ~= nil do
@@ -627,9 +634,9 @@ function minGUI_update_events(dt)
 													
 							if v.tp ~= MG_INTERNAL_MENU then
 								oy = oy + minGUI_window_menu_height(w)
-							else
-								oy = oy + MG_WINDOW_TITLEBAR_HEIGHT
 							end
+
+							oy = oy + minGUI_window_titlebar_height(w)
 						end
 					end
 				end
@@ -675,6 +682,7 @@ function minGUI_update_events(dt)
 					-- calculate parents offset
 					local ox = 0
 					local oy = minGUI_window_menu_height(v)
+					oy = oy + minGUI_window_titlebar_height(v)
 				
 					p = v
 					while p.parent ~= nil do
@@ -682,7 +690,9 @@ function minGUI_update_events(dt)
 							
 						if w ~= nil then
 							ox = ox + w.x
-							oy = oy + w.y + minGUI_window_menu_height(w)
+							oy = oy + w.y
+							oy = oy + minGUI_window_menu_height(w)
+							oy = oy + minGUI_window_titlebar_height(w)
 							
 							p = w
 						end

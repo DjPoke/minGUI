@@ -53,7 +53,12 @@ function minGUI_init()
 	MG_QUICK_DELAY = 0.05
 
 	-- flags
-	MG_FLAG_WINDOW_CENTERED = 1
+	MG_FLAG_WINDOW_TITLEBAR = 1
+	MG_FLAG_WINDOW_CLOSE = 2
+	MG_FLAG_WINDOW_MINIMIZE = 4
+	MG_FLAG_WINDOW_MAXIMIZE = 8
+	MG_FLAG_WINDOW_RESIZE = 16
+	MG_FLAG_WINDOW_CENTERED = 32
 	
 	MG_FLAG_NOT_EDITABLE = 1
 	MG_FLAG_NO_SCROLLBARS = 2
@@ -1058,27 +1063,35 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_window]Wrong num value for panel"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_window]Wrong x for panel " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_window]Wrong y for panel " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_window]Wrong width for panel " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_window]Wrong height for panel " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_window]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_window]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_window]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_window]Wrong width  for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_window]Wrong height  for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_window]Wrong flags  for gadget" .. num)
+				return
+			end
 
 			-- initialize values
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, parent = parent,
+							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							can_have_sons = true,
 							can_have_menu = true,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_window]Wrong gadget size " .. num)
+						minGUI_error_message("[add_window]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_window]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_window]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_window]Gadget already exists " .. num)
@@ -1090,27 +1103,35 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_panel]Wrong num value for panel"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_panel]Wrong x for panel " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_panel]Wrong y for panel " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_panel]Wrong width for panel " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_panel]Wrong height for panel " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_panel]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_panel]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_panel]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_panel]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_panel]Wrong height for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_panel]Wrong flags for gadget " .. num)
+				return
+			end
 
 			-- initialize values
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_PANEL, x = x, y = y, width = width, height = height, parent = parent,
+							num = num, tp = MG_PANEL, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							can_have_sons = true,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_panel]Wrong gadget size " .. num)
+						minGUI_error_message("[add_panel]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_panel]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_panel]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_panel]Gadget already exists " .. num)
@@ -1122,13 +1143,21 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_button]Wrong num value for button"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button]Wrong x for button " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button]Wrong y for button " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button]Wrong width for button " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_button]Wrong height for button " .. num); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_button]Wrong text for button " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_button]Wrong parent for button " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_button]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_button]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_button]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_button]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_button]Wrong flags  for gadget" .. num)
+				return
+			end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1139,17 +1168,17 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_BUTTON, x = x, y = y, width = width, height = height, text = text, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_BUTTON, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down = {left = false, right = false},
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_button]Wrong gadget size " .. num)
+						minGUI_error_message("[add_button]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_button]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_button]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_button]Gadget already exists " .. num)
@@ -1161,12 +1190,20 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_button_image]Wrong num value for button image"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button_image]Wrong x for button image " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button_image]Wrong y for button image " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button_image]Wrong width for button image " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_button_image]Wrong height for button image " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_button_image]Wrong parent for button image " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_button_image]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button_image]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button_image]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button_image]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_button_image]Wrong height for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_button_image]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_button_image]Wrong flags  for gadget" .. num)
+				return
+			end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1176,17 +1213,17 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_BUTTON_IMAGE, x = x, y = y, width = width, height = height, text = text, parent = parent, down =  {left = false, right = false},
+							num = num, tp = MG_BUTTON_IMAGE, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
 							image = image,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_button_image]Wrong gadget size " .. num)
+						minGUI_error_message("[add_button_image]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_button_image]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_button_image]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_button_image]Gadget already exists " .. num)
@@ -1198,13 +1235,21 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_label]Wrong num value for label"); return end
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_label]Wrong x for label " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_label]Wrong y for label " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_label]Wrong width for label " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_label]Wrong height for label " .. num); return end
-			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_label]Wrong text for label " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_label]Wrong parent for label " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_label]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_label]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_label]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_label]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_label]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_label]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_label]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_label]Wrong flags  for gadget" .. num)
+				return
+			end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1218,7 +1263,7 @@ function minGUI_init()
 							
 				if flags == 0 then flags = MG_FLAG_ALIGN_LEFT end
 			else
-				minGUI_error_message("[add_label]Wrong flags for label " .. num)
+				minGUI_error_message("[add_label]Wrong flags for gadget " .. num)
 				return
 			end
 			
@@ -1236,10 +1281,10 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_label]Wrong gadget size " .. num)
+						minGUI_error_message("[add_label]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_label]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_label]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_label]Gadget already exists " .. num)
@@ -1251,26 +1296,26 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_string]Wrong num value for string"); return end
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_string]Wrong x for string " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_string]Wrong y for string " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_string]Wrong width for string " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_string]Wrong height for string " .. num); return end
-			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_string]Wrong text for string " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_string]Wrong parent for string " .. num); return end
-
-			if x == nil then x = 0 end
-			if y == nil then y = 0 end
-			if text == nil then text = "" end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_string]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_string]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_string]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_string]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_string]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_string]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_string]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_string]Wrong flags for string " .. num)
+				minGUI_error_message("[add_string]Wrong flags for gadget " .. num)
 				return
 			end
 			
+			if x == nil then x = 0 end
+			if y == nil then y = 0 end
+			if text == nil then text = "" end
+
 			-- initialize values
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
@@ -1302,10 +1347,10 @@ function minGUI_init()
 						-- set the focus to the last editable gadget
 						minGUI.gfocus = num
 					else
-						minGUI_error_message("[add_string]Wrong gadget size " .. num)
+						minGUI_error_message("[add_string]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_string]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_string]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_string]Gadget already exists " .. num)
@@ -1317,25 +1362,25 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_canvas]Wrong num value for canvas"); return end
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_canvas]Wrong x for canvas " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_canvas]Wrong y for canvas " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_canvas]Wrong width for canvas " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_canvas]Wrong height for canvas " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_canvas]Wrong parent for canvas " .. num); return end
-
-			if x == nil then x = 0 end
-			if y == nil then y = 0 end
-			if text == nil then text = "" end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_canvas]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_canvas]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_canvas]Wrong height for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_canvas]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_canvas]Wrong flags for canvas " .. num)
+				minGUI_error_message("[add_canvas]Wrong flags for gadget " .. num)
 				return
 			end
 			
+			if x == nil then x = 0 end
+			if y == nil then y = 0 end
+			if text == nil then text = "" end
+
 			-- initialize values
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
@@ -1347,10 +1392,10 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_canvas]Wrong gadget size " .. num)
+						minGUI_error_message("[add_canvas]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_canvas]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_canvas]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_canvas]Gadget already exists " .. num)
@@ -1372,13 +1417,21 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_checkbox]Wrong num value for checkbox"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_checkbox]Wrong x for checkbox " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_checkbox]Wrong y for checkbox " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_checkbox]Wrong width for checkbox " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_checkbox]Wrong height for checkbox " .. num); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_checkbox]Wrong text for checkbox " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_checkbox]Wrong parent for checkbox " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_checkbox]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_checkbox]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_checkbox]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_checkbox]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_checkbox]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_checkbox]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_checkbox]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_checkbox]Wrong flags for gadget " .. num)
+				return
+			end			
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1389,7 +1442,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_CHECKBOX, x = x, y = y, width = width, height = height, text = text, parent = parent,
+							num = num, tp = MG_CHECKBOX, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							can_have_sons = false,
@@ -1397,10 +1450,10 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_checkbox]Wrong gadget size " .. num)
+						minGUI_error_message("[add_checkbox]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_checkbox]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_checkbox]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_checkbox]Gadget already exists " .. num)
@@ -1412,13 +1465,21 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_option]Wrong num value for option"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_option]Wrong x for option " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_option]Wrong y for option " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_option]Wrong width for option " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_option]Wrong height for option " .. num); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_option]Wrong text for option " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_option]Wrong parent for option " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_option]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_option]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_option]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_option]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_option]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_option]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_option]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_option]Wrong flags for gadget " .. num)
+				return
+			end			
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1429,7 +1490,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_OPTION, x = x, y = y, width = width, height = height, text = text, parent = parent,
+							num = num, tp = MG_OPTION, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
 							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
 							can_have_sons = false,
@@ -1437,13 +1498,13 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_option]Wrong gadget size " .. num)
+						minGUI_error_message("[add_option]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_option]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_option]Wrong gadget parent for gadget " .. num)
 				end
 			else
-				minGUI_error_message("[add_option]Gadget already exists " .. num)
+				minGUI_error_message("[add_option]Gadget already exists for gadget " .. num)
 			end
 		end,
 		-- add a spin gadget to the gadgets's tree
@@ -1452,15 +1513,23 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_spin]Wrong num value for spin"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_spin]Wrong x for spin " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_spin]Wrong y for spin " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_spin]Wrong width for spin " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_spin]Wrong height for spin " .. num); return end
-			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_spin]Wrong value for spin " .. num); return end
-			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_spin]Wrong min value for spin " .. num); return end
-			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_spin]Wrong max value for spin " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_spin]Wrong parent for spin " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_spin]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_spin]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_spin]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_spin]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_spin]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_spin]Wrong value for gadget " .. num); return end
+			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_spin]Wrong min value for gadget " .. num); return end
+			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_spin]Wrong max value for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_spin]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_spin]Wrong flags for gadget " .. num)
+				return
+			end			
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1479,7 +1548,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_SPIN, x = x, y = y, width = width, height = height, parent = parent,
+							num = num, tp = MG_SPIN, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = {left = false, right = false}, btnUp = false, btnDown = false,
 							text = tostring(value), minValue = minValue, maxValue = maxValue, timer = 0,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
@@ -1497,10 +1566,10 @@ function minGUI_init()
 						-- set the focus to the last editable gadget
 						minGUI.gfocus = num
 					else
-						minGUI_error_message("[add_spin]Wrong gadget size " .. num)
+						minGUI_error_message("[add_spin]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_spin]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_spin]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_spin]Gadget already exists " .. num)
@@ -1512,25 +1581,25 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_editor]Wrong num value for editor"); return end
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_editor]Wrong x for editor " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_editor]Wrong y for editor " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_editor]Wrong width for editor " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_editor]Wrong height for editor " .. num); return end
-			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_editor]Wrong text for editor " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_editor]Wrong parent for editor " .. num); return end
-
-			if x == nil then x = 0 end
-			if y == nil then y = 0 end
-			if text == nil then text = "" end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_editor]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_editor]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_editor]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_editor]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_editor]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_editor]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_editor]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_editor]Wrong flags for editor " .. num)
+				minGUI_error_message("[add_editor]Wrong flags for gadget " .. num)
 				return
 			end
+
+			if x == nil then x = 0 end
+			if y == nil then y = 0 end
+			if text == nil then text = "" end
 			
 			-- initialize values
 			if minGUI.gtree[num] == nil then
@@ -1573,10 +1642,10 @@ function minGUI_init()
 						-- position cursor at end
 						minGUI:set_cursor_xy(num, -1, -1)
 					else
-						minGUI_error_message("[add_editor]Wrong gadget size " .. num)
+						minGUI_error_message("[add_editor]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_editor]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_editor]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_editor]Gadget already exists " .. num)
@@ -1588,22 +1657,22 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_scrollbar]Wrong num value for scrollbar"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_scrollbar]Wrong x for scrollbar " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_scrollbar]Wrong y for scrollbar " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_scrollbar]Wrong width for scrollbar " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_scrollbar]Wrong height for scrollbar " .. num); return end
-			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_scrollbar]Wrong value for scrollbar " .. num); return end
-			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_scrollbar]Wrong min value for scrollbar " .. num); return end
-			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_scrollbar]Wrong max value for scrollbar " .. num); return end
-			if not minGUI_check_param2(inc, "number") then minGUI_error_message("[add_scrollbar]Wrong increment value for scrollbar " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_scrollbar]Wrong parent for scrollbar " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_scrollbar]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_scrollbar]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_scrollbar]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_scrollbar]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_scrollbar]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_scrollbar]Wrong value for gadget " .. num); return end
+			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_scrollbar]Wrong min value for gadget " .. num); return end
+			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_scrollbar]Wrong max value for gadget " .. num); return end
+			if not minGUI_check_param2(inc, "number") then minGUI_error_message("[add_scrollbar]Wrong increment value for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_scrollbar]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_scrollbar]Wrong flags for scrollbar " .. num)
+				minGUI_error_message("[add_scrollbar]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -1690,10 +1759,10 @@ function minGUI_init()
 							canvas3 = love.graphics.newCanvas(size_width, size_height)
 						}												
 					else
-						minGUI_error_message("[add_scrollbar]Wrong gadget size " .. num)
+						minGUI_error_message("[add_scrollbar]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_scrollbar]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_scrollbar]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_scrollbar]Gadget already exists " .. num)
@@ -1705,12 +1774,20 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_image]Wrong num value for button image"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_image]Wrong x for button image " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_image]Wrong y for button image " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_image]Wrong width for button image " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_image]Wrong height for button image " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_image]Wrong parent for button image " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_image]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_image]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_image]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_image]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_image]Wrong height for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_image]Wrong parent for gadget " .. num); return end
+
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_image]Wrong flags for gadget " .. num)
+				return
+			end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -1720,17 +1797,17 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_IMAGE, x = x, y = y, width = width, height = height, text = text, parent = parent, down =  {left = false, right = false},
+							num = num, tp = MG_IMAGE, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
 							image = image,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_image]Wrong gadget size " .. num)
+						minGUI_error_message("[add_image]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_image]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_image]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_image]Gadget already exists " .. num)
@@ -1741,26 +1818,26 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong x for scrollbar " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong y for scrollbar " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong width for scrollbar " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong height for scrollbar " .. num); return end
-			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong value for scrollbar " .. num); return end
-			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong min value for scrollbar " .. num); return end
-			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong max value for scrollbar " .. num); return end
-			if not minGUI_check_param2(inc, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong increment value for scrollbar " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_internal_scrollbar]Wrong parent for scrollbar " .. num); return end
-
 			minGUI.int_gadget = minGUI.int_gadget + 1
 			
 			local num = minGUI.int_gadget
+
+			-- check for values and types of values
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong value for gadget " .. num); return end
+			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong min value for gadget " .. num); return end
+			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong max value for gadget " .. num); return end
+			if not minGUI_check_param2(inc, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong increment value for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_internal_scrollbar]Wrong parent for gadget " .. num); return end
 			
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_internal_scrollbar]Wrong flags for scrollbar " .. num)
+				minGUI_error_message("[add_internal_scrollbar]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -1847,10 +1924,10 @@ function minGUI_init()
 							canvas3 = love.graphics.newCanvas(size_width, size_height)
 						}												
 					else
-						minGUI_error_message("[add_internal_scrollbar]Wrong gadget size " .. num)
+						minGUI_error_message("[add_internal_scrollbar]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_internal_scrollbar]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_internal_scrollbar]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_internal_scrollbar]Gadget already exists " .. num)
@@ -1860,15 +1937,23 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_internal_box]Wrong x for scrollbar " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_internal_box]Wrong y for scrollbar " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_internal_box]Wrong parent for scrollbar " .. num); return end
-
 			minGUI.int_gadget = minGUI.int_gadget + 1
 			
 			local num = minGUI.int_gadget
-			
+
+			-- check for values and types of values
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_internal_box]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_internal_box]Wrong y for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_internal_box]Wrong parent for gadget " .. num); return end
+	
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_internal_box]Wrong flags for gadget " .. num)
+				return
+			end
+
 			width = MG_SCROLLBAR_SIZE
 			height = MG_SCROLLBAR_SIZE
 			
@@ -1877,16 +1962,16 @@ function minGUI_init()
 				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
-							num = num, tp = MG_INTERNAL_BOX, x = x, y = y, width = width, height = height, parent = parent,
+							num = num, tp = MG_INTERNAL_BOX, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
 					else
-						minGUI_error_message("[add_internal_box]Wrong gadget size " .. num)
+						minGUI_error_message("[add_internal_box]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_internal_box]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_internal_box]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_internal_box]Gadget already exists " .. num)
@@ -1902,18 +1987,26 @@ function minGUI_init()
 			local num = minGUI.int_gadget
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_menu]Wrong x for menu " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_menu]Wrong y for menu " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_menu]Wrong width for menu " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_menu]Wrong height for menu " .. num); return end
-			if not minGUI_check_param2(array, "table") then minGUI_error_message("[add_menu]Wrong array for menu " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_menu]Wrong parent for menu " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_menu]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_menu]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_menu]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_menu]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(array, "table") then minGUI_error_message("[add_menu]Wrong array for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_menu]Wrong parent for gadget " .. num); return end
+	
+			-- reset flags
+			if flags == nil then
+				flags = 0
+			elseif type(flags) ~= "number" then
+				minGUI_error_message("[add_internal_menu]Wrong flags for gadget " .. num)
+				return
+			end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
 
 			if array == nil then
-				minGUI_error_message("[add_menu]Wrong menu array " .. num)
+				minGUI_error_message("[add_menu]Wrong menu array for gadget " .. num)
 				return
 			end
 			
@@ -1922,7 +2015,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
-							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
+							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, flags = flags, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
 							r1 = 0, g1 = 0, b1 = 0, a1 = 1,
 							r2 = 1, g2 = 1, b2 = 1, a2 = 1,
 							can_have_sons = false,
@@ -1931,10 +2024,10 @@ function minGUI_init()
 							canvas1 = love.graphics.newCanvas(width, 1)
 						}
 					else
-						minGUI_error_message("[add_menu]Wrong gadget size " .. num)
+						minGUI_error_message("[add_menu]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_menu]Wrong gadget parent " .. num)
+					minGUI_error_message("[add_menu]Wrong gadget parent for gadget " .. num)
 				end
 			else
 				minGUI_error_message("[add_menu]Gadget already exists " .. num)
