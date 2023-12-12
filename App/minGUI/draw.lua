@@ -6,8 +6,36 @@ function minGUI_draw_gadget(w, ox, oy)
 		
 		-- draw title bar ?
 		if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_TITLEBAR) then
+			-- draw titlebar
 			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
+			
+			-- draw footerbar
+			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
+			
+			-- draw the text on the gadget's canvas
+			love.graphics.setCanvas(w.canvas)
+			
+			-- draw close button in the titlebar
+			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_CLOSE) then
+				minGUI_draw_sprite(MG_CLOSE_WINDOW_IMAGE, 0, 1)
+			end
+
+			-- draw maximize button in the titlebar
+			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_MAXIMIZE) then
+				minGUI_draw_sprite(MG_MAXIMIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, 1)
+			end
+
+			-- draw resize button in the footerbar
+			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_RESIZE) then
+				minGUI_draw_sprite(MG_RESIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1)
+			end
 		end
+
+		-- restore drawing on the window's canvas
+		love.graphics.setCanvas()
+		
+		-- restore color
+		love.graphics.setColor(1, 1, 1, 1)
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
 	-- draw panels

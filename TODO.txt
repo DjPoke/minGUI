@@ -1,7 +1,6 @@
 TODO List:
 ----------
 
-- Debug scrollbars buttons width/height
 - Finish menus and drop down menus
 - Finish the string gadgets. Add the use of left key, right key, delete, home, end, etc.
 - Finish scrollbars inside the editor gadgets.

@@ -41,6 +41,9 @@ function minGUI_init()
 	MG_MENU_DOWN_IMAGE = 14
 	MG_SUBMENU_UP_IMAGE = 15
 	MG_SUBMENU_DOWN_IMAGE = 16
+	MG_CLOSE_WINDOW_IMAGE = 17
+	MG_MAXIMIZE_WINDOW_IMAGE = 18
+	MG_RESIZE_WINDOW_IMAGE = 19
 	
 	-- mouse buttons
 	MG_LEFT_BUTTON = 1
@@ -60,6 +63,7 @@ function minGUI_init()
 	MG_FLAG_WINDOW_CLOSE = 2
 	MG_FLAG_WINDOW_MAXIMIZE = 4
 	MG_FLAG_WINDOW_RESIZE = 8
+	MG_FLAG_WINDOW_ALL_GADGETS = 1 + 2 + 4 + 8
 	MG_FLAG_WINDOW_CENTERED = 16
 	
 	MG_FLAG_NOT_EDITABLE = 1
@@ -170,6 +174,9 @@ function minGUI_init()
 			minGUI_load_sprite(MG_OPTION_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/option.png")
 			minGUI_load_sprite(MG_SPIN_BUTTON_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin_buttons_up.png")
 			minGUI_load_sprite(MG_SPIN_BUTTON_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin_buttons_down.png")
+			minGUI_load_sprite(MG_CLOSE_WINDOW_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/close_button.png")
+			minGUI_load_sprite(MG_MAXIMIZE_WINDOW_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/maximize_button.png")
+			minGUI_load_sprite(MG_RESIZE_WINDOW_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/resize_button.png")
 		end,
 		-- set colors theme
 		set_theme = function(self, text)
@@ -1066,7 +1073,7 @@ function minGUI_init()
 		add_window = function(self, num, x, y, width, height, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
-
+			
 			-- check for values and types of values
 			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_window]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_window]Wrong x for gadget " .. num); return end
@@ -1080,6 +1087,14 @@ function minGUI_init()
 			elseif type(flags) ~= "number" then
 				minGUI_error_message("[add_window]Wrong flags  for gadget" .. num)
 				return
+			end
+
+			-- centered window ?
+			if minGUI_flag_active(flags, MG_FLAG_WINDOW_CENTERED) then
+				w, h = love.graphics.getDimensions()
+
+				x = math.floor((w - width) / 2)
+				y = math.floor((h - height) / 2)
 			end
 
 			-- initialize values

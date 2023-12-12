@@ -17,8 +17,8 @@ function love.load()
 	minGUI:set_bgcolor(0.5, 0.5, 0.5, 1)
 
 	-- add windows
-	minGUI:add_window(1, 10, 10, 300, 200, MG_FLAG_WINDOW_TITLEBAR)
-	minGUI:add_window(2, 100, 100, 640, 520, MG_FLAG_WINDOW_TITLEBAR)
+	minGUI:add_window(1, 10, 10, 300, 200, MG_FLAG_WINDOW_ALL_GADGETS)
+	minGUI:add_window(2, 100, 100, 640, 540, MG_FLAG_WINDOW_ALL_GADGETS)
 	
 	-- add panels
 	minGUI:add_panel(3, 10, 120, 300, 100, nil, 2)
