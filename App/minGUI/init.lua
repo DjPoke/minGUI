@@ -4,7 +4,7 @@ function minGUI_init()
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	-- constants:
-	MG_WINDOW_TITLEBAR_HEIGHT = 24
+	MG_WINDOW_TITLEBAR_HEIGHT = 25
 	
 	-- gadgets
 	MG_WINDOW = 1
@@ -26,18 +26,20 @@ function minGUI_init()
 	
 	-- gadget images
 	MG_WINDOW_IMAGE = 1
-	MG_PANEL_IMAGE = 2
-	MG_BUTTON_UP_IMAGE = 3
-	MG_BUTTON_DOWN_IMAGE = 4
-	MG_CHECKBOX_IMAGE = 5
-	MG_OPTION_IMAGE = 6
-	MG_SPIN_IMAGE = 7
-	MG_SPIN_BUTTON_UP_IMAGE = 8
-	MG_SPIN_BUTTON_DOWN_IMAGE = 9
-	MG_MENU_UP_IMAGE = 10
-	MG_MENU_DOWN_IMAGE = 11
-	MG_SUBMENU_UP_IMAGE = 12
-	MG_SUBMENU_DOWN_IMAGE = 13
+	MG_TITLEBAR_IMAGE = 2
+	MG_WINDOW_SELECTED_IMAGE = 3
+	MG_PANEL_IMAGE = 4
+	MG_BUTTON_UP_IMAGE = 5
+	MG_BUTTON_DOWN_IMAGE = 6
+	MG_CHECKBOX_IMAGE = 7
+	MG_OPTION_IMAGE = 8
+	MG_SPIN_IMAGE = 9
+	MG_SPIN_BUTTON_UP_IMAGE = 10
+	MG_SPIN_BUTTON_DOWN_IMAGE = 11
+	MG_MENU_UP_IMAGE = 12
+	MG_MENU_DOWN_IMAGE = 13
+	MG_SUBMENU_UP_IMAGE = 14
+	MG_SUBMENU_DOWN_IMAGE = 15
 	
 	-- mouse buttons
 	MG_LEFT_BUTTON = 1
@@ -55,10 +57,9 @@ function minGUI_init()
 	-- flags
 	MG_FLAG_WINDOW_TITLEBAR = 1
 	MG_FLAG_WINDOW_CLOSE = 2
-	MG_FLAG_WINDOW_MINIMIZE = 4
-	MG_FLAG_WINDOW_MAXIMIZE = 8
-	MG_FLAG_WINDOW_RESIZE = 16
-	MG_FLAG_WINDOW_CENTERED = 32
+	MG_FLAG_WINDOW_MAXIMIZE = 4
+	MG_FLAG_WINDOW_RESIZE = 8
+	MG_FLAG_WINDOW_CENTERED = 16
 	
 	MG_FLAG_NOT_EDITABLE = 1
 	MG_FLAG_NO_SCROLLBARS = 2
@@ -151,6 +152,7 @@ function minGUI_init()
 
 			-- load 9-slice sprites
 			minGUI_load_9slice(MG_WINDOW_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/window.png")
+			minGUI_load_9slice(MG_WINDOW_SELECTED_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/window_selected.png")
 			minGUI_load_9slice(MG_PANEL_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/panel.png")
 			minGUI_load_9slice(MG_BUTTON_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_up.png")
 			minGUI_load_9slice(MG_BUTTON_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_down.png")
@@ -159,6 +161,7 @@ function minGUI_init()
 			minGUI_load_9slice(MG_MENU_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_down.png")
 			minGUI_load_9slice(MG_SUBMENU_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/submenu_up.png")
 			minGUI_load_9slice(MG_SUBMENU_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/submenu_down.png")
+			minGUI_load_9slice(MG_TITLEBAR_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/titlebar.png")
 
 			-- load sprites
 			minGUI_load_sprite(MG_CHECKBOX_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/checkbox.png")

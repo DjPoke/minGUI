@@ -6,7 +6,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		
 		-- draw title bar ?
 		if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_TITLEBAR) then
-			minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, MG_WINDOW_TITLEBAR_HEIGHT, w.canvas)
+			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
 		end
 
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
@@ -771,25 +771,17 @@ function minGUI_draw_9slice(num, x, y, width, height, canvas)
 	local p = {}
 	
 	-- quads size x & y
-	local qsx = minGUI.sprite[num]:getWidth() / 3
-	local qsy = minGUI.sprite[num]:getHeight() / 3
+	local qsx = math.floor(minGUI.sprite[num]:getWidth() / 3)
+	local qsy = math.floor(minGUI.sprite[num]:getHeight() / 3)
 	
 	-- maximum number of rows and columns of quads
 	local tx = math.floor(width / qsx)
 	local ty = math.floor(height / qsy)
 
 	-- unused pieces of tiles
-	local px = (width - (tx * qsx)) / tx
-	local py = (height - (ty * qsy)) / ty
+	local px = math.floor(width - (tx * qsx))
+	local py = math.floor(height - (ty * qsy))
 
-	-- real size of tiles
-	local rsx = qsx + px
-	local rsy = qsy + py
-	
-	-- scale x & y values
-	local sx = rsx / qsx
-	local sy = rsy / qsy
-	
 	-- get limits
 	local limitx = tx - 1
 	local limity = ty - 1
@@ -812,35 +804,44 @@ function minGUI_draw_9slice(num, x, y, width, height, canvas)
 	love.graphics.setCanvas(canvas)
 
 	-- draw top left corner
-	love.graphics.draw(minGUI.sprite[num], p[1], x, y, 0, sx, sy)
+	love.graphics.draw(minGUI.sprite[num], p[1], x, y)
+
+	-- draw top edge
+	for x9 = 1, limitx do
+		love.graphics.draw(minGUI.sprite[num], p[2], x + (x9 * qsx), y)
+	end
 
 	-- draw top right corner
-	love.graphics.draw(minGUI.sprite[num], p[3], x + (limitx * rsx), y, 0, sx, sy)
+	love.graphics.draw(minGUI.sprite[num], p[3], x + (limitx * qsx) + px, y)
 
-	-- draw bottom left corner
-	love.graphics.draw(minGUI.sprite[num], p[7], x, y + (limity * rsy), 0, sx, sy)
-			
-	-- draw bottom right corner
-	love.graphics.draw(minGUI.sprite[num], p[9], x + (limitx * rsx), y + (limity * rsy), 0, sx, sy)
-
-	-- draw edges
-	for x9 = 1, limitx - 1 do
-		love.graphics.draw(minGUI.sprite[num], p[2], x + (x9 * rsx), y, 0, sx, sy)
-		love.graphics.draw(minGUI.sprite[num], p[8], x + (x9 * rsx), y + (limity * rsy), 0, sx, sy)
-	end
-	
-	for y9 = 1, limity - 1 do
-		love.graphics.draw(minGUI.sprite[num], p[4], x, (y9 * rsy), y, sx, sy)
-		love.graphics.draw(minGUI.sprite[num], p[6], x + (limitx * rsx), y + (y9 * rsy), 0, sx, sy)
+	-- draw left edge
+	for y9 = 1, limity do
+		love.graphics.draw(minGUI.sprite[num], p[4], x, y + (y9 * qsy))
 	end
 		
 	-- draw center
-	for y9 = 1, limity - 1 do
-		for x9 = 1, limitx - 1 do		
-			love.graphics.draw(minGUI.sprite[num], p[5], x + (x9 * rsx), y + (y9 * rsy), 0, sx, sy)
+	for y9 = 1, limity do
+		for x9 = 1, limitx do
+			love.graphics.draw(minGUI.sprite[num], p[5], x + (x9 * qsx), y + (y9 * qsy))
 		end
 	end
 	
+	-- draw right edge
+	for y9 = 1, limity do
+		love.graphics.draw(minGUI.sprite[num], p[6], x + (limitx * qsx) + px, y + (y9 * qsy))
+	end
+	
+	-- draw bottom left corner
+	love.graphics.draw(minGUI.sprite[num], p[7], x, y + (limity * qsy) + py)
+
+	-- draw bottom edge
+	for x9 = 1, limitx do
+		love.graphics.draw(minGUI.sprite[num], p[8], x + (x9 * qsx), y + (limity * qsy) + py)
+	end
+
+	-- draw bottom right corner
+	love.graphics.draw(minGUI.sprite[num], p[9], x + (limitx * qsx) + px, y + (limity * qsy) + py)
+
 	-- render to window
 	love.graphics.setCanvas()
 end
