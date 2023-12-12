@@ -9,6 +9,27 @@ function minGUI_draw_gadget(w, ox, oy)
 			-- draw titlebar
 			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
 			
+			-- draw title
+			if w.title ~= nil and w.title ~= "" then
+				-- draw the text on the gadget's canvas
+				love.graphics.setCanvas(w.canvas)
+				
+				-- set color to paper color for the gadget
+				love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
+
+				-- draw filled rectangle background for the text
+				love.graphics.rectangle("fill", ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.title)) / 2) - 1, (MG_WINDOW_TITLEBAR_HEIGHT - minGUI.font[minGUI.numFont]:getHeight()) / 2, minGUI.font[minGUI.numFont]:getWidth(w.title) + 2, minGUI.font[minGUI.numFont]:getHeight())
+				
+				-- set color to pen color for the gadget
+				love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+
+				-- print the text centered
+				love.graphics.print(w.title, (w.width - minGUI.font[minGUI.numFont]:getWidth(w.title)) / 2, (MG_WINDOW_TITLEBAR_HEIGHT - minGUI.font[minGUI.numFont]:getHeight()) / 2)
+			end
+			
+			-- restore color
+			love.graphics.setColor(1, 1, 1, 1)
+			
 			-- draw footerbar
 			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
 			

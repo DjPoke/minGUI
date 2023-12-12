@@ -1070,7 +1070,7 @@ function minGUI_init()
 			end
 		end,
 		-- add a window to the gadget's tree
-		add_window = function(self, num, x, y, width, height, flags, parent)
+		add_window = function(self, num, x, y, width, height, title, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
@@ -1080,7 +1080,8 @@ function minGUI_init()
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_window]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_window]Wrong width  for gadget " .. num); return end
 			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_window]Wrong height  for gadget " .. num); return end
-
+			if not minGUI_check_param2(title, "string") then minGUI_error_message("[add_window]Wrong title for gadget " .. num); return end
+			
 			-- reset flags
 			if flags == nil then
 				flags = 0
@@ -1102,7 +1103,9 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
-							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
+							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, title = title, flags = flags, parent = parent,
+							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = true,
 							can_have_menu = true,
 							canvas = love.graphics.newCanvas(width, height)
