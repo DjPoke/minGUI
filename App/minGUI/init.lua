@@ -36,10 +36,11 @@ function minGUI_init()
 	MG_SPIN_IMAGE = 9
 	MG_SPIN_BUTTON_UP_IMAGE = 10
 	MG_SPIN_BUTTON_DOWN_IMAGE = 11
-	MG_MENU_UP_IMAGE = 12
-	MG_MENU_DOWN_IMAGE = 13
-	MG_SUBMENU_UP_IMAGE = 14
-	MG_SUBMENU_DOWN_IMAGE = 15
+	MG_SCROLLBAR_IMAGE = 12
+	MG_MENU_UP_IMAGE = 13
+	MG_MENU_DOWN_IMAGE = 14
+	MG_SUBMENU_UP_IMAGE = 15
+	MG_SUBMENU_DOWN_IMAGE = 16
 	
 	-- mouse buttons
 	MG_LEFT_BUTTON = 1
@@ -157,6 +158,7 @@ function minGUI_init()
 			minGUI_load_9slice(MG_BUTTON_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_up.png")
 			minGUI_load_9slice(MG_BUTTON_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/button_down.png")
 			minGUI_load_9slice(MG_SPIN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/spin.png")
+			minGUI_load_9slice(MG_SCROLLBAR_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/scrollbar.png")
 			minGUI_load_9slice(MG_MENU_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_up.png")
 			minGUI_load_9slice(MG_MENU_DOWN_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/menu_down.png")
 			minGUI_load_9slice(MG_SUBMENU_UP_IMAGE, "minGUI/themes/" .. minGUI.theme .. "/submenu_up.png")

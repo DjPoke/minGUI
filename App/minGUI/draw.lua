@@ -307,7 +307,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		end
 		
 		-- draw scrollbar button 3
-		minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
+		minGUI_draw_9slice(MG_SCROLLBAR_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
 		
 		-- calculate arrows position and size
 		local size = math.floor(w.size / 2)
@@ -417,7 +417,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		end
 		
 		-- draw scrollbar button 3
-		minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
+		minGUI_draw_9slice(MG_SCROLLBAR_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
 		
 		-- calculate arrows position and size
 		local size = math.floor(w.size / 2)
