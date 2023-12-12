@@ -112,6 +112,7 @@ function minGUI_init()
 		estack = {}, -- events stack
 		ptimer = {}, -- programmable timers
 		tstack = {}, -- timers events stack
+		ext_gadget = 0, -- gadgets numbers
 		int_gadget = 0, -- internal gadgets numbers
 		timer = 0, -- time from start of the app
 		kbdelay = 0,
@@ -1070,12 +1071,15 @@ function minGUI_init()
 			end
 		end,
 		-- add a window to the gadget's tree
-		add_window = function(self, num, x, y, width, height, title, flags, parent)
+		add_window = function(self, x, y, width, height, title, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+			
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_window]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_window]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_window]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_window]Wrong width  for gadget " .. num); return end
@@ -1110,23 +1114,31 @@ function minGUI_init()
 							can_have_menu = true,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_window]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_window]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_window]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add a panel to the gadget's tree
-		add_panel = function(self, num, x, y, width, height, flags, parent)
+		add_panel = function(self, x, y, width, height, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+			
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_panel]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_panel]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_panel]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_panel]Wrong width for gadget " .. num); return end
@@ -1150,23 +1162,31 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_panel]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_panel]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_panel]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add a button to the gadgets's tree
-		add_button = function(self, num, x, y, width, height, text, flags, parent)
+		add_button = function(self, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_button]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button]Wrong width for gadget " .. num); return end
@@ -1197,23 +1217,31 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_button]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_button]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_button]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add a button image to the gadgets's tree
-		add_button_image = function(self, num, x, y, width, height, image, flags, parent)
+		add_button_image = function(self, x, y, width, height, image, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_button_image]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button_image]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button_image]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button_image]Wrong width for gadget " .. num); return end
@@ -1242,23 +1270,31 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_button_image]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_button_image]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_button_image]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add a label to the gadgets's tree
-		add_label = function(self, num, x, y, width, height, text, flags, parent)
+		add_label = function(self, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_label]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_label]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_label]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_label]Wrong width for gadget " .. num); return end
@@ -1294,7 +1330,6 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-
 						minGUI.gtree[num] = {
 							num = num, tp = MG_LABEL, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
@@ -1303,23 +1338,31 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_label]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_label]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_label]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add an editable string gadget to the gadgets's tree
-		add_string = function(self, num, x, y, width, height, text, flags, parent)
+		add_string = function(self, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_string]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_string]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_string]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_string]Wrong width for gadget " .. num); return end
@@ -1369,23 +1412,31 @@ function minGUI_init()
 						
 						-- set the focus to the last editable gadget
 						minGUI.gfocus = num
+						
+						return num
 					else
 						minGUI_error_message("[add_string]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_string]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_string]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add a canvas gadget to the gadgets's tree
-		add_canvas = function(self, num, x, y, width, height, flags, parent)
+		add_canvas = function(self, x, y, width, height, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_canvas]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_canvas]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_canvas]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_canvas]Wrong width for gadget " .. num); return end
@@ -1414,14 +1465,19 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_canvas]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_canvas]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_canvas]Gadget already exists " .. num)
+				return
 			end
 			
 			-- draw on the canvas
@@ -1435,12 +1491,15 @@ function minGUI_init()
 			love.graphics.setCanvas()
 		end,
 		-- add a checkbox to the gadgets's tree
-		add_checkbox = function(self, num, x, y, width, height, text, flags, parent)
+		add_checkbox = function(self, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_checkbox]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_checkbox]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_checkbox]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_checkbox]Wrong width for gadget " .. num); return end
@@ -1472,23 +1531,31 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_checkbox]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_checkbox]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_checkbox]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add an option gadget to the gadgets's tree
-		add_option = function(self, num, x, y, width, height, text, flags, parent)
+		add_option = function(self, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_option]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_option]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_option]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_option]Wrong width for gadget " .. num); return end
@@ -1520,23 +1587,31 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_option]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_option]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_option]Gadget already exists for gadget " .. num)
+				return
 			end
 		end,
 		-- add a spin gadget to the gadgets's tree
-		add_spin = function(self, num, x, y, width, height, value, minValue, maxValue, flags, parent)
+		add_spin = function(self, x, y, width, height, value, minValue, maxValue, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_spin]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_spin]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_spin]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_spin]Wrong width for gadget " .. num); return end
@@ -1588,23 +1663,31 @@ function minGUI_init()
 
 						-- set the focus to the last editable gadget
 						minGUI.gfocus = num
+						
+						return num
 					else
 						minGUI_error_message("[add_spin]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_spin]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_spin]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add an editor gadget to the gadgets's tree
-		add_editor = function(self, num, x, y, width, height, text, flags, parent)
+		add_editor = function(self, x, y, width, height, text, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_editor]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_editor]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_editor]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_editor]Wrong width for gadget " .. num); return end
@@ -1664,23 +1747,31 @@ function minGUI_init()
 						
 						-- position cursor at end
 						minGUI:set_cursor_xy(num, -1, -1)
+						
+						return num
 					else
 						minGUI_error_message("[add_editor]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_editor]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_editor]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add a scrollbar gadget to the gadgets's tree
-		add_scrollbar = function(self, num, x, y, width, height, value, minValue, maxValue, inc, flags, parent)
+		add_scrollbar = function(self, x, y, width, height, value, minValue, maxValue, inc, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_scrollbar]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_scrollbar]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_scrollbar]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_scrollbar]Wrong width for gadget " .. num); return end
@@ -1780,24 +1871,32 @@ function minGUI_init()
 							canvas1 = love.graphics.newCanvas(size, size),
 							canvas2 = love.graphics.newCanvas(size, size),
 							canvas3 = love.graphics.newCanvas(size_width, size_height)
-						}												
+						}
+						
+						return num
 					else
 						minGUI_error_message("[add_scrollbar]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_scrollbar]Wrong gadget parent for gadget " .. num)
+					return
 				end
 			else
 				minGUI_error_message("[add_scrollbar]Gadget already exists " .. num)
+				return
 			end			
 		end,
 		-- add an image to the gadgets's tree
-		add_image = function(self, num, x, y, width, height, image, flags, parent)
+		add_image = function(self, x, y, width, height, image, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
+			minGUI.ext_gadget = minGUI.ext_gadget + 1
+			
+			local num = minGUI.ext_gadget
+
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[add_image]Wrong num value"); return end
 			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_image]Wrong x for gadget " .. num); return end
 			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_image]Wrong y for gadget " .. num); return end
 			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_image]Wrong width for gadget " .. num); return end
@@ -1826,14 +1925,19 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
 						}
+						
+						return num
 					else
 						minGUI_error_message("[add_image]Wrong gadget size for gadget " .. num)
+						return
 					end
 				else
 					minGUI_error_message("[add_image]Wrong gadget parent for gadget " .. num)
+				return
 				end
 			else
 				minGUI_error_message("[add_image]Gadget already exists " .. num)
+				return
 			end
 		end,
 		-- add an internal scrollbar gadget to the internal's gadgets tree
