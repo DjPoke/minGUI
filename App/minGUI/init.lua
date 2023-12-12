@@ -1104,7 +1104,7 @@ function minGUI_init()
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, title = title, flags = flags, parent = parent,
-							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
+							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = true,
 							can_have_menu = true,
@@ -1192,7 +1192,7 @@ function minGUI_init()
 					if width > 0 and height > 0 then
 						minGUI.gtree[num] = {
 							num = num, tp = MG_BUTTON, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down = {left = false, right = false},
-							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
@@ -1467,7 +1467,7 @@ function minGUI_init()
 						minGUI.gtree[num] = {
 							num = num, tp = MG_CHECKBOX, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
-							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
@@ -1515,7 +1515,7 @@ function minGUI_init()
 						minGUI.gtree[num] = {
 							num = num, tp = MG_OPTION, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
-							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
@@ -1773,7 +1773,7 @@ function minGUI_init()
 							size_width = size_width, size_height = size_height, min_size = min_size,
 							value = value, minValue = minValue, maxValue = maxValue, stepsValue = stepsValue, inc = inc,
 							timer = 0,
-							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(real_width, real_height),
@@ -1938,7 +1938,7 @@ function minGUI_init()
 							size_width = size_width, size_height = size_height, min_size = min_size,
 							value = value, minValue = minValue, maxValue = maxValue, stepsValue = stepsValue, inc = inc,
 							timer = 0,
-							r = minGUI.txtcolor.r, g = minGUI.txtcolor.g, b = minGUI.txtcolor.b, a = minGUI.txtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(real_width, real_height),
@@ -2039,8 +2039,8 @@ function minGUI_init()
 					if width > 0 and height > 0 then
 						minGUI.igtree[num] = {
 							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, flags = flags, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
-							r1 = 0, g1 = 0, b1 = 0, a1 = 1,
-							r2 = 1, g2 = 1, b2 = 1, a2 = 1,
+							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
+							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height),

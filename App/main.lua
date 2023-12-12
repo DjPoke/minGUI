@@ -13,8 +13,11 @@ function love.load()
 	-- initialize minGUI
 	minGUI_init()
 	
-	-- set background color
+	-- set colors
 	minGUI:set_bgcolor(0.5, 0.5, 0.5, 1)
+	minGUI:set_textcolor(0, 0, 0, 1)
+	minGUI:set_invtextcolor(1, 1, 1, 1)
+	minGUI:set_greyedcolor(0.5, 0.5, 0.5, 1)
 
 	-- add windows
 	minGUI:add_window(1, 10, 10, 300, 200, "Window 1", MG_FLAG_WINDOW_ALL_GADGETS)

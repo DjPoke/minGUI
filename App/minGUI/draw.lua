@@ -79,7 +79,7 @@ function minGUI_draw_gadget(w, ox, oy)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 	
 		-- set color to pen color for the gadget
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 
 		-- print the text centered
 		love.graphics.print(w.text, ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) - 1, ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
@@ -212,7 +212,7 @@ function minGUI_draw_gadget(w, ox, oy)
 	
 		-- draw the text at the right of the button
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 		love.graphics.print(w.text, 16, (w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2)
 
 		-- restore drawing on the window's canvas
@@ -239,7 +239,7 @@ function minGUI_draw_gadget(w, ox, oy)
 
 		-- draw the text at the right of the button
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 		love.graphics.print(w.text, 16, (w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2)
 		
 		-- restore drawing on the window's canvas
@@ -380,14 +380,14 @@ function minGUI_draw_gadget(w, ox, oy)
 		love.graphics.setCanvas(w.canvas1)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 		love.graphics.polygon("fill", p1)
 
 		-- draw the text arrow on the gadget's canvas
 		love.graphics.setCanvas(w.canvas2)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 		love.graphics.polygon("fill", p2)
 		
 		-- restore drawing on the window's canvas
@@ -490,14 +490,14 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 		love.graphics.setCanvas(w.canvas1)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 		love.graphics.polygon("fill", p1)
 
 		-- draw the text arrow on the gadget's canvas
 		love.graphics.setCanvas(w.canvas2)
 		
 		-- draw the text value in its area
-		love.graphics.setColor(w.r, w.g, w.b, w.a)
+		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 		love.graphics.polygon("fill", p2)
 		
 		-- restore drawing on the window's canvas
@@ -551,7 +551,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i].head_menu .. " ")
 			menu_height = minGUI.font[minGUI.numFont]:getHeight()
 			
-			love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
+			love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 
 			-- memorize selected menu x
 			if w.menu.selected == i then xsel = x end
@@ -559,7 +559,7 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 			if w.menu.selected == i and w.menu.hover == 0 then
 				minGUI_draw_9slice(MG_MENU_DOWN_IMAGE, x, 0, menu_width, w.height, w.canvas)
 				
-				love.graphics.setColor(w.r2, w.g2, w.b2, w.a2)
+				love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
 			end
 			
 			-- draw the text on the gadget's canvas
@@ -607,10 +607,10 @@ function minGUI_draw_internal_gadget(w, ox, oy)
 						minGUI_draw_9slice(MG_SUBMENU_DOWN_IMAGE, 0, 1 + ((w.height + 2) * (i - 1)), mw, 2 + w.height, w.canvas1)
 						
 						love.graphics.setCanvas(w.canvas1)
-						love.graphics.setColor(w.r2, w.g2, w.b2, w.a2)
+						love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
 					else
 						-- set the right color
-						love.graphics.setColor(w.r1, w.g1, w.b1, w.a1)
+						love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 					end
 
 					-- draw the text on the gadget's canvas
