@@ -55,23 +55,6 @@ function minGUI_sub_string(text, v1, v2)
 	return string.sub(text, byteoffset1, byteoffset2)
 end
 
--- uncheck all option gadgets of the same parent
-function minGUI_uncheck_option(v, num)
-	for j, w in ipairs(minGUI.gtree) do
-		-- if an other gadget than the option one is checked...
-		if j ~= num then
-			-- if the new gadget is an option one...
-			if w.tp == MG_OPTION then
-				-- if he has the same parent...
-				if w.parent == v.parent then
-					-- uncheck it !
-					w.checked = false
-				end
-			end
-		end
-	end
-end
-
 -- check if a file exists
 function minGUI_get_file_exists(path)
 	local info = love.filesystem.getInfo(path)
@@ -173,10 +156,12 @@ function minGUI_flag_active(flags, flag)
 end
 
 -- return the height of the menu in the window
-function minGUI_window_menu_height(v)
+function minGUI_window_menu_height(num)
+	local v = minGUI.gtree[num]
+
 	if v.tp == MG_WINDOW then
 		for j, w in ipairs(minGUI.igtree) do
-			if w.parent == v.num then
+			if w.parent == num then
 				if w.tp == MG_INTERNAL_MENU then
 					return w.height
 				end
@@ -188,8 +173,10 @@ function minGUI_window_menu_height(v)
 end
 
 -- return the height of the titlebar for the window
-function minGUI_window_titlebar_height(v)
-	if v.tp == MG_WINDOW then
+function minGUI_window_titlebar_height(num)
+	local v = minGUI.gtree[num]
+
+	if v.tp == MG_WINDOW then		
 		if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_TITLEBAR) then
 			return MG_WINDOW_TITLEBAR_HEIGHT
 		end
@@ -197,3 +184,88 @@ function minGUI_window_titlebar_height(v)
 	
 	return 0
 end
+
+-- check witch window has focus
+function minGUI_get_window_has_focus(num)
+	local w = nil
+	
+	-- check for windows only
+	for i, v in ipairs(minGUI.gtree) do
+		if v.tp == MG_WINDOW then
+			w = v
+		end
+	end
+	
+	return win == w
+end
+
+-- get the offset for the internal gadget
+function minGUI_get_parent_internal_gadget_offset(num, tp)
+	-- get internal's gadget parent
+	local w = minGUI.gtree[minGUI.igtree[num].parent]
+	
+	local ox = 0
+	local oy = 0
+	
+	-- if there is a parent...
+	if w ~= nil then
+		-- get parents offsets
+		ox = w.x
+		oy = w.y
+										
+		if tp ~= MG_INTERNAL_MENU then
+			oy = oy + minGUI_window_menu_height(w.num)
+		end
+		
+		oy = oy + minGUI_window_titlebar_height(w.num)
+		
+		-- while parent has parents
+		while w.parent ~= nil do
+			-- get grand-parents and others
+			w = minGUI.gtree[w.parent]
+			
+			-- if they exists...
+			if w ~= nil then
+				-- add their offset
+				ox = ox + w.x
+				oy = oy + w.y
+										
+				if tp ~= MG_INTERNAL_MENU then
+					oy = oy + minGUI_window_menu_height(w.num)
+				end
+				
+				oy = oy + minGUI_window_titlebar_height(w.num)
+			end
+		end
+	end
+	
+	return ox, oy
+end
+
+-- get the offset for the gadget
+function minGUI_get_parent_gadget_offset(num)
+	-- calculate parents offset
+	local ox = 0
+	local oy = 0
+
+	--
+	local j = num
+	
+	-- while gadget 'j' has a parent
+	while minGUI.gtree[j].parent ~= nil do
+		-- 'k' = parent number
+		local k = minGUI.gtree[j].parent
+
+		-- add gadget offsets
+		ox = ox + minGUI.gtree[k].x
+		oy = oy + minGUI.gtree[k].y
+		oy = oy + minGUI_window_menu_height(k)
+		oy = oy + minGUI_window_titlebar_height(k)
+
+		--
+		j = k
+	end
+
+	return ox, oy
+end
+

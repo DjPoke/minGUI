@@ -1,5 +1,7 @@
 -- draw a gadget
-function minGUI_draw_gadget(w, ox, oy)
+function minGUI_draw_gadget(num, ox, oy)
+	local w = minGUI.gtree[num]
+	
 	-- draw panels
 	if w.tp == MG_WINDOW then
 		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, w.height, w.canvas)
@@ -441,7 +443,9 @@ function minGUI_draw_gadget(w, ox, oy)
 	end
 end
 
-function minGUI_draw_internal_gadget(w, ox, oy)
+function minGUI_draw_internal_gadget(num, ox, oy)
+	local w = minGUI.igtree[num]
+
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar
@@ -635,22 +639,20 @@ function minGUI_draw_all()
 	love.graphics.clear(minGUI.bgcolor.r, minGUI.bgcolor.g, minGUI.bgcolor.b, minGUI.bgcolor.a)
 	love.graphics.setColor(1, 1, 1, 1)
 
-	-- draw gadgets without parent
+	-- draw gadgets
 	for i, v in ipairs(minGUI.gtree) do
 		if v.parent == nil then
-			minGUI_draw_gadget(v, 0, 0)
+			minGUI_draw_gadget(i, 0, 0)
 
 			-- draw sons
 			if v.can_have_sons then
-				minGUI_draw_sons(v, 0, 0)
+				minGUI_draw_sons(i, 0, 0)
 			end
 			
 			-- draw cursor on focused object,if needed
 			if minGUI.gfocus ~= nil and minGUI.gfocus == i then
 				if minGUI.gtree[i] ~= nil then
-					v = minGUI.gtree[i]
-					
-					minGUI_draw_cursor_on_focused_gadget(v, 0, 0)
+					minGUI_draw_cursor_on_focused_gadget(i, 0, 0)
 				end
 			end
 		end		
@@ -659,7 +661,7 @@ function minGUI_draw_all()
 	-- draw internal gadgets
 	for i, v in ipairs(minGUI.igtree) do
 		-- get internal gadget's parent
-		w = minGUI.gtree[v.parent]
+		local w = minGUI.gtree[v.parent]
 		
 		if w ~= nil then
 			-- get parents offsets
@@ -667,11 +669,11 @@ function minGUI_draw_all()
 			oy = w.y
 			
 			if v.tp ~= MG_INTERNAL_MENU then
-				oy = oy + minGUI_window_menu_height(w)
+				oy = oy + minGUI_window_menu_height(w.num)
 			end
 
-			oy = oy + minGUI_window_titlebar_height(w)
-					
+			oy = oy + minGUI_window_titlebar_height(w.num)
+			
 			-- while parent has parents
 			while w.parent ~= nil do
 				-- get grand-parents and others
@@ -684,25 +686,27 @@ function minGUI_draw_all()
 					oy = oy + w.y
 
 					if v.tp ~= MG_INTERNAL_MENU then
-						oy = oy + minGUI_window_menu_height(w)
+						oy = oy + minGUI_window_menu_height(w.num)
 					end
 
-					oy = oy + minGUI_window_titlebar_height(w)
+					oy = oy + minGUI_window_titlebar_height(w.num)
 				end
 			end
 		end
 		
-		minGUI_draw_internal_gadget(v, ox, oy)
+		minGUI_draw_internal_gadget(i, ox, oy)
 	end
 
 end
 
 -- draw the text cursor in the focused gadget
-function minGUI_draw_text_cursor(w, ox, oy)
+function minGUI_draw_text_cursor(num, ox, oy)
+	local w = minGUI.gtree[num]
+
 	local xc1 = 0
 	local yc1 = 0
 	local xc2 = 0
-	local yc2 = 0
+	local yc2 = 0	
 
 	-- draw the cursor at right place
 	if w.tp == MG_STRING then
@@ -741,7 +745,9 @@ function minGUI_draw_text_cursor(w, ox, oy)
 end
 
 -- draw the editor cursor
-function minGUI_draw_editor_cursor(w, ox, oy)
+function minGUI_draw_editor_cursor(num, ox, oy)	
+	local w = minGUI.gtree[num]
+
 	local xc1 = ox + w.x + 2
 	local yc1 = oy + w.y + 2
 	local xc2 = 0
@@ -908,52 +914,54 @@ function minGUI_draw_quad(num, quad, x, y)
 end
 
 -- draw cursor on focused gadget
-function minGUI_draw_cursor_on_focused_gadget(v, ox, oy)
+function minGUI_draw_cursor_on_focused_gadget(num, ox, oy)
+	local v = minGUI.gtree[num]
+	
 	-- if the focused gadget is a string gadget...
 	if v.tp == MG_STRING then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 			
 		if t < 500 then
-			minGUI_draw_text_cursor(v, ox, oy)
+			minGUI_draw_text_cursor(v.num, ox, oy)
 		end
 	-- if the focused gadget is a spin gadget...
 	elseif v.tp == MG_SPIN then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 						
 		if t < 500 then
-			minGUI_draw_text_cursor(v, ox, oy)
+			minGUI_draw_text_cursor(v.num, ox, oy)
 		end
 	-- if the focused gadget is an editor gadget...
 	elseif v.tp == MG_EDITOR then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 						
 		if t < 500 then
-			minGUI_draw_editor_cursor(v, ox, oy)
+			minGUI_draw_editor_cursor(v.num, ox, oy)
 		end
 	end
 end
 
 -- draw sons gadgets
-function minGUI_draw_sons(v, ox, oy)
+function minGUI_draw_sons(num, ox, oy)
+	local v = minGUI.gtree[num]
+	
 	for j, w in ipairs(minGUI.gtree) do
 		if w.parent == v.num then
 			-- parent is a window with a menu ?
-			menu_y = minGUI_window_menu_height(v)
-			menu_y = menu_y + minGUI_window_titlebar_height(v)
+			menu_y = minGUI_window_menu_height(num)
+			menu_y = menu_y + minGUI_window_titlebar_height(num)
 
-			minGUI_draw_gadget(w, ox + v.x, oy + v.y + menu_y)
+			minGUI_draw_gadget(w.num, ox + v.x, oy + v.y + menu_y)
 			
 			-- draw sons of sons
 			if w.can_have_sons then
-				minGUI_draw_sons(w, ox + v.x, oy + v.y + menu_y)
+				minGUI_draw_sons(w.num, ox + v.x, oy + v.y + menu_y)
 			end
 			
 			-- draw cursor on focused object,if needed
 			if minGUI.gfocus ~= nil and minGUI.gfocus == j then
 				if minGUI.gtree[j] ~= nil then
-					w = minGUI.gtree[j]
-				
-					minGUI_draw_cursor_on_focused_gadget(w, ox + v.x, oy + v.y + menu_y)
+					minGUI_draw_cursor_on_focused_gadget(j, ox + v.x, oy + v.y + menu_y)
 				end
 			end
 		end

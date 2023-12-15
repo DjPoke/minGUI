@@ -356,7 +356,19 @@ function minGUI_init()
 					-- if the gadget is an option gadget...
 					if minGUI.gtree[num].tp == MG_OPTION then
 						-- uncheck all options of the same parent
-						minGUI_uncheck_option(minGUI.gtree[num], num)
+						for j, w in ipairs(minGUI.gtree) do
+							-- if an other gadget than the option one is checked...
+							if j ~= num then
+								-- if the new gadget is an option one...
+								if w.tp == MG_OPTION then
+									-- if it has the same parent...
+									if (w.parent == nil and minGUI.gtree[num].parent == nil) or (w.parent ~= nil and minGUI.gtree[num].parent ~= nil and w.parent == minGUI.gtree[num].parent) then
+										-- uncheck it !
+										w.checked = false
+									end
+								end
+							end
+						end
 					end
 					
 					if type(value) ~= "boolean" then minGUI_error_message("[set_gadget_state]Wrong state value"); return end
