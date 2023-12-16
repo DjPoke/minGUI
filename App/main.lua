@@ -2,7 +2,7 @@
 -- minGUI example
 --
 -- by DjPoke
--- (MIT) 2023
+-- (MIT) 2023-2024
 --================
 
 -- require minGUI
