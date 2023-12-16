@@ -24,8 +24,9 @@ function love.load()
 	g = {}
 	
 	-- add windows
-	w[1] = minGUI:add_window(10, 10, 300, 200, "Window 1", MG_FLAG_WINDOW_ALL_GADGETS)
-	w[2] = minGUI:add_window(100, 100, 640, 540, "Window 2", MG_FLAG_WINDOW_ALL_GADGETS)
+	local flags = bit.bor(MG_FLAG_WINDOW_TITLEBAR, MG_FLAG_WINDOW_BUTTONS, MG_FLAG_WINDOW_MOVABLE)
+	w[1] = minGUI:add_window(10, 10, 300, 200, "Window 1", flags)
+	w[2] = minGUI:add_window(100, 100, 640, 540, "Window 2", flags)
 	
 	-- add panels
 	g[1] = minGUI:add_panel(10, 120, 300, 100, nil, w[2])
