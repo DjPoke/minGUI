@@ -109,7 +109,8 @@ function minGUI_init()
 		gtree = {}, -- gadgets's tree
 		igtree = {}, -- internal's gadgets tree
 		mouse = {x = 0, y = 0, oldmbtn = {}, mbtn = {}, mpressed = {}, mreleased = {}}, -- mouse events
-		estack = {}, -- events stack
+		gstack = {}, -- gadget events stack
+		mstack = {}, -- menu events stack
 		ptimer = {}, -- programmable timers
 		tstack = {}, -- timers events stack
 		ext_gadget = 0, -- gadgets numbers
@@ -248,17 +249,34 @@ function minGUI_init()
 			
 			if minGUI.font[num] ~= nil then minGUI.numFont = num end
 		end,
+		-- get gadget events
 		get_gadget_events = function(self)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if #minGUI.estack ~= 0 then
-				local eventGadget = minGUI.estack[#minGUI.estack].eventGadget
-				local eventType = minGUI.estack[#minGUI.estack].eventType
+			if #minGUI.gstack ~= 0 then
+				local eventGadget = minGUI.gstack[#minGUI.gstack].eventGadget
+				local eventType = minGUI.gstack[#minGUI.gstack].eventType
 				
-				table.remove(minGUI.estack, #minGUI.estack)
+				table.remove(minGUI.gstack, #minGUI.gstack)
 
 				return eventGadget, eventType
+			end
+
+			return nil, nil
+		end,
+		-- get menu events
+		get_menu_events = function(self)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			if #minGUI.mstack ~= 0 then
+				local eventMenu = minGUI.mstack[#minGUI.mstack].eventMenu
+				local eventSubMenu = minGUI.mstack[#minGUI.mstack].eventSubMenu
+				
+				table.remove(minGUI.mstack, #minGUI.mstack)
+
+				return eventMenu, eventSubMenu
 			end
 
 			return nil, nil

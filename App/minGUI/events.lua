@@ -828,7 +828,6 @@ function minGUI_check_internal_gadget_clicked(b)
 								
 								if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
 									if v.menu.selected == i then
-										table.insert(minGUI.estack, {eventMenu = v.menu.selected, eventSubMenu = v.menu.hover})
 										v.menu.selected = 0
 										v.menu.hover = 0
 										
@@ -856,14 +855,14 @@ function minGUI_check_internal_gadget_clicked(b)
 					w = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[v.menu.selected].head_menu .. " ")
 					h = minGUI.font[minGUI.numFont]:getHeight() + 2
 				
-					-- find mousedown submenu y
+					-- find mouseclick submenu y
 					y = v.height + 2
 				
 					for i = 1, #v.array[v.menu.selected].menu_list do
 						if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + w then
 							if minGUI.mouse.y >= oy + v.y + y and minGUI.mouse.y < oy + v.y + y + h then
 								if v.menu.hover == i then
-									table.insert(minGUI.estack, {eventMenu = v.menu.selected, eventSubMenu = v.menu.hover})
+									table.insert(minGUI.mstack, {eventMenu = v.menu.selected, eventSubMenu = v.menu.hover})
 									v.menu.selected = 0
 									v.menu.hover = 0
 
@@ -1139,7 +1138,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
+							table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
 										
 							v.down.left = true
 							getfocusFlag = true
@@ -1148,7 +1147,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 						end
 								
 						if b == MG_RIGHT_BUTTON then
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_PRESSED})
+							table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_PRESSED})
 										
 							v.down.right = true
 							getfocusFlag = true
@@ -1202,7 +1201,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 						if v.value < v.minValue then v.value = v.minValue end
 						if v.value > v.maxValue then v.value = v.maxValue end
 						
-						table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
+						table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
 							
 						return v.num
 					end
@@ -1218,7 +1217,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 								
 							if v.value < v.minValue then v.value = v.minValue end
 								
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
+							table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
 								
 							return v.num
 						end
@@ -1235,7 +1234,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 
 							if v.value > v.maxValue then v.value = v.maxValue end
 								
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
+							table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_PRESSED})
 								
 							return v.num
 						end
@@ -1394,14 +1393,14 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 
 				if b == MG_LEFT_BUTTON then
 					if v.down.left == true then
-						table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+						table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
 						return v.num
 					end
 				end
 				
 				if b == MG_RIGHT_BUTTON then
 					if v.down.right == true then
-						table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_DOWN})
+						table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_DOWN})
 						return v.num
 					end
 				end
@@ -1449,7 +1448,7 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 					if v.value > v.maxValue then v.value = v.maxValue end
 						
 					if b == MG_LEFT_BUTTON then
-						table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+						table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
 					end
 				end
 				
@@ -1473,7 +1472,7 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 						if v.value < v.minValue then v.value = v.minValue end
 						
 						if b == MG_LEFT_BUTTON then
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+							table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
 						end
 					end
 				end
@@ -1498,7 +1497,7 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 						if v.value > v.maxValue then v.value = v.maxValue end
 						
 						if b == MG_LEFT_BUTTON then
-							table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
+							table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_DOWN})
 						end
 					end
 				end
@@ -1530,13 +1529,13 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							if v.down.left == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+							if v.down.left == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 									
 							v.down.left = false
 						end
 							
 						if b == MG_RIGHT_BUTTON then
-							if v.down.right == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
+							if v.down.right == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
 									
 							v.down.right = false										
 						end
@@ -1548,13 +1547,13 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							if v.down.left == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+							if v.down.left == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 									
 							v.down.left = false										
 						end
 							
 						if b == MG_RIGHT_BUTTON then
-							if v.down.right == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
+							if v.down.right == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
 									
 							v.down.right = false										
 						end
@@ -1588,13 +1587,13 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							if v.down.left == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+							if v.down.left == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 									
 							v.down.left = false
 						end
 							
 						if b == MG_RIGHT_BUTTON then
-							if v.down.left == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
+							if v.down.left == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
 									
 							v.down.right = false
 						end
@@ -1605,7 +1604,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 					if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.size then
 						if minGUI.mouse.y >= oy + v.y + v.size and minGUI.mouse.y < oy + v.y + v.height - v.size then
 							if b == MG_LEFT_BUTTON then
-								if v.down == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+								if v.down == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 
 								v.down = false
 							end
@@ -1615,7 +1614,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 					if minGUI.mouse.x >= ox + v.x + v.size and minGUI.mouse.x < ox + v.x + v.width - v.size then
 						if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.size then
 							if b == MG_LEFT_BUTTON then
-								if v.down == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+								if v.down == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 
 								v.down = false
 							end
@@ -1626,7 +1625,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.size then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.size then
 						if b == MG_LEFT_BUTTON then
-							if v.down1 == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+							if v.down1 == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 									
 							v.down1 = false										
 						end
@@ -1636,7 +1635,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x + v.width - v.size and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y + v.height - v.size and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							if v.down2 == true then table.insert(minGUI.estack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
+							if v.down2 == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_LEFT_MOUSE_RELEASED}) end
 									
 							v.down2 = false										
 						end
