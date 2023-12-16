@@ -827,10 +827,11 @@ function minGUI_check_internal_gadget_mousedown(b)
 		local ox, oy = minGUI_get_parent_internal_gadget_offset(i, v.tp)
 		
 		if v.tp == MG_INTERNAL_MENU then
+			-- mousedown on another menu
 			if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 					if b == MG_LEFT_BUTTON then
-						-- clicking on a menu to open it
+						-- mousedown on a menu to open it
 						x = 0
 						
 						for i = 1, #v.array do
@@ -838,15 +839,46 @@ function minGUI_check_internal_gadget_mousedown(b)
 							
 							if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
 								v.menu.selected = i
-								event_done = true
 								break
 							end
 							
 							x = x + menu_width
 						end
 						
+						v.menu.hover = 0
+						
 						return v
 					end
+				end
+			end
+			
+			-- mousedown on a submenu ?
+			if v.menu.selected > 0 then
+				-- find menu x
+				x = 0
+
+				for i = 1, v.menu.selected - 1 do
+					x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
+				end
+				
+				w = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[v.menu.selected].head_menu .. " ")
+				h = minGUI.font[minGUI.numFont]:getHeight() + 2
+				
+				-- find mousedown submenu y
+				y = v.height + 2
+				
+				for i = 1, #v.array[v.menu.selected].menu_list do
+					if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + w then
+						if minGUI.mouse.y >= oy + v.y + y and minGUI.mouse.y < oy + v.y + y + h then
+							if b == MG_LEFT_BUTTON then
+								v.menu.hover = i
+						
+								return v
+							end
+						end
+					end
+
+					y = y + minGUI.font[minGUI.numFont]:getHeight() + 2
 				end
 			end
 		end
@@ -933,12 +965,12 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 									son = minGUI.gtree[minGUI_check_gadget_clicked(b, true, num)]
 								end
 						
-								if w.num == v.num then
+								if num == v.num then
 									v.down.left = true
 								end
 
 								-- return the clicked gadget number
-								return w.num
+								return num
 							end
 						end
 					end
@@ -1213,12 +1245,12 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent, selected_gad
 									son = minGUI.gtree[minGUI_check_gadget_mousedown(b, true, num)]
 								end
 						
-								if w.num ~= v.num then
+								if num ~= v.num then
 									v.down.left = false
 								end
 
 								-- return the clicked gadget number
-								return w.num
+								return num
 							end
 						end
 					end
