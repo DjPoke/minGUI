@@ -973,6 +973,11 @@ end
 
 -- check if parented gadget has been clicked
 function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
+	-- if a menu is clicked
+	if minGUI_check_internal_gadget_clicked(b) ~= nil then
+		return nil
+	end
+	
 	-- check for gadget clicked
 	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
@@ -993,29 +998,24 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							-- find son menu
-							if minGUI_check_internal_gadget_clicked(b) == nil then
-								-- find a clicked son, if possible
-								local son = minGUI.gtree[minGUI_check_gadget_clicked(b, true, v.num)]
+							-- find a clicked son, if possible
+							local son = minGUI.gtree[minGUI_check_gadget_clicked(b, true, v.num)]
 						
-								-- store the parent of the last son
-								local num = v.num
+							-- store the parent of the last son
+							local num = v.num
 
-								-- find next son of son
-								while son ~= nil do
-									num = son.num
-									son = minGUI.gtree[minGUI_check_gadget_clicked(b, true, num)]
-								end
-						
-								if num == v.num then
-									v.down.left = true
-								end
-
-								-- return the clicked gadget number
-								return num
+							-- find next son of son
+							while son ~= nil do
+								num = son.num
+								son = minGUI.gtree[minGUI_check_gadget_clicked(b, true, num)]
 							end
-							
-							return v.num
+						
+							if num == v.num then
+								v.down.left = true
+							end
+
+							-- return the clicked gadget number
+							return num
 						end
 					end
 				end
@@ -1256,6 +1256,11 @@ end
 
 -- check if parented gadget is mousedown
 function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
+	-- if a menu is mousedown
+	if minGUI_check_internal_gadget_mousedown(b) ~= nil then
+		return nil
+	end
+
 	-- check for gadget clicked
 	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
@@ -1275,29 +1280,24 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
-							-- find son menu
-							if minGUI_check_internal_gadget_mousedown(b) == nil then
-								-- find a clicked son, if possible
-								local son = minGUI.gtree[minGUI_check_gadget_mousedown(b, true, v.num)]
+							-- find a clicked son, if possible
+							local son = minGUI.gtree[minGUI_check_gadget_mousedown(b, true, v.num)]
 						
-								-- store the parent of the last son
-								local num = v.num
+							-- store the parent of the last son
+							local num = v.num
 
-								-- find next son of son
-								while son ~= nil do
-									num = son.num
-									son = minGUI.gtree[minGUI_check_gadget_mousedown(b, true, num)]
-								end
-						
-								if num ~= v.num then
-									v.down.left = false
-								end
-
-								-- return the clicked gadget number
-								return num
+							-- find next son of son
+							while son ~= nil do
+								num = son.num
+								son = minGUI.gtree[minGUI_check_gadget_mousedown(b, true, num)]
 							end
-							
-							return v.num
+						
+							if num ~= v.num then
+								v.down.left = false
+							end
+
+							-- return the clicked gadget number
+							return num
 						end
 					end
 				end
@@ -1510,7 +1510,7 @@ end
 
 -- check if parented gadget is mouse released
 function minGUI_check_gadget_released(b, find_sons, forced_parent)
-	-- check for gadget clicked
+	-- check for gadget released
 	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
 
