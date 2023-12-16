@@ -974,7 +974,7 @@ end
 -- check if parented gadget has been clicked
 function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 	-- check for gadget clicked
-	for i = minGUI.ext_gadget, 1, -1 do
+	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
 
 		-- calculate parents offset
@@ -1257,7 +1257,7 @@ end
 -- check if parented gadget is mousedown
 function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 	-- check for gadget clicked
-	for i = minGUI.ext_gadget, 1, -1 do
+	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
 
 		-- calculate parents offset
@@ -1511,7 +1511,7 @@ end
 -- check if parented gadget is mouse released
 function minGUI_check_gadget_released(b, find_sons, forced_parent)
 	-- check for gadget clicked
-	for i = minGUI.ext_gadget, 1, -1 do
+	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
 
 		-- calculate parents offset
