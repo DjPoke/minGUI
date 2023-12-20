@@ -583,10 +583,10 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		-- if a menu is selected...
 		if w.menu.selected > 0 then
 			-- get number of items in the menu list
-			ml = #w.array[w.menu.selected].menu_list
+			local ml = #w.array[w.menu.selected].menu_list
 
 			-- get the longest submenu item in pixels
-			mw = 0
+			local mw = 0
 			
 			for i = 1, ml do
 				if minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[w.menu.selected].menu_list[i] .. " ") > mw then
@@ -594,12 +594,11 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 				end
 			end
 			
-			-- resize canvas1
+			-- resize canvas1 to fit all the submenus
 			w.canvas1 = love.graphics.newCanvas(mw, ((w.height + 2) * ml) + 2)
 			
 			-- draw menu list background
 			minGUI_draw_9slice(MG_SUBMENU_UP_IMAGE, 0, 0, mw, ((w.height + 2) * ml) + 2, w.canvas1)
-
 			
 			-- draw menu list items
 			for i = 1, ml do
@@ -620,6 +619,9 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 					-- draw the text on the gadget's canvas
 					love.graphics.print(" " .. w.array[w.menu.selected].menu_list[i] .. " ", 0, 2 + ((w.height + 2) * (i - 1)))
 				else
+					-- set the right color
+					love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+					
 					love.graphics.line(0, ((w.height + 2) * (i - 1 + 0.5)), mw - 1, 2 + ((w.height + 2) * (i - 1 + 0.5)))
 				end
 			end
