@@ -2,6 +2,9 @@
 function minGUI_draw_gadget(num, ox, oy)
 	local w = minGUI.gtree[num]
 	
+	-- get scissors from parent gadgets
+	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
+	
 	-- draw panels
 	if w.tp == MG_WINDOW then
 		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, w.height, w.canvas)
@@ -60,12 +63,26 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- restore color
 		love.graphics.setColor(1, 1, 1, 1)
 
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw panels
 	elseif w.tp == MG_PANEL then
 		minGUI_draw_9slice(MG_PANEL_IMAGE, 0, 0, w.width, w.height, w.canvas)
 
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw buttons
 	elseif w.tp == MG_BUTTON then
 		if not w.down.left then
@@ -92,7 +109,14 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- restore color
 		love.graphics.setColor(1, 1, 1, 1)
 
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw button images
 	elseif w.tp == MG_BUTTON_IMAGE then
 		if not w.down.left then
@@ -117,7 +141,14 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- restore color
 		love.graphics.setColor(1, 1, 1, 1)
 
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw labels
 	elseif w.tp == MG_LABEL then
 		-- draw the text on the gadget's canvas
@@ -147,7 +178,14 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- restore color
 		love.graphics.setColor(1, 1, 1, 1)
 
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_STRING then
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
@@ -191,11 +229,27 @@ function minGUI_draw_gadget(num, ox, oy)
 
 		-- draw the canvas
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x + 2, oy + w.y + 2)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_CANVAS then
 		-- draw the canvas on screen
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_CHECKBOX then		
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
@@ -222,7 +276,15 @@ function minGUI_draw_gadget(num, ox, oy)
 		
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_OPTION then
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
@@ -249,7 +311,15 @@ function minGUI_draw_gadget(num, ox, oy)
 		
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_SPIN then
 		-- draw spin value
 		minGUI_draw_9slice(MG_SPIN_IMAGE, 0, 0, w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth() - 1, w.height, w.canvas)
@@ -283,7 +353,15 @@ function minGUI_draw_gadget(num, ox, oy)
 		
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_EDITOR then
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
@@ -333,7 +411,16 @@ function minGUI_draw_gadget(num, ox, oy)
 
 		-- draw the canvas
 		love.graphics.setColor(1, 1, 1, 1)
+
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x + 2, oy + w.y + 2)
+
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar
@@ -398,6 +485,9 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
 		
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)		
+		
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar at screen
 			love.graphics.draw(w.canvas, ox + w.x, oy + w.y + w.size)
@@ -418,6 +508,9 @@ function minGUI_draw_gadget(num, ox, oy)
 			love.graphics.draw(w.canvas2, ox + w.x + w.width - w.size, oy + w.y)
 			love.graphics.draw(w.canvas3, ox + w.x + w.size + offset, oy + w.y)
 		end
+		
+		-- reset scissor			
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw images
 	elseif w.tp == MG_IMAGE then
 		-- draw the text on the gadget's canvas
@@ -439,12 +532,22 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- restore color
 		love.graphics.setColor(1, 1, 1, 1)
 
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)		
+
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	end
 end
 
 function minGUI_draw_internal_gadget(num, ox, oy)
 	local w = minGUI.igtree[num]
+			
+	-- get scissors from parent gadgets
+	local scx, scy, scw, sch = minGUI_get_internal_gadget_parents_scissor(minGUI.igtree[num].parent)
 
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
@@ -510,6 +613,9 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		-- draw the canvas to screen
 		love.graphics.setColor(1, 1, 1, 1)
 		
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)		
+
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar at screen
 			love.graphics.draw(w.canvas, ox + w.x, oy + w.y + w.size)
@@ -530,13 +636,24 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 			love.graphics.draw(w.canvas2, ox + w.x + w.width - w.size, oy + w.y)
 			love.graphics.draw(w.canvas3, ox + w.x + w.size + offset, oy + w.y)
 		end
+		
+		-- reset scissor
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_INTERNAL_BOX then
 		-- draw a corner box
 		minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.width , w.height, w.canvas)
 
 		-- draw the canvas to the screen		
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)		
+		
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+		
+		-- reset scissor
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw menus
 	elseif w.tp == MG_INTERNAL_MENU then
 		-- draw each 'head' menu
@@ -578,7 +695,15 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		
 		-- draw the canvas to the screen
 		love.graphics.setColor(1, 1, 1, 1)
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)		
+		
+		-- draw
 		love.graphics.draw(w.canvas, ox + w.x, oy + w.y)
+
+		-- reset scissor
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 		
 		-- if a menu is selected...
 		if w.menu.selected > 0 then
@@ -631,7 +756,15 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 
 			-- draw the canvas1 to the screen
 			love.graphics.setColor(1, 1, 1, 1)
+			
+			-- set scissor
+			love.graphics.setScissor(scx, scy, scw, sch)		
+
+			-- draw
 			love.graphics.draw(w.canvas1, ox + w.x + xsel, oy + w.y + w.height)
+
+			-- reset scissor
+			love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 		end
 	end
 end
@@ -953,6 +1086,7 @@ function minGUI_draw_sons(num, ox, oy)
 			menu_y = minGUI_window_menu_height(num)
 			menu_y = menu_y + minGUI_window_titlebar_height(num)
 
+			-- draw the current gadget
 			minGUI_draw_gadget(w.num, ox + v.x, oy + v.y + menu_y)
 			
 			-- draw sons of sons

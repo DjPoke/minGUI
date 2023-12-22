@@ -269,3 +269,59 @@ function minGUI_get_parent_gadget_offset(num)
 	return ox, oy
 end
 
+-- get gadget parents scissor
+function minGUI_get_gadget_parents_scissor(num)
+	-- parent gadget is nil ?
+	if num == nil then
+		-- exit with no scissor
+		return 0, 0, love.graphics.getWidth(), love.graphics.getHeight()
+	else
+		-- parent is a window with a menu ?
+		local menu_y = minGUI_window_menu_height(num)
+		menu_y = menu_y + minGUI_window_titlebar_height(num)
+
+		local ox = 0
+		local oy = menu_y
+		
+		j = num
+		while minGUI.gtree[j].parent ~= nil do
+			j = minGUI.gtree[j].parent
+
+			-- parent is a window with a menu ?
+			menu_y = minGUI_window_menu_height(j)
+			menu_y = menu_y + minGUI_window_titlebar_height(j)
+			
+			ox = ox + minGUI.gtree[j].x
+			oy = oy + minGUI.gtree[j].y + menu_y
+		end
+		
+		return ox + minGUI.gtree[num].x, oy + minGUI.gtree[num].y, minGUI.gtree[num].width, minGUI.gtree[num].height
+	end
+end
+
+
+-- get internal gadget parents scissor
+function minGUI_get_internal_gadget_parents_scissor(num)
+	-- parent gadget is nil ?
+	if num == nil then
+		-- exit with no scissor
+		return 0, 0, love.graphics.getWidth(), love.graphics.getHeight()
+	else
+		local ox = 0
+		local oy = 0
+		
+		j = num
+		while minGUI.gtree[j].parent ~= nil do
+			j = minGUI.gtree[j].parent
+
+			-- parent is a window with a menu ?
+			menu_y = minGUI_window_menu_height(j)
+			menu_y = menu_y + minGUI_window_titlebar_height(j)
+			
+			ox = ox + minGUI.gtree[j].x
+			oy = oy + minGUI.gtree[j].y + menu_y
+		end
+		
+		return ox + minGUI.gtree[num].x, oy + minGUI.gtree[num].y, minGUI.gtree[num].width, minGUI.gtree[num].height
+	end
+end
