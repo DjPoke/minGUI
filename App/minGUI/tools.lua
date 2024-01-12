@@ -185,18 +185,32 @@ function minGUI_window_titlebar_height(num)
 	return 0
 end
 
--- check witch window has focus
+-- check if a window has the focus
 function minGUI_get_window_has_focus(num)
 	local w = nil
 	
 	-- check for windows only
 	for i, v in ipairs(minGUI.gtree) do
 		if v.tp == MG_WINDOW then
-			w = v
+			w = i
 		end
 	end
 	
-	return win == w
+	return num == w
+end
+
+-- return the focused window number
+function minGUI_get_focused_window_number()
+	local w = nil
+	
+	-- check for windows only
+	for i, v in ipairs(minGUI.gtree) do
+		if v.tp == MG_WINDOW then
+			w = i
+		end
+	end
+	
+	return w
 end
 
 -- get the offset for the internal gadget

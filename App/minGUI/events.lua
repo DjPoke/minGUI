@@ -973,6 +973,37 @@ end
 
 -- check if parented gadget has been clicked
 function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
+	-- if a focused window's button is clicked
+	local i = minGUI_get_focused_window_number()
+	local v = minGUI.gtree[i]
+
+	-- calculate parents offset
+	local ox, oy = minGUI_get_parent_gadget_offset(i)
+	
+	if not find_sons then
+		-- check the focused window
+		if v.tp == MG_WINDOW then
+			-- check for close button pressed
+			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
+			
+			if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + sw then
+				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + sh then
+					if b == MG_LEFT_BUTTON then
+						minGUI:delete_gadget(i)
+						
+						return nil
+					end
+				end
+			end
+			
+			-- check for maximize button pressed
+			-- todo!
+
+			-- check for resize button pressed
+			-- todo!
+		end
+	end
+	
 	-- if a menu is clicked
 	if minGUI_check_internal_gadget_clicked(b) ~= nil then
 		return nil

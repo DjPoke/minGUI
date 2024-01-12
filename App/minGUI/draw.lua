@@ -43,17 +43,26 @@ function minGUI_draw_gadget(num, ox, oy)
 			
 			-- draw close button in the titlebar
 			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_CLOSE) then
-				minGUI_draw_sprite(MG_CLOSE_WINDOW_IMAGE, 0, 1)
+				-- only draw the button if the window has the focus
+				if minGUI_get_window_has_focus(num) then
+					minGUI_draw_sprite(MG_CLOSE_WINDOW_IMAGE, 0, 1)
+				end
 			end
 
 			-- draw maximize button in the titlebar
 			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_MAXIMIZE) then
-				minGUI_draw_sprite(MG_MAXIMIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, 1)
+				-- only draw the button if the window has the focus
+				if minGUI_get_window_has_focus(num) then
+					minGUI_draw_sprite(MG_MAXIMIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, 1)
+				end
 			end
 
 			-- draw resize button in the footerbar
 			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_RESIZE) then
-				minGUI_draw_sprite(MG_RESIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1)
+				-- only draw the button if the window has the focus
+				if minGUI_get_window_has_focus(num) then
+					minGUI_draw_sprite(MG_RESIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1)
+				end
 			end
 		end
 
@@ -1040,6 +1049,11 @@ end
 function minGUI_draw_sprite(num, x, y)
 	-- draw the image
 	love.graphics.draw(minGUI.sprite[num], x, y)
+end
+
+-- get sprite size
+function minGUI_get_sprite_size(num)
+	return minGUI.sprite[num]:getWidth(), minGUI.sprite[num]:getHeight()
 end
 
 -- draw a quad of a sprite
