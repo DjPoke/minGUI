@@ -988,35 +988,41 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 			-- check for close button pressed
 			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
 			
-			if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + sw then
-				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + sh then
-					if b == MG_LEFT_BUTTON then
-						minGUI:delete_gadget(i)
+			if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_CLOSE) then
+				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + sw then
+					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + sh then
+						if b == MG_LEFT_BUTTON then
+							minGUI:delete_gadget(i)
 						
-						return nil
+							return nil
+						end
 					end
 				end
 			end
 			
 			-- check for maximize button pressed
-			if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
-				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + sh then
-					if b == MG_LEFT_BUTTON then
-						minGUI:maximize_window(i)
-						
-						return nil
+			if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_MAXIMIZE) then
+				if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
+					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + sh then
+						if b == MG_LEFT_BUTTON then
+							minGUI:maximize_window(i)
+
+							return nil
+						end
 					end
 				end
 			end
 
 			-- check for resize button pressed
-			if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
-				if minGUI.mouse.y >= oy + v.y + v.height - sh and minGUI.mouse.y < oy + v.y + v.height then
-					if b == MG_LEFT_BUTTON then
-						minGUI.gtree[i].resizing = true
-						minGUI:resize_window(i, minGUI.mouse.x - (ox + v.x), minGUI.mouse.y - (oy + v.y))
+			if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_RESIZE) then
+				if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
+					if minGUI.mouse.y >= oy + v.y + v.height - sh and minGUI.mouse.y < oy + v.y + v.height then
+						if b == MG_LEFT_BUTTON then
+							minGUI.gtree[i].resizing = true
+							minGUI:resize_window(i, minGUI.mouse.x - (ox + v.x), minGUI.mouse.y - (oy + v.y))
 						
-						return nil
+							return nil
+						end
 					end
 				end
 			end
@@ -1320,17 +1326,15 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
 			
 			-- check for resize button down
-			--if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
-				--if minGUI.mouse.y >= oy + v.y + v.height - sh and minGUI.mouse.y < oy + v.y + v.height then
-					if b == MG_LEFT_BUTTON then
-						if minGUI.gtree[i].resizing then
-							minGUI:resize_window(i, minGUI.mouse.x - (ox + v.x), minGUI.mouse.y - (oy + v.y))
+			if b == MG_LEFT_BUTTON then
+				if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_RESIZE) then
+					if minGUI.gtree[i].resizing then
+						minGUI:resize_window(i, minGUI.mouse.x - (ox + v.x), minGUI.mouse.y - (oy + v.y))
 							
-							return nil
-						end
+						return nil
 					end
-				--end
-			--end
+				end
+			end
 		end
 	end
 
@@ -1603,10 +1607,12 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 			
 			-- check for resize button released
 			if b == MG_LEFT_BUTTON then
-				if minGUI.gtree[i].resizing then
-					minGUI.gtree[i].resizing = false
+				if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_RESIZE) then
+					if minGUI.gtree[i].resizing then
+						minGUI.gtree[i].resizing = false
 						
-					return nil
+						return nil
+					end
 				end
 			end
 		end
