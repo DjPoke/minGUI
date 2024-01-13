@@ -134,13 +134,20 @@ function minGUI_init()
 		error_message = function(self, message)
 			love.window.showMessageBox("error", message, "error", true)
 		end,
+		-- runtime error, show error and quit app
+		runtime_error = function(self, message)
+			love.window.showMessageBox("error", message, "error", true)
+			minGUI.exitProcess = true
+	
+			love.event.quit()
+		end,
 		-- start a timer, with a delay in milliseconds
 		start_timer = function(self, num, delay)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[start_timer]Wrong num value"); return end
-			if not minGUI_check_param(delay, "number") then minGUI_error_message("[start_timer]Wrong delay value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[start_timer]Wrong num value"); return end
+			if not minGUI_check_param(delay, "number") then minGUI:runtime_error("[start_timer]Wrong delay value"); return end
 			
 			minGUI.ptimer[num] = {delay = delay, timer = math.floor(minGUI.timer * 1000)}
 		end,
@@ -149,7 +156,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[stop_timer]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[stop_timer]Wrong num value"); return end
 
 			minGUI.ptimer[num] = nil
 		end,
@@ -186,7 +193,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[set_theme]Wrong theme"); return end
+			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[set_theme]Wrong theme"); return end
 
 			minGUI.theme = text
 			
@@ -317,8 +324,8 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[set_gadget_text]Wrong num value"); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[set_gadget_text]Wrong text for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_gadget_text]Wrong num value"); return end
+			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[set_gadget_text]Wrong text for gadget " .. num); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -347,7 +354,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_text]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_text]Wrong num value"); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -376,7 +383,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[set_gadget_state]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_gadget_state]Wrong num value"); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -400,7 +407,7 @@ function minGUI_init()
 						end
 					end
 					
-					if type(value) ~= "boolean" then minGUI_error_message("[set_gadget_state]Wrong state value"); return end
+					if type(value) ~= "boolean" then minGUI:runtime_error("[set_gadget_state]Wrong state value"); return end
 					if value == nil then value = false end
 
 					-- check the gadget
@@ -408,7 +415,7 @@ function minGUI_init()
 				else
 					-- if the gadget is a scrollbar gadget...
 					if minGUI.gtree[num].tp == MG_SCROLLBAR then					
-						if type(value) ~= "number" then minGUI_error_message("[set_gadget_state]Wrong state value"); return end
+						if type(value) ~= "number" then minGUI:runtime_error("[set_gadget_state]Wrong state value"); return end
 						if value == nil then value = 0 end
 						
 						-- set the value of the gadget
@@ -429,7 +436,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_state]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_state]Wrong num value"); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -451,14 +458,14 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[set_gadget_attribute]Wrong num value"); return end
-			if not minGUI_check_param(attr, "number") then minGUI_error_message("[set_gadget_attribute]Wrong attribute value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_gadget_attribute]Wrong num value"); return end
+			if not minGUI_check_param(attr, "number") then minGUI:runtime_error("[set_gadget_attribute]Wrong attribute value"); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
 				-- if the gadget is a scrollbar gadget...
 				if minGUI.gtree[num].tp == MG_SCROLLBAR then					
-					if type(value) ~= "number" then minGUI_error_message("[set_gadget_attribute]Wrong state value"); return end
+					if type(value) ~= "number" then minGUI:runtime_error("[set_gadget_attribute]Wrong state value"); return end
 					if value == nil then value = 0 end
 	
 					-- set the value of the gadget
@@ -555,8 +562,8 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_attribute]Wrong num value"); return end
-			if not minGUI_check_param(attr, "number") then minGUI_error_message("[get_gadget_attribute]Wrong attribute value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_attribute]Wrong num value"); return end
+			if not minGUI_check_param(attr, "number") then minGUI:runtime_error("[get_gadget_attribute]Wrong attribute value"); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -578,11 +585,11 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[clear_canvas]Wrong num value"); return end
-			if red == nil or red < 0.0 or red > 1.0 then minGUI_error_message("[clear_canvas]Wrong red color for gadget " .. num); return end
-			if green == nil or green < 0.0 or green > 1.0 then minGUI_error_message("[clear_canvas]Wrong green color for gadget " .. num); return end
-			if blue == nil or blue < 0.0 or blue > 1.0 then minGUI_error_message("[clear_canvas]Wrong blue color for gadget " .. num); return end
-			if alpha == nil or alpha < 0.0 or alpha > 1.0 then minGUI_error_message("[clear_canvas]Wrong alpha color for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[clear_canvas]Wrong num value"); return end
+			if red == nil or red < 0.0 or red > 1.0 then minGUI:runtime_error("[clear_canvas]Wrong red color for gadget " .. num); return end
+			if green == nil or green < 0.0 or green > 1.0 then minGUI:runtime_error("[clear_canvas]Wrong green color for gadget " .. num); return end
+			if blue == nil or blue < 0.0 or blue > 1.0 then minGUI:runtime_error("[clear_canvas]Wrong blue color for gadget " .. num); return end
+			if alpha == nil or alpha < 0.0 or alpha > 1.0 then minGUI:runtime_error("[clear_canvas]Wrong alpha color for gadget " .. num); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -603,20 +610,20 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_text_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[draw_text_to_canvas]Wrong text value for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_text_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_text_to_canvas]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param2(scalex, "number") then minGUI_error_message("[draw_text_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(scaley, "number") then minGUI_error_message("[draw_text_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_text_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[draw_text_to_canvas]Wrong text value for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_text_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_text_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param2(scalex, "number") then minGUI:runtime_error("[draw_text_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(scaley, "number") then minGUI:runtime_error("[draw_text_to_canvas]Wrong y for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_text_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_text_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_text_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_text_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_text_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_text_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_text_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_text_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -647,10 +654,10 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_image_to_canvas]Wrong num value"); return end
-			if image == nil then minGUI_error_message("[draw_image_to_canvas]Wrong image for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_image_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_image_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_image_to_canvas]Wrong num value"); return end
+			if image == nil then minGUI:runtime_error("[draw_image_to_canvas]Wrong image for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_image_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_image_to_canvas]Wrong y for gadget " .. num); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -678,11 +685,11 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_quad_to_canvas]Wrong num value"); return end
-			if image == nil then minGUI_error_message("[draw_quad_to_canvas]Wrong image for gadget " .. num); return end
-			if quad == nil then minGUI_error_message("[draw_quad_to_canvas]Wrong quad for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_quad_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_quad_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_quad_to_canvas]Wrong num value"); return end
+			if image == nil then minGUI:runtime_error("[draw_quad_to_canvas]Wrong image for gadget " .. num); return end
+			if quad == nil then minGUI:runtime_error("[draw_quad_to_canvas]Wrong quad for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_quad_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_quad_to_canvas]Wrong y for gadget " .. num); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -710,17 +717,17 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_point_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_point_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_point_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_point_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_point_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_point_to_canvas]Wrong y for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_point_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_point_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_point_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_point_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_point_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_point_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_point_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_point_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -750,19 +757,19 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_line_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param2(x1, "number") then minGUI_error_message("[draw_line_to_canvas]Wrong x1 for gadget " .. num); return end
-			if not minGUI_check_param2(y1, "number") then minGUI_error_message("[draw_line_to_canvas]Wrong y1 for gadget " .. num); return end
-			if not minGUI_check_param2(x2, "number") then minGUI_error_message("[draw_line_to_canvas]Wrong x2 for gadget " .. num); return end
-			if not minGUI_check_param2(y2, "number") then minGUI_error_message("[draw_line_to_canvas]Wrong y2 for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_line_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param2(x1, "number") then minGUI:runtime_error("[draw_line_to_canvas]Wrong x1 for gadget " .. num); return end
+			if not minGUI_check_param2(y1, "number") then minGUI:runtime_error("[draw_line_to_canvas]Wrong y1 for gadget " .. num); return end
+			if not minGUI_check_param2(x2, "number") then minGUI:runtime_error("[draw_line_to_canvas]Wrong x2 for gadget " .. num); return end
+			if not minGUI_check_param2(y2, "number") then minGUI:runtime_error("[draw_line_to_canvas]Wrong y2 for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_line_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_line_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_line_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_line_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_line_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_line_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_line_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_line_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			if x1 == nil then x1 = 0 end
 			if y1 == nil then y1 = 0 end
@@ -794,21 +801,21 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_arc_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param(mode, "string") then minGUI_error_message("[draw_arc_to_canvas]Wrong mode for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_arc_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_arc_to_canvas]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(radius, "number") then minGUI_error_message("[draw_arc_to_canvas]Wrong radius for gadget " .. num); return end
-			if not minGUI_check_param(angle1, "number") then minGUI_error_message("[draw_arc_to_canvas]Wrong 1st angle for gadget " .. num); return end
-			if not minGUI_check_param(angle2, "number") then minGUI_error_message("[draw_arc_to_canvas]Wrong 2nd angle for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param(mode, "string") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong mode for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(radius, "number") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong radius for gadget " .. num); return end
+			if not minGUI_check_param(angle1, "number") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong 1st angle for gadget " .. num); return end
+			if not minGUI_check_param(angle2, "number") then minGUI:runtime_error("[draw_arc_to_canvas]Wrong 2nd angle for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_arc_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_arc_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_arc_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_arc_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_arc_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_arc_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_arc_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_arc_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -838,20 +845,20 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_rectangle_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param(mode, "string") then minGUI_error_message("[draw_rectangle_to_canvas]Wrong mode for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_rectangle_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_rectangle_to_canvas]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[draw_rectangle_to_canvas]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[draw_rectangle_to_canvas]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param(mode, "string") then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong mode for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong height for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_rectangle_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_rectangle_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_rectangle_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_rectangle_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_rectangle_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -881,20 +888,20 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param(mode, "string") then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong mode for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param(mode, "string") then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong mode for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong height for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_rounded_rectangle_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_rounded_rectangle_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -924,19 +931,19 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_circle_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param(mode, "string") then minGUI_error_message("[draw_circle_to_canvas]Wrong mode for gadget " .. num); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[draw_circle_to_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[draw_circle_to_canvas]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(radius, "number") then minGUI_error_message("[draw_circle_to_canvas]Wrong radius for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_circle_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param(mode, "string") then minGUI:runtime_error("[draw_circle_to_canvas]Wrong mode for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[draw_circle_to_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[draw_circle_to_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(radius, "number") then minGUI:runtime_error("[draw_circle_to_canvas]Wrong radius for gadget " .. num); return end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_circle_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_circle_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_circle_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_circle_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_circle_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_circle_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_circle_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_circle_to_canvas]Wrong alpha color for gadget " .. num); return end
 
 			if x == nil then x = 0 end
 			if y == nil then y = 0 end
@@ -966,20 +973,20 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[draw_polygon_to_canvas]Wrong num value"); return end
-			if not minGUI_check_param(mode, "string") then minGUI_error_message("[draw_polygon_to_canvas]Wrong mode for gadget " .. num); return end
-			if vertices == nil then minGUI_error_message("[draw_polygon_to_canvas]Wrong vertice value for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong num value"); return end
+			if not minGUI_check_param(mode, "string") then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong mode for gadget " .. num); return end
+			if vertices == nil then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong vertice value for gadget " .. num); return end
 			for i = 1, #vertices do
-				if type(vertices[i]) ~= "number" then minGUI_error_message("[draw_polygon_to_canvas]Wrong vertice value for gadget " .. num); return end
+				if type(vertices[i]) ~= "number" then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong vertice value for gadget " .. num); return end
 			end
 			if color.r == nil then color.r = minGUI.txtcolor.r end
 			if color.g == nil then color.g = minGUI.txtcolor.g end
 			if color.b == nil then color.b = minGUI.txtcolor.b end
 			if color.a == nil then color.a = minGUI.txtcolor.a end
-			if color.r < 0.0 or color.r > 1.0 then minGUI_error_message("[draw_polygon_to_canvas]Wrong red color for gadget " .. num); return end
-			if color.g < 0.0 or color.g > 1.0 then minGUI_error_message("[draw_polygon_to_canvas]Wrong green color for gadget " .. num); return end
-			if color.b < 0.0 or color.b > 1.0 then minGUI_error_message("[draw_polygon_to_canvas]Wrong blue color for gadget " .. num); return end
-			if color.a < 0.0 or color.a > 1.0 then minGUI_error_message("[draw_polygon_to_canvas]Wrong alpha color for gadget " .. num); return end
+			if color.r < 0.0 or color.r > 1.0 then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong red color for gadget " .. num); return end
+			if color.g < 0.0 or color.g > 1.0 then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong green color for gadget " .. num); return end
+			if color.b < 0.0 or color.b > 1.0 then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong blue color for gadget " .. num); return end
+			if color.a < 0.0 or color.a > 1.0 then minGUI:runtime_error("[draw_polygon_to_canvas]Wrong alpha color for gadget " .. num); return end
 					
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -1007,7 +1014,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_x]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_x]Wrong num value"); return end
 			
 			return minGUI.gtree[num].x
 		end,
@@ -1016,7 +1023,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_y]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_y]Wrong num value"); return end
 			
 			return minGUI.gtree[num].y
 		end,
@@ -1025,7 +1032,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_width]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_width]Wrong num value"); return end
 			
 			return minGUI.gtree[num].width
 		end,
@@ -1034,16 +1041,127 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_gadget_height]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_height]Wrong num value"); return end
 			
 			return minGUI.gtree[num].height
+		end,
+		-- return the height of the menu in the window
+		window_menu_height = function(self, num)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			local v = minGUI.gtree[num]
+
+			if v.tp == MG_WINDOW then
+				for j, w in ipairs(minGUI.igtree) do
+					if w.parent == num then
+						if w.tp == MG_INTERNAL_MENU then
+							return w.height
+						end
+					end
+				end
+			end
+	
+			return 0
+		end,
+		-- return the height of the titlebar for the window
+		window_titlebar_height = function(self, num)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			local v = minGUI.gtree[num]
+
+			if v.tp == MG_WINDOW then		
+				if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_TITLEBAR) then
+					return MG_WINDOW_TITLEBAR_HEIGHT
+				end
+			end
+	
+			return 0
+		end,
+		-- check if a window has the focus
+		get_window_has_focus = function(self, num)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			local w = nil
+	
+			-- check for windows only
+			for i, v in ipairs(minGUI.gtree) do
+				if v.tp == MG_WINDOW then
+					w = i
+				end
+			end
+	
+			return num == w
+		end,
+		-- return the focused window number
+		get_focused_window_number = function(self)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			local w = nil
+	
+			-- check for windows only
+			for i, v in ipairs(minGUI.gtree) do
+				if v.tp == MG_WINDOW then
+					w = i
+				end
+			end
+	
+			return w
+		end,
+		-- get the offset for the internal gadget
+		get_parent_internal_gadget_offset = function(self, num, tp)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+
+			-- get internal's gadget parent
+			local w = minGUI.gtree[minGUI.igtree[num].parent]
+	
+			local ox = 0
+			local oy = 0
+	
+			-- if there is a parent...
+			if w ~= nil then
+				-- get parents offsets
+				ox = w.x
+				oy = w.y
+										
+				if tp ~= MG_INTERNAL_MENU then
+					oy = oy + minGUI:window_menu_height(w.num)
+				end
+		
+				oy = oy + minGUI:window_titlebar_height(w.num)
+		
+				-- while parent has parents
+				while w.parent ~= nil do
+					-- get grand-parents and others
+					w = minGUI.gtree[w.parent]
+			
+					-- if they exists...
+					if w ~= nil then
+						-- add their offset
+						ox = ox + w.x
+						oy = oy + w.y
+										
+						if tp ~= MG_INTERNAL_MENU then
+							oy = oy + minGUI:window_menu_height(w.num)
+						end
+				
+						oy = oy + minGUI:window_titlebar_height(w.num)
+					end
+				end
+			end
+			
+			return ox, oy
 		end,
 		get_cursor_position = function(self, num)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[get_cursor_position]Wrong num value"); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_cursor_position]Wrong num value"); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -1072,9 +1190,9 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI_error_message("[set_cursor_xy]Wrong num value"); return end
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[set_cursor_xy]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[set_cursor_xy]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_cursor_xy]Wrong num value"); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[set_cursor_xy]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[set_cursor_xy]Wrong y for gadget " .. num); return end
 
 			-- the gadget must exists
 			if minGUI.gtree[num] == nil then return end
@@ -1117,7 +1235,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- check for values and types of values
-			if num == nil or minGUI.gtree[num] == nil then minGUI_error_message("[delete_one_gadget]Wrong gadget number " .. num); return end
+			if num == nil or minGUI.gtree[num] == nil then minGUI:runtime_error("[delete_one_gadget]Wrong gadget number " .. num); return end
 			
 			-- delete one gadget
 			table.remove(minGUI.gtree, num)
@@ -1161,17 +1279,17 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 			
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_window]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_window]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_window]Wrong width  for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_window]Wrong height  for gadget " .. num); return end
-			if not minGUI_check_param2(title, "string") then minGUI_error_message("[add_window]Wrong title for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_window]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_window]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_window]Wrong width  for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_window]Wrong height  for gadget " .. num); return end
+			if not minGUI_check_param2(title, "string") then minGUI:runtime_error("[add_window]Wrong title for gadget " .. num); return end
 			
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_window]Wrong flags  for gadget" .. num)
+				minGUI:runtime_error("[add_window]Wrong flags  for gadget" .. num)
 				return
 			end
 
@@ -1200,15 +1318,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_window]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_window]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_window]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_window]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_window]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_window]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1220,16 +1338,16 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 			
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_panel]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_panel]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_panel]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_panel]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_panel]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_panel]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_panel]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_panel]Wrong height for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_panel]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_panel]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -1246,15 +1364,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_panel]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_panel]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_panel]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_panel]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_panel]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_panel]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1266,18 +1384,18 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 			
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_button]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_button]Wrong text for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_button]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_button]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_button]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_button]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_button]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[add_button]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_button]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_button]Wrong flags  for gadget" .. num)
+				minGUI:runtime_error("[add_button]Wrong flags  for gadget" .. num)
 				return
 			end
 
@@ -1299,15 +1417,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_button]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_button]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_button]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_button]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_button]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_button]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1319,17 +1437,17 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 			
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_button_image]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_button_image]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_button_image]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_button_image]Wrong height for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_button_image]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_button_image]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_button_image]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_button_image]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_button_image]Wrong height for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_button_image]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_button_image]Wrong flags  for gadget" .. num)
+				minGUI:runtime_error("[add_button_image]Wrong flags  for gadget" .. num)
 				return
 			end
 
@@ -1350,15 +1468,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_button_image]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_button_image]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_button_image]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_button_image]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_button_image]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_button_image]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1370,18 +1488,18 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_label]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_label]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_label]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_label]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_label]Wrong text for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_label]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_label]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI:runtime_error("[add_label]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_label]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_label]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string", "") then minGUI:runtime_error("[add_label]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_label]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_label]Wrong flags  for gadget" .. num)
+				minGUI:runtime_error("[add_label]Wrong flags  for gadget" .. num)
 				return
 			end
 
@@ -1397,7 +1515,7 @@ function minGUI_init()
 							
 				if flags == 0 then flags = MG_FLAG_ALIGN_LEFT end
 			else
-				minGUI_error_message("[add_label]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_label]Wrong flags for gadget " .. num)
 				return
 			end
 			
@@ -1416,15 +1534,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_label]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_label]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_label]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_label]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_label]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_label]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1436,18 +1554,18 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_string]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_string]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_string]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_string]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_string]Wrong text for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_string]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_string]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI:runtime_error("[add_string]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_string]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_string]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string", "") then minGUI:runtime_error("[add_string]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_string]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_string]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_string]Wrong flags for gadget " .. num)
 				return
 			end
 			
@@ -1489,15 +1607,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_string]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_string]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_string]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_string]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_string]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_string]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1509,17 +1627,17 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_canvas]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_canvas]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_canvas]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_canvas]Wrong height for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_canvas]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_canvas]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI:runtime_error("[add_canvas]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_canvas]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_canvas]Wrong height for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_canvas]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_canvas]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_canvas]Wrong flags for gadget " .. num)
 				return
 			end
 			
@@ -1540,15 +1658,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_canvas]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_canvas]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_canvas]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_canvas]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_canvas]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_canvas]Gadget already exists " .. num)
 				return
 			end
 			
@@ -1570,18 +1688,18 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_checkbox]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_checkbox]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_checkbox]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_checkbox]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_checkbox]Wrong text for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_checkbox]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_checkbox]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_checkbox]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_checkbox]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_checkbox]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[add_checkbox]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_checkbox]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_checkbox]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_checkbox]Wrong flags for gadget " .. num)
 				return
 			end			
 
@@ -1604,15 +1722,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_checkbox]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_checkbox]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_checkbox]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_checkbox]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_checkbox]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_checkbox]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1624,18 +1742,18 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_option]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_option]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_option]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_option]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(text, "string") then minGUI_error_message("[add_option]Wrong text for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_option]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_option]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_option]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_option]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_option]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[add_option]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_option]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_option]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_option]Wrong flags for gadget " .. num)
 				return
 			end			
 
@@ -1658,15 +1776,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_option]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_option]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_option]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_option]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_option]Gadget already exists for gadget " .. num)
+				minGUI:runtime_error("[add_option]Gadget already exists for gadget " .. num)
 				return
 			end
 		end,
@@ -1678,20 +1796,20 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_spin]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_spin]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_spin]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_spin]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_spin]Wrong value for gadget " .. num); return end
-			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_spin]Wrong min value for gadget " .. num); return end
-			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_spin]Wrong max value for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_spin]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_spin]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_spin]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_spin]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_spin]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(value, "number") then minGUI:runtime_error("[add_spin]Wrong value for gadget " .. num); return end
+			if not minGUI_check_param2(minValue, "number") then minGUI:runtime_error("[add_spin]Wrong min value for gadget " .. num); return end
+			if not minGUI_check_param2(maxValue, "number") then minGUI:runtime_error("[add_spin]Wrong max value for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_spin]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_spin]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_spin]Wrong flags for gadget " .. num)
 				return
 			end			
 
@@ -1732,15 +1850,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_spin]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_spin]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_spin]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_spin]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_spin]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_spin]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1752,18 +1870,18 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number", 0) then minGUI_error_message("[add_editor]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number", 0) then minGUI_error_message("[add_editor]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_editor]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_editor]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(text, "string", "") then minGUI_error_message("[add_editor]Wrong text for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_editor]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_editor]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number", 0) then minGUI:runtime_error("[add_editor]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_editor]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_editor]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(text, "string", "") then minGUI:runtime_error("[add_editor]Wrong text for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_editor]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_editor]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_editor]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -1815,15 +1933,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_editor]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_editor]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_editor]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_editor]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_editor]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_editor]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -1835,21 +1953,21 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_scrollbar]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_scrollbar]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_scrollbar]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_scrollbar]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_scrollbar]Wrong value for gadget " .. num); return end
-			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_scrollbar]Wrong min value for gadget " .. num); return end
-			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_scrollbar]Wrong max value for gadget " .. num); return end
-			if not minGUI_check_param2(inc, "number") then minGUI_error_message("[add_scrollbar]Wrong increment value for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_scrollbar]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_scrollbar]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_scrollbar]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_scrollbar]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_scrollbar]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(value, "number") then minGUI:runtime_error("[add_scrollbar]Wrong value for gadget " .. num); return end
+			if not minGUI_check_param2(minValue, "number") then minGUI:runtime_error("[add_scrollbar]Wrong min value for gadget " .. num); return end
+			if not minGUI_check_param2(maxValue, "number") then minGUI:runtime_error("[add_scrollbar]Wrong max value for gadget " .. num); return end
+			if not minGUI_check_param2(inc, "number") then minGUI:runtime_error("[add_scrollbar]Wrong increment value for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_scrollbar]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_scrollbar]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_scrollbar]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -1938,15 +2056,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_scrollbar]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_scrollbar]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_scrollbar]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_scrollbar]Wrong gadget parent for gadget " .. num)
 					return
 				end
 			else
-				minGUI_error_message("[add_scrollbar]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_scrollbar]Gadget already exists " .. num)
 				return
 			end			
 		end,
@@ -1958,17 +2076,17 @@ function minGUI_init()
 			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_image]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_image]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_image]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_image]Wrong height for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_image]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_image]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_image]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_image]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_image]Wrong height for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_image]Wrong parent for gadget " .. num); return end
 
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_image]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_image]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -1989,15 +2107,15 @@ function minGUI_init()
 						
 						return num
 					else
-						minGUI_error_message("[add_image]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_image]Wrong gadget size for gadget " .. num)
 						return
 					end
 				else
-					minGUI_error_message("[add_image]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_image]Wrong gadget parent for gadget " .. num)
 				return
 				end
 			else
-				minGUI_error_message("[add_image]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_image]Gadget already exists " .. num)
 				return
 			end
 		end,
@@ -2009,21 +2127,21 @@ function minGUI_init()
 			local num = #minGUI.igtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(value, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong value for gadget " .. num); return end
-			if not minGUI_check_param2(minValue, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong min value for gadget " .. num); return end
-			if not minGUI_check_param2(maxValue, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong max value for gadget " .. num); return end
-			if not minGUI_check_param2(inc, "number") then minGUI_error_message("[add_internal_scrollbar]Wrong increment value for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_internal_scrollbar]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(value, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong value for gadget " .. num); return end
+			if not minGUI_check_param2(minValue, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong min value for gadget " .. num); return end
+			if not minGUI_check_param2(maxValue, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong max value for gadget " .. num); return end
+			if not minGUI_check_param2(inc, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong increment value for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_internal_scrollbar]Wrong parent for gadget " .. num); return end
 			
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_internal_scrollbar]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_internal_scrollbar]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -2110,13 +2228,13 @@ function minGUI_init()
 							canvas3 = love.graphics.newCanvas(size_width, size_height)
 						})
 					else
-						minGUI_error_message("[add_internal_scrollbar]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_internal_scrollbar]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_internal_scrollbar]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_internal_scrollbar]Wrong gadget parent for gadget " .. num)
 				end
 			else
-				minGUI_error_message("[add_internal_scrollbar]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_internal_scrollbar]Gadget already exists " .. num)
 			end			
 		end,
 		add_internal_box = function(self, x, y, flags, parent)
@@ -2126,15 +2244,15 @@ function minGUI_init()
 			local num = #minGUI.igtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_internal_box]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_internal_box]Wrong y for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_internal_box]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_internal_box]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_internal_box]Wrong y for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_internal_box]Wrong parent for gadget " .. num); return end
 	
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_internal_box]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_internal_box]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -2152,13 +2270,13 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height)
 						})
 					else
-						minGUI_error_message("[add_internal_box]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_internal_box]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_internal_box]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_internal_box]Wrong gadget parent for gadget " .. num)
 				end
 			else
-				minGUI_error_message("[add_internal_box]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_internal_box]Gadget already exists " .. num)
 			end
 		end,
 		-- add a menu to the gadgets's tree
@@ -2169,18 +2287,18 @@ function minGUI_init()
 			local num = #minGUI.igtree + 1
 
 			-- check for values and types of values
-			if not minGUI_check_param2(x, "number") then minGUI_error_message("[add_menu]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI_error_message("[add_menu]Wrong y for gadget " .. num); return end
-			if not minGUI_check_param(width, "number") then minGUI_error_message("[add_menu]Wrong width for gadget " .. num); return end
-			if not minGUI_check_param(height, "number") then minGUI_error_message("[add_menu]Wrong height for gadget " .. num); return end
-			if not minGUI_check_param2(array, "table") then minGUI_error_message("[add_menu]Wrong array for gadget " .. num); return end
-			if parent ~= nil and type(parent) ~= "number" then minGUI_error_message("[add_menu]Wrong parent for gadget " .. num); return end
+			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_menu]Wrong x for gadget " .. num); return end
+			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[add_menu]Wrong y for gadget " .. num); return end
+			if not minGUI_check_param(width, "number") then minGUI:runtime_error("[add_menu]Wrong width for gadget " .. num); return end
+			if not minGUI_check_param(height, "number") then minGUI:runtime_error("[add_menu]Wrong height for gadget " .. num); return end
+			if not minGUI_check_param2(array, "table") then minGUI:runtime_error("[add_menu]Wrong array for gadget " .. num); return end
+			if parent ~= nil and type(parent) ~= "number" then minGUI:runtime_error("[add_menu]Wrong parent for gadget " .. num); return end
 	
 			-- reset flags
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI_error_message("[add_internal_menu]Wrong flags for gadget " .. num)
+				minGUI:runtime_error("[add_internal_menu]Wrong flags for gadget " .. num)
 				return
 			end
 
@@ -2188,7 +2306,7 @@ function minGUI_init()
 			if y == nil then y = 0 end
 
 			if array == nil then
-				minGUI_error_message("[add_menu]Wrong menu array for gadget " .. num)
+				minGUI:runtime_error("[add_menu]Wrong menu array for gadget " .. num)
 				return
 			end
 			
@@ -2206,13 +2324,13 @@ function minGUI_init()
 							canvas1 = love.graphics.newCanvas(width, 1)
 						})
 					else
-						minGUI_error_message("[add_menu]Wrong gadget size for gadget " .. num)
+						minGUI:runtime_error("[add_menu]Wrong gadget size for gadget " .. num)
 					end
 				else
-					minGUI_error_message("[add_menu]Wrong gadget parent for gadget " .. num)
+					minGUI:runtime_error("[add_menu]Wrong gadget parent for gadget " .. num)
 				end
 			else
-				minGUI_error_message("[add_menu]Gadget already exists " .. num)
+				minGUI:runtime_error("[add_menu]Gadget already exists " .. num)
 			end
 		end
 

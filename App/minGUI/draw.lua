@@ -12,7 +12,7 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- draw title bar ?
 		if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_TITLEBAR) then
 			-- only draw the titlebar if the window has the focus
-			if minGUI_get_window_has_focus(num) then
+			if minGUI:get_window_has_focus(num) then
 				minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
 			end
 			
@@ -22,7 +22,7 @@ function minGUI_draw_gadget(num, ox, oy)
 				love.graphics.setCanvas(w.canvas)
 				
 				-- if the window has the focus, set color to paper color for the gadget
-				if minGUI_get_window_has_focus(num) then
+				if minGUI:get_window_has_focus(num) then
 					love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
 				else
 					love.graphics.setColor(w.rpapergreyed, w.gpapergreyed, w.bpapergreyed, w.apapergreyed)
@@ -32,7 +32,7 @@ function minGUI_draw_gadget(num, ox, oy)
 				love.graphics.rectangle("fill", ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.title)) / 2) - 1, (MG_WINDOW_TITLEBAR_HEIGHT - minGUI.font[minGUI.numFont]:getHeight()) / 2, minGUI.font[minGUI.numFont]:getWidth(w.title) + 2, minGUI.font[minGUI.numFont]:getHeight())
 				
 				-- if the window has the focus, set color to pen color for the gadget
-				if minGUI_get_window_has_focus(num) then
+				if minGUI:get_window_has_focus(num) then
 					love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 				else
 					love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
@@ -54,7 +54,7 @@ function minGUI_draw_gadget(num, ox, oy)
 			-- draw close button in the titlebar
 			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_CLOSE) then
 				-- only draw the button if the window has the focus
-				if minGUI_get_window_has_focus(num) then
+				if minGUI:get_window_has_focus(num) then
 					minGUI_draw_sprite(MG_CLOSE_WINDOW_IMAGE, 0, 1)
 				end
 			end
@@ -62,7 +62,7 @@ function minGUI_draw_gadget(num, ox, oy)
 			-- draw maximize button in the titlebar
 			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_MAXIMIZE) then
 				-- only draw the button if the window has the focus
-				if minGUI_get_window_has_focus(num) then
+				if minGUI:get_window_has_focus(num) then
 					minGUI_draw_sprite(MG_MAXIMIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, 1)
 				end
 			end
@@ -70,7 +70,7 @@ function minGUI_draw_gadget(num, ox, oy)
 			-- draw resize button in the footerbar
 			if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_RESIZE) then
 				-- only draw the button if the window has the focus
-				if minGUI_get_window_has_focus(num) then
+				if minGUI:get_window_has_focus(num) then
 					minGUI_draw_sprite(MG_RESIZE_WINDOW_IMAGE, w.width - MG_WINDOW_TITLEBAR_HEIGHT, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1)
 				end
 			end
@@ -831,10 +831,10 @@ function minGUI_draw_all()
 			oy = w.y
 			
 			if v.tp ~= MG_INTERNAL_MENU then
-				oy = oy + minGUI_window_menu_height(w.num)
+				oy = oy + minGUI:window_menu_height(w.num)
 			end
 
-			oy = oy + minGUI_window_titlebar_height(w.num)
+			oy = oy + minGUI:window_titlebar_height(w.num)
 			
 			-- while parent has parents
 			while w.parent ~= nil do
@@ -848,10 +848,10 @@ function minGUI_draw_all()
 					oy = oy + w.y
 
 					if v.tp ~= MG_INTERNAL_MENU then
-						oy = oy + minGUI_window_menu_height(w.num)
+						oy = oy + minGUI:window_menu_height(w.num)
 					end
 
-					oy = oy + minGUI_window_titlebar_height(w.num)
+					oy = oy + minGUI:window_titlebar_height(w.num)
 				end
 			end
 		end
@@ -965,7 +965,7 @@ function minGUI_load_9slice(num, filename)
 	if minGUI_get_file_exists(filename) == true then
 		minGUI.sprite[num] = love.graphics.newImage(filename)
 	else
-		minGUI_error_message("Can't load the file " .. filename)
+		minGUI:runtime_error("Can't load the file " .. filename)
 	end
 end
 
@@ -974,7 +974,7 @@ function minGUI_load_sprite(num, filename)
 	if minGUI_get_file_exists(filename) == true then
 		minGUI.sprite[num] = love.graphics.newImage(filename)
 	else
-		minGUI_error_message("Can't load the file " .. filename)
+		minGUI:runtime_error("Can't load the file " .. filename)
 	end
 end
 
@@ -1115,8 +1115,8 @@ function minGUI_draw_sons(num, ox, oy)
 	for j, w in ipairs(minGUI.gtree) do
 		if w.parent == v.num then
 			-- parent is a window with a menu ?
-			menu_y = minGUI_window_menu_height(num)
-			menu_y = menu_y + minGUI_window_titlebar_height(num)
+			menu_y = minGUI:window_menu_height(num)
+			menu_y = menu_y + minGUI:window_titlebar_height(num)
 
 			-- draw the current gadget
 			minGUI_draw_gadget(w.num, ox + v.x, oy + v.y + menu_y)

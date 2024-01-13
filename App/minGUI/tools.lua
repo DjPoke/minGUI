@@ -14,14 +14,6 @@ function minGUI_check_param2(v, t)
 	return true
 end
 
--- throw a message
-function minGUI_error_message(msg)
-	love.window.showMessageBox("error", msg, "error", true)
-	minGUI.exitProcess = true
-	
-	love.event.quit()
-end
-
 -- shift text left, if needed
 function minGUI_shift_text(num, text)
 	-- reset offset
@@ -155,107 +147,6 @@ function minGUI_flag_active(flags, flag)
 	return bit.band(flags, flag) == flag
 end
 
--- return the height of the menu in the window
-function minGUI_window_menu_height(num)
-	local v = minGUI.gtree[num]
-
-	if v.tp == MG_WINDOW then
-		for j, w in ipairs(minGUI.igtree) do
-			if w.parent == num then
-				if w.tp == MG_INTERNAL_MENU then
-					return w.height
-				end
-			end
-		end
-	end
-	
-	return 0
-end
-
--- return the height of the titlebar for the window
-function minGUI_window_titlebar_height(num)
-	local v = minGUI.gtree[num]
-
-	if v.tp == MG_WINDOW then		
-		if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_TITLEBAR) then
-			return MG_WINDOW_TITLEBAR_HEIGHT
-		end
-	end
-	
-	return 0
-end
-
--- check if a window has the focus
-function minGUI_get_window_has_focus(num)
-	local w = nil
-	
-	-- check for windows only
-	for i, v in ipairs(minGUI.gtree) do
-		if v.tp == MG_WINDOW then
-			w = i
-		end
-	end
-	
-	return num == w
-end
-
--- return the focused window number
-function minGUI_get_focused_window_number()
-	local w = nil
-	
-	-- check for windows only
-	for i, v in ipairs(minGUI.gtree) do
-		if v.tp == MG_WINDOW then
-			w = i
-		end
-	end
-	
-	return w
-end
-
--- get the offset for the internal gadget
-function minGUI_get_parent_internal_gadget_offset(num, tp)
-	-- get internal's gadget parent
-	local w = minGUI.gtree[minGUI.igtree[num].parent]
-	
-	local ox = 0
-	local oy = 0
-	
-	-- if there is a parent...
-	if w ~= nil then
-		-- get parents offsets
-		ox = w.x
-		oy = w.y
-										
-		if tp ~= MG_INTERNAL_MENU then
-			oy = oy + minGUI_window_menu_height(w.num)
-		end
-		
-		oy = oy + minGUI_window_titlebar_height(w.num)
-		
-		-- while parent has parents
-		while w.parent ~= nil do
-			-- get grand-parents and others
-			w = minGUI.gtree[w.parent]
-			
-			-- if they exists...
-			if w ~= nil then
-				-- add their offset
-				ox = ox + w.x
-				oy = oy + w.y
-										
-				if tp ~= MG_INTERNAL_MENU then
-					oy = oy + minGUI_window_menu_height(w.num)
-				end
-				
-				oy = oy + minGUI_window_titlebar_height(w.num)
-			end
-		end
-	end
-	
-	return ox, oy
-end
-
 -- get the offset for the gadget
 function minGUI_get_parent_gadget_offset(num)
 	-- calculate parents offset
@@ -273,8 +164,8 @@ function minGUI_get_parent_gadget_offset(num)
 		-- add gadget offsets
 		ox = ox + minGUI.gtree[k].x
 		oy = oy + minGUI.gtree[k].y
-		oy = oy + minGUI_window_menu_height(k)
-		oy = oy + minGUI_window_titlebar_height(k)
+		oy = oy + minGUI:window_menu_height(k)
+		oy = oy + minGUI:window_titlebar_height(k)
 
 		--
 		j = k
@@ -291,8 +182,8 @@ function minGUI_get_gadget_parents_scissor(num)
 		return 0, 0, love.graphics.getWidth(), love.graphics.getHeight()
 	else
 		-- parent is a window with a menu ?
-		local menu_y = minGUI_window_menu_height(num)
-		menu_y = menu_y + minGUI_window_titlebar_height(num)
+		local menu_y = minGUI:window_menu_height(num)
+		menu_y = menu_y + minGUI:window_titlebar_height(num)
 
 		local ox = 0
 		local oy = menu_y
@@ -302,8 +193,8 @@ function minGUI_get_gadget_parents_scissor(num)
 			j = minGUI.gtree[j].parent
 
 			-- parent is a window with a menu ?
-			menu_y = minGUI_window_menu_height(j)
-			menu_y = menu_y + minGUI_window_titlebar_height(j)
+			menu_y = minGUI:window_menu_height(j)
+			menu_y = menu_y + minGUI:window_titlebar_height(j)
 			
 			ox = ox + minGUI.gtree[j].x
 			oy = oy + minGUI.gtree[j].y + menu_y
@@ -329,8 +220,8 @@ function minGUI_get_internal_gadget_parents_scissor(num)
 			j = minGUI.gtree[j].parent
 
 			-- parent is a window with a menu ?
-			menu_y = minGUI_window_menu_height(j)
-			menu_y = menu_y + minGUI_window_titlebar_height(j)
+			menu_y = minGUI:window_menu_height(j)
+			menu_y = menu_y + minGUI:window_titlebar_height(j)
 			
 			ox = ox + minGUI.gtree[j].x
 			oy = oy + minGUI.gtree[j].y + menu_y

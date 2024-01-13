@@ -794,7 +794,7 @@ function minGUI_check_internal_gadget_clicked(b)
 	-- check for internal gadgets first
 	for i, v in ipairs(minGUI.igtree) do
 		-- calculate parents offset
-		local ox, oy = minGUI_get_parent_internal_gadget_offset(i, v.tp)
+		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 		
 		if v.tp == MG_INTERNAL_MENU then
 			if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
@@ -890,7 +890,7 @@ function minGUI_check_internal_gadget_mousedown(b)
 	-- check for internal gadgets first
 	for i, v in ipairs(minGUI.igtree) do
 		-- calculate parents offset
-		local ox, oy = minGUI_get_parent_internal_gadget_offset(i, v.tp)
+		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
 	
 	return nil
@@ -901,7 +901,7 @@ function minGUI_check_internal_gadget_released(b)
 	-- check for internal gadgets first
 	for i, v in ipairs(minGUI.igtree) do
 		-- calculate parents offset
-		local ox, oy = minGUI_get_parent_internal_gadget_offset(i, v.tp)
+		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
 end
 
@@ -910,7 +910,7 @@ function minGUI_check_internal_gadget_mouseup(b)
 	-- check for internal gadgets first
 	for i, v in ipairs(minGUI.igtree) do
 		-- calculate parents offset
-		local ox, oy = minGUI_get_parent_internal_gadget_offset(i, v.tp)
+		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 		
 		if v.tp == MG_INTERNAL_MENU then
 			-- mousedown on another menu
@@ -974,7 +974,7 @@ end
 -- check if parented gadget has been clicked
 function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 	-- if a focused window's button is clicked
-	local i = minGUI_get_focused_window_number()
+	local i = minGUI:get_focused_window_number()
 	local v = minGUI.gtree[i]
 
 	-- calculate parents offset
