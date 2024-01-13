@@ -17,7 +17,8 @@ function love.load()
 	minGUI:set_bgcolor(0.5, 0.5, 0.5, 1)
 	minGUI:set_textcolor(0, 0, 0, 1)
 	minGUI:set_invtextcolor(1, 1, 1, 1)
-	minGUI:set_greyedcolor(0.5, 0.5, 0.5, 1)
+	minGUI:set_greyedbgcolor(0.5, 0.5, 0.5, 1)
+	minGUI:set_greyedtxtcolor(0.25, 0.25, 0.25, 1)
 
 	-- prepare tables of windows & gagdets
 	w = {}

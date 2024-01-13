@@ -11,22 +11,32 @@ function minGUI_draw_gadget(num, ox, oy)
 		
 		-- draw title bar ?
 		if minGUI_flag_active(w.flags, MG_FLAG_WINDOW_TITLEBAR) then
-			-- draw titlebar
-			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
+			-- only draw the titlebar if the window has the focus
+			if minGUI_get_window_has_focus(num) then
+				minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
+			end
 			
 			-- draw title
 			if w.title ~= nil and w.title ~= "" then
 				-- draw the text on the gadget's canvas
 				love.graphics.setCanvas(w.canvas)
 				
-				-- set color to paper color for the gadget
-				love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
+				-- if the window has the focus, set color to paper color for the gadget
+				if minGUI_get_window_has_focus(num) then
+					love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
+				else
+					love.graphics.setColor(w.rpapergreyed, w.gpapergreyed, w.bpapergreyed, w.apapergreyed)
+				end
 
 				-- draw filled rectangle background for the text
 				love.graphics.rectangle("fill", ((w.width - minGUI.font[minGUI.numFont]:getWidth(w.title)) / 2) - 1, (MG_WINDOW_TITLEBAR_HEIGHT - minGUI.font[minGUI.numFont]:getHeight()) / 2, minGUI.font[minGUI.numFont]:getWidth(w.title) + 2, minGUI.font[minGUI.numFont]:getHeight())
 				
-				-- set color to pen color for the gadget
-				love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+				-- if the window has the focus, set color to pen color for the gadget
+				if minGUI_get_window_has_focus(num) then
+					love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+				else
+					love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
+				end
 
 				-- print the text centered
 				love.graphics.print(w.title, (w.width - minGUI.font[minGUI.numFont]:getWidth(w.title)) / 2, (MG_WINDOW_TITLEBAR_HEIGHT - minGUI.font[minGUI.numFont]:getHeight()) / 2)
@@ -210,7 +220,11 @@ function minGUI_draw_gadget(num, ox, oy)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 	
 		-- set color to pen color for the gadget
-		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		if w.editable == true then
+			love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		else
+			love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
+		end
 
 		-- print the text
 		if w.text ~= "" then
@@ -386,7 +400,11 @@ function minGUI_draw_gadget(num, ox, oy)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 	
 		-- set color to pen color for the gadget
-		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		if w.editable == true then
+			love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+		else
+			love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
+		end
 
 		-- print the text
 		local ln = 0

@@ -107,7 +107,8 @@ function minGUI_init()
 		bgcolor = {r = 0.5, g = 0.5, b = 0.5, a = 1}, -- background color
 		invtxtcolor = {r = 1, g = 1, b = 1, a = 1}, -- inverted text color
 		txtcolor = {r = 0, g = 0, b = 0, a = 1}, -- text color
-		greyedcolor = {r = 0.75, g = 0.75, b = 0.75, a = 1}, -- greyed color
+		greyedbgcolor = {r = 0.75, g = 0.75, b = 0.75, a = 1}, -- greyed background color
+		greyedtxtcolor = {r = 0.25, g = 0.25, b = 0.25, a = 1}, -- greyed text color
 		gtree = {}, -- gadgets's tree
 		igtree = {}, -- internal's gadgets tree
 		mouse = {x = 0, y = 0, oldmbtn = {}, mbtn = {}, mpressed = {}, mreleased = {}}, -- mouse events
@@ -222,15 +223,25 @@ function minGUI_init()
 			minGUI.invtxtcolor.b = b
 			minGUI.invtxtcolor.a = a
 		end,
-		-- set greyed color (red, green, blue, alpha)
-		set_greyedcolor = function(self, r, g, b, a)
+		-- set greyed background color (red, green, blue, alpha)
+		set_greyedbgcolor = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			minGUI.greyedcolor.r = r
-			minGUI.greyedcolor.g = g
-			minGUI.greyedcolor.b = b
-			minGUI.greyedcolor.a = a
+			minGUI.greyedbgcolor.r = r
+			minGUI.greyedbgcolor.g = g
+			minGUI.greyedbgcolor.b = b
+			minGUI.greyedbgcolor.a = a
+		end,
+		-- set greyed text color (red, green, blue, alpha)
+		set_greyedtxtcolor = function(self, r, g, b, a)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			minGUI.greyedtxtcolor.r = r
+			minGUI.greyedtxtcolor.g = g
+			minGUI.greyedtxtcolor.b = b
+			minGUI.greyedtxtcolor.a = a
 		end,
 		load_font = function(self, num, path, size)
 			-- don't execute next instructions in case of exit process is true
@@ -1101,7 +1112,7 @@ function minGUI_init()
 			end
 		end,
 		-- delete one gadget
-		delete_one_gadget = function(self, num)
+		private_delete_gadget = function(self, num)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
@@ -1110,6 +1121,15 @@ function minGUI_init()
 			
 			-- delete one gadget
 			table.remove(minGUI.gtree, num)
+			
+			-- find & delete internal sons
+			for i = #minGUI.igtree, 1, -1 do
+				if minGUI.igtree[i].parent == num then
+					-- delete one internal gadget
+					table.remove(minGUI.igtree, i)
+				end
+			end
+
 		end,
 		-- delete gadget with all its sons
 		delete_gadget = function(self, num)
@@ -1126,12 +1146,12 @@ function minGUI_init()
 				
 				if p == num then
 					-- delete next son
-					minGUI:delete_one_gadget(i)
+					minGUI:private_delete_gadget(i)
 				end
 			end
 
 			-- delete next son
-			minGUI:delete_one_gadget(num)
+			minGUI:private_delete_gadget(num)
 		end,
 		-- add a window to the gadget's tree
 		add_window = function(self, x, y, width, height, title, flags, parent)
@@ -1171,6 +1191,8 @@ function minGUI_init()
 							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, title = title, flags = flags, parent = parent, down = {left = false, right = false},
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
+							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
+							rpengreyed = minGUI.greyedtxtcolor.r, gpengreyed = minGUI.greyedtxtcolor.g, bpengreyed = minGUI.greyedtxtcolor.b, apengreyed = minGUI.greyedtxtcolor.a,
 							can_have_sons = true,
 							can_have_menu = true,
 							canvas = love.graphics.newCanvas(width, height)
@@ -1444,7 +1466,8 @@ function minGUI_init()
 							num = num, tp = MG_STRING, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
-							rpapergreyed = minGUI.greyedcolor.r, gpapergreyed = minGUI.greyedcolor.g, bpapergreyed = minGUI.greyedcolor.b, apapergreyed = minGUI.greyedcolor.a,
+							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
+							rpengreyed = minGUI.greyedtxtcolor.r, gpengreyed = minGUI.greyedtxtcolor.g, bpengreyed = minGUI.greyedtxtcolor.b, apengreyed = minGUI.greyedtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							offset = 0, editable = true, backspace = 0,
 							can_have_sons = false,
@@ -1759,7 +1782,8 @@ function minGUI_init()
 							num = num, tp = MG_EDITOR, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
-							rpapergreyed = minGUI.greyedcolor.r, gpapergreyed = minGUI.greyedcolor.g, bpapergreyed = minGUI.greyedcolor.b, apapergreyed = minGUI.greyedcolor.a,
+							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
+							rpengreyed = minGUI.greyedtxtcolor.r, gpengreyed = minGUI.greyedtxtcolor.g, bpengreyed = minGUI.greyedtxtcolor.b, apengreyed = minGUI.greyedtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							editable = true, cursorx = 0, cursory = 0, position = 0,
 							backspace = 0, delete = 0, up = 0, down = 0, left = 0, right = 0, ret = 0,
