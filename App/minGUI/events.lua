@@ -52,25 +52,27 @@ function minGUI_update_events(dt)
 		-- click on a gadget ?
 		selected_gadget = nil
 		
-		if minGUI.mouse.mpressed[b] == true then
-			selected_gadget = minGUI_check_gadget_clicked(b, false, nil)
-		end
+		if #minGUI.gtree > 0 then
+			-- button pressed
+			if minGUI.mouse.mpressed[b] == true then
+				selected_gadget = minGUI_check_gadget_clicked(b, false, nil)
+			end
 		
-		-- button continue to be down on a gadget ?
-		if minGUI.mouse.mbtn[b] == true then
-			selected_gadget = minGUI_check_gadget_mousedown(b, false, nil)
-		end
+			-- button continue to be down on a gadget ?
+			if minGUI.mouse.mbtn[b] == true then
+				selected_gadget = minGUI_check_gadget_mousedown(b, false, nil)
+			end
 
-		-- release button on a gadget ?
-		if minGUI.mouse.mreleased[b] == true then
-			selected_gadget = minGUI_check_gadget_released(b, false, nil)
-		end
+			-- release button on a gadget ?
+			if minGUI.mouse.mreleased[b] == true then
+				selected_gadget = minGUI_check_gadget_released(b, false, nil)
+			end
 
-		-- button continue to be up ?
-		if minGUI.mouse.mbtn[b] == false then
-			minGUI_check_internal_gadget_mouseup(b)
+			-- button continue to be up ?
+			if minGUI.mouse.mbtn[b] == false then
+				minGUI_check_internal_gadget_mouseup(b)
+			end
 		end
-
 	end
 
 	--=====================================================================
@@ -997,7 +999,15 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 			end
 			
 			-- check for maximize button pressed
-			-- todo!
+			if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
+				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + sh then
+					if b == MG_LEFT_BUTTON then
+						minGUI:maximize_window(i)
+						
+						return nil
+					end
+				end
+			end
 
 			-- check for resize button pressed
 			-- todo!

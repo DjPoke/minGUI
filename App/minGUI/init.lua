@@ -1045,6 +1045,44 @@ function minGUI_init()
 			
 			return minGUI.gtree[num].height
 		end,
+		maximize_window = function(self, num)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			-- is it really a window ?
+			if minGUI.gtree[num].tp == MG_WINDOW then
+				-- restore window size
+				if minGUI.gtree[num].maximized then
+					minGUI.gtree[num].maximized = false
+					minGUI.gtree[num].width = minGUI.gtree[num].default_width
+					minGUI.gtree[num].height = minGUI.gtree[num].default_height
+					minGUI.gtree[num].x = minGUI.gtree[num].default_x
+					minGUI.gtree[num].y = minGUI.gtree[num].default_y
+					minGUI.gtree[num].canvas = love.graphics.newCanvas(minGUI.gtree[num].width, minGUI.gtree[num].height)
+				-- maximize window
+				else
+					minGUI.gtree[num].maximized = true
+					minGUI.gtree[num].default_width = minGUI.gtree[num].width
+					minGUI.gtree[num].default_height = minGUI.gtree[num].height
+					minGUI.gtree[num].default_x = minGUI.gtree[num].x
+					minGUI.gtree[num].default_y = minGUI.gtree[num].y
+					
+					local p = minGUI.gtree[num].parent
+					
+					if minGUI.gtree[num].parent ~= nil then
+						minGUI.gtree[num].width = minGUI.gtree[p].width
+						minGUI.gtree[num].height = minGUI.gtree[p].height
+					else
+						minGUI.gtree[num].width = love.graphics.getWidth()
+						minGUI.gtree[num].height = love.graphics.getHeight()
+					end
+
+					minGUI.gtree[num].x = 0
+					minGUI.gtree[num].y = 0
+					minGUI.gtree[num].canvas = love.graphics.newCanvas(minGUI.gtree[num].width, minGUI.gtree[num].height)
+				end
+			end
+		end,
 		-- return the height of the menu in the window
 		window_menu_height = function(self, num)
 			-- don't execute next instructions in case of exit process is true
@@ -1313,6 +1351,7 @@ function minGUI_init()
 							rpengreyed = minGUI.greyedtxtcolor.r, gpengreyed = minGUI.greyedtxtcolor.g, bpengreyed = minGUI.greyedtxtcolor.b, apengreyed = minGUI.greyedtxtcolor.a,
 							can_have_sons = true,
 							can_have_menu = true,
+							maximized = false, default_x = x, default_y = y, default_width = width, default_height = height,
 							canvas = love.graphics.newCanvas(width, height)
 						})
 						
