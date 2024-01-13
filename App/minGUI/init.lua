@@ -5,6 +5,8 @@ function minGUI_init()
 	
 	-- constants:
 	MG_WINDOW_TITLEBAR_HEIGHT = 25
+	MG_WINDOW_MINIMAL_WIDTH = 256
+	MG_WINDOW_MINIMAL_HEIGHT = 128
 	
 	-- gadgets
 	MG_WINDOW = 1
@@ -1149,6 +1151,44 @@ function minGUI_init()
 	
 			return w
 		end,
+		resize_window = function(self, num, width, height)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			-- if it's a window, resize it
+			if minGUI.gtree[num].tp == MG_WINDOW then
+				-- minimal window size
+				if width < MG_WINDOW_MINIMAL_WIDTH then width = MG_WINDOW_MINIMAL_WIDTH end
+				if height < MG_WINDOW_MINIMAL_HEIGHT then height = MG_WINDOW_MINIMAL_HEIGHT end
+								
+				-- maximal window size
+				local p = minGUI.gtree[num].parent
+				
+				if p ~= nil then
+					if width > minGUI.gtree[p].width - minGUI.gtree[num].x - 1 then
+						width = minGUI.gtree[p].width - minGUI.gtree[num].x - 1
+					end
+
+					if height > minGUI.gtree[p].height - minGUI.gtree[num].y - 1 then
+						height = minGUI.gtree[p].height - minGUI.gtree[num].y - 1
+					end
+				else
+					if width > love.graphics.getWidth() - minGUI.gtree[num].x - 1 then
+						width = love.graphics.getWidth() - minGUI.gtree[num].x - 1
+					end
+
+					if height > love.graphics.getWidth() - minGUI.gtree[num].y - 1 then
+						height = love.graphics.getWidth() - minGUI.gtree[num].y - 1
+					end
+				end
+
+				-- resize
+				minGUI.gtree[num].width = width
+				minGUI.gtree[num].height = height
+				
+				minGUI.gtree[num].canvas = love.graphics.newCanvas(width, height)
+			end
+		end,
 		-- get the offset for the internal gadget
 		get_parent_internal_gadget_offset = function(self, num, tp)
 			-- don't execute next instructions in case of exit process is true
@@ -1352,6 +1392,7 @@ function minGUI_init()
 							can_have_sons = true,
 							can_have_menu = true,
 							maximized = false, default_x = x, default_y = y, default_width = width, default_height = height,
+							resizing = false,
 							canvas = love.graphics.newCanvas(width, height)
 						})
 						

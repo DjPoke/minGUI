@@ -1010,7 +1010,16 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 			end
 
 			-- check for resize button pressed
-			-- todo!
+			if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
+				if minGUI.mouse.y >= oy + v.y + v.height - sh and minGUI.mouse.y < oy + v.y + v.height then
+					if b == MG_LEFT_BUTTON then
+						minGUI.gtree[i].resizing = true
+						minGUI:resize_window(i, minGUI.mouse.x - (ox + v.x), minGUI.mouse.y - (oy + v.y))
+						
+						return nil
+					end
+				end
+			end
 		end
 	end
 	
@@ -1297,6 +1306,34 @@ end
 
 -- check if parented gadget is mousedown
 function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
+	-- if a focused window's button is clicked
+	local i = minGUI:get_focused_window_number()
+	local v = minGUI.gtree[i]
+
+	-- calculate parents offset
+	local ox, oy = minGUI_get_parent_gadget_offset(i)
+	
+	if not find_sons then
+		-- check the focused window
+		if v.tp == MG_WINDOW then
+			-- check for window's button down
+			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
+			
+			-- check for resize button down
+			--if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
+				--if minGUI.mouse.y >= oy + v.y + v.height - sh and minGUI.mouse.y < oy + v.y + v.height then
+					if b == MG_LEFT_BUTTON then
+						if minGUI.gtree[i].resizing then
+							minGUI:resize_window(i, minGUI.mouse.x - (ox + v.x), minGUI.mouse.y - (oy + v.y))
+							
+							return nil
+						end
+					end
+				--end
+			--end
+		end
+	end
+
 	-- if a menu is mousedown
 	if minGUI_check_internal_gadget_mousedown(b) ~= nil then
 		return nil
@@ -1551,6 +1588,30 @@ end
 
 -- check if parented gadget is mouse released
 function minGUI_check_gadget_released(b, find_sons, forced_parent)
+	-- if a focused window's button is clicked
+	local i = minGUI:get_focused_window_number()
+	local v = minGUI.gtree[i]
+
+	-- calculate parents offset
+	local ox, oy = minGUI_get_parent_gadget_offset(i)
+	
+	if not find_sons then
+		-- check the focused window
+		if v.tp == MG_WINDOW then
+			-- check for window's button released
+			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
+			
+			-- check for resize button released
+			if b == MG_LEFT_BUTTON then
+				if minGUI.gtree[i].resizing then
+					minGUI.gtree[i].resizing = false
+						
+					return nil
+				end
+			end
+		end
+	end
+
 	-- check for gadget released
 	for i = #minGUI.gtree, 1, -1 do
 		local v = minGUI.gtree[i]
