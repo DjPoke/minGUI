@@ -6,7 +6,7 @@
 --================
 
 -- require minGUI
-require "minGUI.minGUI"
+require "minGUI/minGUI"
 
 -- default love.load function
 function love.load()
@@ -14,13 +14,13 @@ function love.load()
 	minGUI_init()
 	
 	-- set colors
-	minGUI:set_bgcolor(0.5, 0.5, 0.5, 1)
-	minGUI:set_textcolor(0, 0, 0, 1)
-	minGUI:set_invtextcolor(1, 1, 1, 1)
-	minGUI:set_greyedbgcolor(0.5, 0.5, 0.5, 1)
-	minGUI:set_greyedtxtcolor(0.25, 0.25, 0.25, 1)
+	minGUI:set_background_color(0.5, 0.5, 0.5, 1)
+	minGUI:set_text_color(0, 0, 0, 1)
+	minGUI:set_inverted_text_color(1, 1, 1, 1)
+	minGUI:set_greyed_background_color(0.5, 0.5, 0.5, 1)
+	minGUI:set_greyed_text_color(0.25, 0.25, 0.25, 1)
 
-	-- prepare tables of windows & gagdets
+	-- prepare tables of windows & gadgets
 	w = {}
 	g = {}
 	

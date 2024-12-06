@@ -5,6 +5,7 @@ function minGUI_init()
 	
 	-- constants:
 	MG_WINDOW_TITLEBAR_HEIGHT = 25
+	MG_WINDOW_FOOTERBAR_HEIGHT = 25
 	MG_WINDOW_MINIMAL_WIDTH = 256
 	MG_WINDOW_MINIMAL_HEIGHT = 128
 	
@@ -203,7 +204,7 @@ function minGUI_init()
 			self.load_sprites()
 		end,
 		-- set background color (red, green, blue, alpha)
-		set_bgcolor = function(self, r, g, b, a)
+		set_background_color = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
@@ -213,7 +214,7 @@ function minGUI_init()
 			minGUI.bgcolor.a = a
 		end,
 		-- set text color (red, green, blue, alpha)
-		set_textcolor = function(self, r, g, b, a)
+		set_text_color = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
@@ -223,7 +224,7 @@ function minGUI_init()
 			minGUI.txtcolor.a = a
 		end,
 		-- set inverted text color (red, green, blue, alpha)
-		set_invtextcolor = function(self, r, g, b, a)
+		set_inverted_text_color = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
@@ -233,7 +234,7 @@ function minGUI_init()
 			minGUI.invtxtcolor.a = a
 		end,
 		-- set greyed background color (red, green, blue, alpha)
-		set_greyedbgcolor = function(self, r, g, b, a)
+		set_greyed_background_color = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
@@ -243,7 +244,7 @@ function minGUI_init()
 			minGUI.greyedbgcolor.a = a
 		end,
 		-- set greyed text color (red, green, blue, alpha)
-		set_greyedtxtcolor = function(self, r, g, b, a)
+		set_greyed_text_color = function(self, r, g, b, a)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
@@ -1119,6 +1120,21 @@ function minGUI_init()
 	
 			return 0
 		end,
+		-- return the height of the footerbar for the window
+		window_footerbar_height = function(self, num)
+			-- don't execute next instructions in case of exit process is true
+			if minGUI.exitProcess == true then return end
+			
+			local v = minGUI.gtree[num]
+
+			if v.tp == MG_WINDOW then		
+				if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_RESIZE) then
+					return MG_WINDOW_FOOTERBAR_HEIGHT
+				end
+			end
+	
+			return 0
+		end,
 		-- check if a window has the focus
 		get_window_has_focus = function(self, num)
 			-- don't execute next instructions in case of exit process is true
@@ -1367,7 +1383,7 @@ function minGUI_init()
 			if flags == nil then
 				flags = 0
 			elseif type(flags) ~= "number" then
-				minGUI:runtime_error("[add_window]Wrong flags  for gadget" .. num)
+				minGUI:runtime_error("[add_window]Wrong flags for gadget" .. num)
 				return
 			end
 

@@ -182,25 +182,25 @@ function minGUI_get_gadget_parents_scissor(num)
 		return 0, 0, love.graphics.getWidth(), love.graphics.getHeight()
 	else
 		-- parent is a window with a menu ?
-		local menu_y = minGUI:window_menu_height(num)
-		menu_y = menu_y + minGUI:window_titlebar_height(num)
-
 		local ox = 0
-		local oy = menu_y
+		local oy = 0
 		
-		j = num
+		local j = num
 		while minGUI.gtree[j].parent ~= nil do
 			j = minGUI.gtree[j].parent
 
 			-- parent is a window with a menu ?
-			menu_y = minGUI:window_menu_height(j)
-			menu_y = menu_y + minGUI:window_titlebar_height(j)
-			
 			ox = ox + minGUI.gtree[j].x
-			oy = oy + minGUI.gtree[j].y + menu_y
+			oy = oy + minGUI.gtree[j].y + minGUI:window_menu_height(j) + minGUI:window_titlebar_height(j)
 		end
-		
-		return ox + minGUI.gtree[num].x, oy + minGUI.gtree[num].y, minGUI.gtree[num].width, minGUI.gtree[num].height
+
+		-- ajustments
+		local tb = minGUI:window_footerbar_height(num)
+
+		if tb > 0 then tb = tb + 1 end
+
+		-- return scissor values
+		return ox + minGUI.gtree[num].x, oy + minGUI.gtree[num].y, minGUI.gtree[num].width, minGUI.gtree[num].height - tb
 	end
 end
 

@@ -46,7 +46,7 @@ function minGUI_draw_gadget(num, ox, oy)
 			love.graphics.setColor(1, 1, 1, 1)
 			
 			-- draw footerbar
-			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, w.height - MG_WINDOW_TITLEBAR_HEIGHT - 1, w.width - 2, MG_WINDOW_TITLEBAR_HEIGHT - 1, w.canvas)
+			minGUI_draw_9slice(MG_TITLEBAR_IMAGE, 1, w.height - MG_WINDOW_FOOTERBAR_HEIGHT - 1, w.width - 2, MG_WINDOW_FOOTERBAR_HEIGHT - 1, w.canvas)
 			
 			-- draw the text on the gadget's canvas
 			love.graphics.setCanvas(w.canvas)
@@ -438,7 +438,6 @@ function minGUI_draw_gadget(num, ox, oy)
 
 		-- draw the canvas
 		love.graphics.setColor(1, 1, 1, 1)
-
 
 		-- set scissor
 		love.graphics.setScissor(scx, scy, scw, sch)
