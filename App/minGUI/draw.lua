@@ -236,6 +236,9 @@ function minGUI_draw_gadget(num, ox, oy)
 								
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
 		
 		-- draw the border
 		love.graphics.setColor(w.rborder, w.gborder, w.bborder, w.aborder)
@@ -252,9 +255,6 @@ function minGUI_draw_gadget(num, ox, oy)
 
 		-- draw the canvas
 		love.graphics.setColor(1, 1, 1, 1)
-
-		-- set scissor
-		love.graphics.setScissor(scx, scy, scw, sch)
 
 		-- draw
 		love.graphics.draw(w.canvas, ox + w.x + 2, oy + w.y + 2)
@@ -422,7 +422,10 @@ function minGUI_draw_gadget(num, ox, oy)
 		
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
-		
+
+		-- set scissor
+		love.graphics.setScissor(scx, scy, scw, sch)
+
 		-- draw the border
 		love.graphics.setColor(w.rborder, w.gborder, w.bborder, w.aborder)
 		love.graphics.rectangle("line", ox + w.x, oy + w.y, w.width, w.height)
@@ -438,9 +441,6 @@ function minGUI_draw_gadget(num, ox, oy)
 
 		-- draw the canvas
 		love.graphics.setColor(1, 1, 1, 1)
-
-		-- set scissor
-		love.graphics.setScissor(scx, scy, scw, sch)
 
 		-- draw
 		love.graphics.draw(w.canvas, ox + w.x + 2, oy + w.y + 2)
@@ -458,20 +458,20 @@ function minGUI_draw_gadget(num, ox, oy)
 
 		-- draw scrollbar button 1
 		if not w.down1 then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size , w.size, w.canvas1)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size, w.size, w.canvas1)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size , w.size, w.canvas1)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size, w.size, w.canvas1)
 		end
 
 		-- draw scrollbar button 2
 		if not w.down2 then
-			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size , w.size, w.canvas2)
+			minGUI_draw_9slice(MG_BUTTON_UP_IMAGE, 0, 0, w.size, w.size, w.canvas2)
 		else
-			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size , w.size, w.canvas2)
+			minGUI_draw_9slice(MG_BUTTON_DOWN_IMAGE, 0, 0, w.size, w.size, w.canvas2)
 		end
 		
 		-- draw scrollbar button 3
-		minGUI_draw_9slice(MG_SCROLLBAR_IMAGE, 0, 0, w.size_width , w.size_height, w.canvas3)
+		minGUI_draw_9slice(MG_SCROLLBAR_IMAGE, 0, 0, w.size_width, w.size_height, w.canvas3)
 		
 		-- calculate arrows position and size
 		local size = math.floor(w.size / 2)

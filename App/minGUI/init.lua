@@ -95,7 +95,7 @@ function minGUI_init()
 	MG_EVENT_TIMER_TICK = 1
 
 	-- scrollbars
-	MG_MIN_SCROLLBAR_BUTTON_SIZE = 8
+	MG_MIN_SCROLLBAR_BUTTON_SIZE = 3
 	
 	MG_SCROLLBAR_MIN_VALUE = 1
 	MG_SCROLLBAR_MAX_VALUE = 2
@@ -422,12 +422,12 @@ function minGUI_init()
 						if value == nil then value = 0 end
 						
 						-- set the value of the gadget
-						local lng1 = (minGUI.gtree[num].maxValue - minGUI.gtree[num].minValue)
+						local lng1 = (minGUI.gtree[num].maxValue - minGUI.gtree[num].minValue + 1)
 						local lng2 = lng1 / minGUI.gtree[num].stepsValue
 						
 						value = value - minGUI.gtree[num].minValue
 						value = math.floor(value / lng2)
-						value = value * lng1 / (minGUI.gtree[num].stepsValue - 1)
+						value = value * lng2
 						value = value + minGUI.gtree[num].minValue
 						
 						minGUI.gtree[num].value = math.min(math.max(value, minGUI.gtree[num].minValue), minGUI.gtree[num].maxValue)
@@ -2109,12 +2109,12 @@ function minGUI_init()
 			maxValue = math.floor(maxValue + 0.5)
 
 			-- set the value of the gadget
-			local lng1 = (maxValue - minValue)
+			local lng1 = (maxValue - minValue + 1)
 			local lng2 = lng1 / stepsValue
 						
 			value = value - minValue
 			value = math.floor(value / lng2)
-			value = value * lng1 / (stepsValue - 1)
+			value = value * lng2
 			value = value + minValue
 			value = math.min(math.max(value, minValue), maxValue)
 
@@ -2283,12 +2283,12 @@ function minGUI_init()
 			maxValue = math.floor(maxValue + 0.5)
 
 			-- set the value of the gadget
-			local lng1 = (maxValue - minValue)
+			local lng1 = (maxValue - minValue + 1)
 			local lng2 = lng1 / stepsValue
 						
 			value = value - minValue
 			value = math.floor(value / lng2)
-			value = value * lng1 / (stepsValue - 1)
+			value = value * lng2
 			value = value + minValue
 			value = math.min(math.max(value, minValue), maxValue)
 
