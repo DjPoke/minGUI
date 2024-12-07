@@ -2,10 +2,10 @@
 -- minGUI example
 --
 -- by DjPoke
--- (MIT) 2023-2024
+-- (MIT) 2023-2025
 --================
 
--- require minGUI
+-- requires
 require "minGUI/minGUI"
 
 -- default love.load function
