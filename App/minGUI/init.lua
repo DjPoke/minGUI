@@ -1,6 +1,6 @@
 -- function to call from love.load()
 function minGUI_init()
-	-- set default filter
+	-- disable blur
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	
 	-- constants:
