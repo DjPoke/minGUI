@@ -570,10 +570,10 @@ function minGUI_draw_gadget(num, ox, oy)
 end
 
 function minGUI_draw_internal_gadget(num, ox, oy)
-	local w = minGUI.igtree[num]
+	local w = minGUI.gtree[num]
 			
 	-- get scissors from parent gadgets
-	local scx, scy, scw, sch = minGUI_get_internal_gadget_parents_scissor(minGUI.igtree[num].parent)
+	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
 
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
@@ -640,7 +640,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		love.graphics.setColor(1, 1, 1, 1)
 		
 		-- set scissor
-		love.graphics.setScissor(scx, scy, scw, sch)		
+		love.graphics.setScissor(scx, scy, scw, sch)
 
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			-- draw vertical scrollbar bar at screen
@@ -802,60 +802,64 @@ function minGUI_draw_all()
 
 	-- draw gadgets
 	for i, v in ipairs(minGUI.gtree) do
-		if v.parent == nil then
-			minGUI_draw_gadget(i, 0, 0)
+		if minGUI.gtree[i].isInternal == false then
+			if v.parent == nil then
+				minGUI_draw_gadget(i, 0, 0)
 
-			-- draw sons
-			if v.can_have_sons then
-				minGUI_draw_sons(i, 0, 0)
-			end
-			
-			-- draw cursor on focused object,if needed
-			if minGUI.gfocus ~= nil and minGUI.gfocus == i then
-				if minGUI.gtree[i] ~= nil then
-					minGUI_draw_cursor_on_focused_gadget(i, 0, 0)
+				-- draw sons
+				if v.can_have_sons then
+					minGUI_draw_sons(i, 0, 0)
+				end
+
+				-- draw cursor on focused object,if needed
+				if minGUI.gfocus ~= nil and minGUI.gfocus == i then
+					if minGUI.gtree[i] ~= nil then
+						minGUI_draw_cursor_on_focused_gadget(i, 0, 0)
+					end
 				end
 			end
 		end		
 	end
 	
 	-- draw internal gadgets
-	for i, v in ipairs(minGUI.igtree) do
-		-- get internal gadget's parent
-		local w = minGUI.gtree[v.parent]
+	for i, v in ipairs(minGUI.gtree) do
+		if minGUI.gtree[i].isInternal == true then
+			-- get internal gadget's parent
+			local w = minGUI.gtree[v.parent]
 		
-		if w ~= nil then
-			-- get parents offsets
-			ox = w.x
-			oy = w.y
+			if w ~= nil then
+				-- get parents offsets
+				ox = w.x
+				oy = w.y
 			
-			if v.tp ~= MG_INTERNAL_MENU then
-				oy = oy + minGUI:window_menu_height(w.num)
-			end
+				if v.tp ~= MG_INTERNAL_MENU then
+					oy = oy + minGUI:window_menu_height(w.num)
+				end
 
-			oy = oy + minGUI:window_titlebar_height(w.num)
+				oy = oy + minGUI:window_titlebar_height(w.num)
 			
-			-- while parent has parents
-			while w.parent ~= nil do
-				-- get grand-parents and others
-				w = minGUI.gtree[w.parent]
+				-- while parent has parents
+				while w.parent ~= nil do
+					-- get grand-parents and others
+					w = minGUI.gtree[w.parent]
 					
-				-- if they exists...
-				if w ~= nil then
-					-- add their offset
-					ox = ox + w.x
-					oy = oy + w.y
+					-- if they exists...
+					if w ~= nil then
+						-- add their offset
+						ox = ox + w.x
+						oy = oy + w.y
 
-					if v.tp ~= MG_INTERNAL_MENU then
-						oy = oy + minGUI:window_menu_height(w.num)
+						if v.tp ~= MG_INTERNAL_MENU then
+							oy = oy + minGUI:window_menu_height(w.num)
+						end
+
+						oy = oy + minGUI:window_titlebar_height(w.num)
 					end
-
-					oy = oy + minGUI:window_titlebar_height(w.num)
 				end
 			end
-		end
 		
-		minGUI_draw_internal_gadget(i, ox, oy)
+			minGUI_draw_internal_gadget(i, ox, oy)
+		end
 	end
 
 end
@@ -914,6 +918,9 @@ function minGUI_draw_editor_cursor(num, ox, oy)
 	local xc2 = 0
 	local yc2 = 0
 
+	-- get scissors from parent gadgets
+	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
+
 	-- explode utf8 text
 	t = {}
 	t = minGUI_explode(w.text, "\n")
@@ -940,7 +947,7 @@ function minGUI_draw_editor_cursor(num, ox, oy)
 			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
 		end
 	end
-	
+
 	-- draw the cursor on its canvas
 	love.graphics.setCanvas(w.cursor_canvas)
 	love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
@@ -955,8 +962,14 @@ function minGUI_draw_editor_cursor(num, ox, oy)
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setCanvas()
 
-	-- draw the full gadget's canvas
+	-- set scissor
+	love.graphics.setScissor(scx, scy, scw, sch)
+
+		-- draw the full gadget's canvas
 	love.graphics.draw(w.canvas, xc1, yc1)
+
+	-- reset scissor			
+	love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 
 -- load 9-slice sprite

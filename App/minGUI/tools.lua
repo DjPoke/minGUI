@@ -176,57 +176,85 @@ end
 
 -- get gadget parents scissor
 function minGUI_get_gadget_parents_scissor(num)
-	-- parent gadget is nil ?
+	-- the parent gadget is nil ?
 	if num == nil then
 		-- exit with no scissor
 		return 0, 0, love.graphics.getWidth(), love.graphics.getHeight()
 	else
-		-- parent is a window with a menu ?
-		local ox = 0
-		local oy = 0
-		
+		-- j become a temp gadget number
 		local j = num
+
+		-- get first parent size
+		local x1 = minGUI.gtree[j].x
+		local y1 = minGUI.gtree[j].y
+		local x2 = minGUI.gtree[j].x + minGUI.gtree[j].width - 1
+		local y2 = minGUI.gtree[j].y + minGUI.gtree[j].height - 1
+
+		-- get absolute coordinates
+		local xa, ya = minGUI_get_gadget_absolute_coordinates(j)
+
+		x1 = xa + x1
+		y1 = xa + y1
+		x2 = ya + x2
+		y2 = ya + y2
+
+		-- while there are upper parents...
 		while minGUI.gtree[j].parent ~= nil do
+			-- set j to the upper parent
 			j = minGUI.gtree[j].parent
 
-			-- parent is a window with a menu ?
-			ox = ox + minGUI.gtree[j].x
-			oy = oy + minGUI.gtree[j].y + minGUI:window_menu_height(j) + minGUI:window_titlebar_height(j)
+			-- if there is still another parent...
+			if minGUI.gtree[j].parent ~= nil then
+				-- calculate new scissor, and if the parent
+				-- is a window with a menu, add offset y to y
+				local x3 = minGUI.gtree[j].x
+				local y3 = minGUI.gtree[j].y + minGUI:window_menu_height(j) + minGUI:window_titlebar_height(j)
+				local x4 = minGUI.gtree[j].x + minGUI.gtree[j].width - 1
+				local y4 = minGUI.gtree[j].y + minGUI.gtree[j].height - 1
+
+				-- get absolute coordinates
+				local xa, ya = minGUI_get_gadget_absolute_coordinates(j)
+
+				x3 = xa + x3
+				y3 = xa + y3
+				x4 = ya + x4
+				y4 = ya + y4
+
+				-- set the smallest window
+				if x3 > x1 then x1 = x3 end
+				if y3 > y1 then y1 = y3 end
+				if x4 < x2 then x4 = x2 end
+				if y4 < y2 then y4 = y2 end
+			end
 		end
 
-		-- ajustments
+		-- adjustments for the footerbar
 		local tb = minGUI:window_footerbar_height(num)
 
 		if tb > 0 then tb = tb + 1 end
 
+		-- calculate the new width and height
+		local x = x1
+		local y = y1
+		local w = x2 - x1 + 1
+		local h = y2 - y1 + 1 - tb
+
 		-- return scissor values
-		return ox + minGUI.gtree[num].x, oy + minGUI.gtree[num].y, minGUI.gtree[num].width, minGUI.gtree[num].height - tb
+		return x, y, w, h
 	end
 end
 
+-- get gagdet absolute coordinates
+function minGUI_get_gadget_absolute_coordinates(num)
+	local x = 0
+	local y = 0
 
--- get internal gadget parents scissor
-function minGUI_get_internal_gadget_parents_scissor(num)
-	-- parent gadget is nil ?
-	if num == nil then
-		-- exit with no scissor
-		return 0, 0, love.graphics.getWidth(), love.graphics.getHeight()
-	else
-		local ox = 0
-		local oy = 0
-		
-		j = num
-		while minGUI.gtree[j].parent ~= nil do
-			j = minGUI.gtree[j].parent
+	while minGUI.gtree[num].parent ~= nil do
+		num = minGUI.gtree[num].parent
 
-			-- parent is a window with a menu ?
-			menu_y = minGUI:window_menu_height(j)
-			menu_y = menu_y + minGUI:window_titlebar_height(j)
-			
-			ox = ox + minGUI.gtree[j].x
-			oy = oy + minGUI.gtree[j].y + menu_y
-		end
-		
-		return ox + minGUI.gtree[num].x, oy + minGUI.gtree[num].y, minGUI.gtree[num].width, minGUI.gtree[num].height
+		x = x + minGUI.gtree[num].x
+		y = y + minGUI.gtree[num].y + minGUI:window_menu_height(num) + minGUI:window_titlebar_height(num)
 	end
+
+	return x, y
 end

@@ -794,7 +794,7 @@ end
 -- check if an internal gadget is clicked
 function minGUI_check_internal_gadget_clicked(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.igtree) do
+	for i, v in ipairs(minGUI.gtree) do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 		
@@ -890,7 +890,7 @@ end
 -- check if an internal gadget is mousedown
 function minGUI_check_internal_gadget_mousedown(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.igtree) do
+	for i, v in ipairs(minGUI.gtree) do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
@@ -901,7 +901,7 @@ end
 -- check if an internal gadget is mouse released
 function minGUI_check_internal_gadget_released(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.igtree) do
+	for i, v in ipairs(minGUI.gtree) do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
@@ -910,7 +910,7 @@ end
 -- check if an internal gadget is mouseup/hovered
 function minGUI_check_internal_gadget_mouseup(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.igtree) do
+	for i, v in ipairs(minGUI.gtree) do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 		

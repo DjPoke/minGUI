@@ -113,7 +113,6 @@ function minGUI_init()
 		greyedbgcolor = {r = 0.75, g = 0.75, b = 0.75, a = 1}, -- greyed background color
 		greyedtxtcolor = {r = 0.25, g = 0.25, b = 0.25, a = 1}, -- greyed text color
 		gtree = {}, -- gadgets's tree
-		igtree = {}, -- internal's gadgets tree
 		mouse = {x = 0, y = 0, oldmbtn = {}, mbtn = {}, mpressed = {}, mreleased = {}}, -- mouse events
 		gstack = {}, -- gadget events stack
 		mstack = {}, -- menu events stack
@@ -1094,7 +1093,7 @@ function minGUI_init()
 			local v = minGUI.gtree[num]
 
 			if v.tp == MG_WINDOW then
-				for j, w in ipairs(minGUI.igtree) do
+				for j, w in ipairs(minGUI.gtree) do
 					if w.parent == num then
 						if w.tp == MG_INTERNAL_MENU then
 							return w.height
@@ -1211,7 +1210,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			-- get internal's gadget parent
-			local w = minGUI.gtree[minGUI.igtree[num].parent]
+			local w = minGUI.gtree[minGUI.gtree[num].parent]
 	
 			local ox = 0
 			local oy = 0
@@ -1335,10 +1334,10 @@ function minGUI_init()
 			table.remove(minGUI.gtree, num)
 			
 			-- find & delete internal sons
-			for i = #minGUI.igtree, 1, -1 do
-				if minGUI.igtree[i].parent == num then
+			for i = #minGUI.gtree, 1, -1 do
+				if minGUI.gtree[i].parent == num then
 					-- delete one internal gadget
-					table.remove(minGUI.igtree, i)
+					table.remove(minGUI.gtree, i)
 				end
 			end
 
@@ -1400,7 +1399,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_WINDOW, x = x, y = y, width = width, height = height, title = title, flags = flags, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_WINDOW, isInternal = false, x = x, y = y, width = width, height = height, title = title, flags = flags, parent = parent, down = {left = false, right = false},
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
@@ -1452,7 +1451,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_PANEL, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_PANEL, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
 							can_have_sons = true,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
@@ -1504,7 +1503,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_BUTTON, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_BUTTON, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down = {left = false, right = false},
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
@@ -1555,7 +1554,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_BUTTON_IMAGE, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
+							num = num, tp = MG_BUTTON_IMAGE, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
 							image = image,
 							can_have_sons = false,
 							can_have_menu = false,
@@ -1620,7 +1619,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_LABEL, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
+							num = num, tp = MG_LABEL, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
@@ -1677,7 +1676,7 @@ function minGUI_init()
 						if flags == nil then flags = 0 end
 						
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_STRING, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
+							num = num, tp = MG_STRING, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
@@ -1746,7 +1745,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_CANVAS, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
+							num = num, tp = MG_CANVAS, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
@@ -1808,7 +1807,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_CHECKBOX, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
+							num = num, tp = MG_CHECKBOX, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
@@ -1862,7 +1861,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_OPTION, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
+							num = num, tp = MG_OPTION, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
@@ -1926,7 +1925,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_SPIN, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
+							num = num, tp = MG_SPIN, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = {left = false, right = false}, btnUp = false, btnDown = false,
 							text = tostring(value), minValue = minValue, maxValue = maxValue, timer = 0,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
@@ -1993,7 +1992,7 @@ function minGUI_init()
 						if flags == nil then flags = 0 end
 						
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_EDITOR, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
+							num = num, tp = MG_EDITOR, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
@@ -2135,7 +2134,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_SCROLLBAR, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
+							num = num, tp = MG_SCROLLBAR, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = false, down1 = false, down2 = false,
 							real_width = real_width, real_height = real_height, size = size, internalBarSize = internalBarSize,
 							size_width = size_width, size_height = size_height, min_size = min_size,
@@ -2194,7 +2193,7 @@ function minGUI_init()
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
 						table.insert(minGUI.gtree, {
-							num = num, tp = MG_IMAGE, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
+							num = num, tp = MG_IMAGE, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
 							image = image,
 							can_have_sons = false,
 							can_have_menu = false,
@@ -2220,7 +2219,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.igtree + 1
+			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong x for gadget " .. num); return end
@@ -2305,11 +2304,11 @@ function minGUI_init()
 			end
 							
 			-- initialize values
-			if minGUI.igtree[num] == nil then
+			if minGUI.gtree[num] == nil then
 				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.igtree, {
-							num = num, tp = MG_INTERNAL_SCROLLBAR, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
+						table.insert(minGUI.gtree, {
+							num = num, tp = MG_INTERNAL_SCROLLBAR, isInternal = true, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = false, down1 = false, down2 = false,
 							real_width = real_width, real_height = real_height, size = size, internalBarSize = internalBarSize,
 							size_width = size_width, size_height = size_height, min_size = min_size,
@@ -2337,7 +2336,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.igtree + 1
+			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_internal_box]Wrong x for gadget " .. num); return end
@@ -2356,11 +2355,11 @@ function minGUI_init()
 			height = MG_SCROLLBAR_SIZE
 			
 			-- initialize values
-			if minGUI.igtree[num] == nil then
+			if minGUI.gtree[num] == nil then
 				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.igtree, {
-							num = num, tp = MG_INTERNAL_BOX, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
+						table.insert(minGUI.gtree, {
+							num = num, tp = MG_INTERNAL_BOX, isInternal = true, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
@@ -2380,7 +2379,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.igtree + 1
+			local num = #minGUI.gtree + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_menu]Wrong x for gadget " .. num); return end
@@ -2407,11 +2406,11 @@ function minGUI_init()
 			end
 			
 			-- initialize values
-			if minGUI.igtree[num] == nil then
+			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.igtree, {
-							num = num, tp = MG_INTERNAL_MENU, x = x, y = y, width = width, height = height, array = array, flags = flags, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
+						table.insert(minGUI.gtree, {
+							num = num, tp = MG_INTERNAL_MENU, isInternal = true, x = x, y = y, width = width, height = height, array = array, flags = flags, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
