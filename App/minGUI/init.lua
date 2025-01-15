@@ -2432,7 +2432,7 @@ function minGUI_init()
 
 	}
 	
-	-- set events to default
+	-- set events to default values
 	minGUI.mouse.x, minGUI.mouse.y = love.mouse.getPosition()
 	
 	for i = 1, 3 do
