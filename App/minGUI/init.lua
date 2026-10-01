@@ -343,6 +343,13 @@ function minGUI_init()
 						minGUI.gtree[num].keyrepeat = {}
 					
 						minGUI_shift_text(num, text)
+					elseif minGUI.gtree[num].tp == MG_EDITOR then
+						local gadget = minGUI.gtree[num]
+						gadget.text = text:gsub("\r\n", "\n"):gsub("\r", "\n")
+						gadget.selectionAnchor, gadget.preferredColumn = nil, nil
+						gadget.keyrepeat = {}
+						minGUI_editor_set_position(gadget, utf8.len(gadget.text))
+						minGUI_editor_layout(gadget, true)
 					elseif minGUI.gtree[num].tp == MG_LABEL then
 						-- replace the text
 						minGUI.gtree[num].text = text
@@ -367,7 +374,7 @@ function minGUI_init()
 				-- if the gadget has a text attribute...
 				if minGUI.gtree[num].text ~= nil then
 					-- if the gadget is a string gadget...
-					if minGUI.gtree[num].tp == MG_STRING then
+					if minGUI.gtree[num].tp == MG_STRING or minGUI.gtree[num].tp == MG_EDITOR then
 						-- return the text
 						return minGUI.gtree[num].text
 					elseif minGUI.gtree[num].tp == MG_LABEL then
@@ -391,6 +398,22 @@ function minGUI_init()
 			
 			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_gadget_state]Wrong num value"); return end
 
+			local gadget = self.gtree[num]
+			if gadget and gadget.tp == MG_INTERNAL_SCROLLBAR then
+				local editor = self.gtree[gadget.parent]
+				if editor and editor.tp == MG_EDITOR then
+					if type(value) ~= "number" then self:runtime_error("[set_gadget_state]Wrong state value"); return end
+					minGUI_editor_layout(editor)
+					value = math.max(0, math.min(gadget.maxValue, value))
+					if minGUI_flag_active(gadget.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
+						editor.scrollY = value
+					else
+						editor.scrollX = value
+					end
+					minGUI_editor_layout(editor)
+					return
+				end
+			end
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
 				-- if the gadget is checkable
@@ -452,7 +475,7 @@ function minGUI_init()
 					return minGUI.gtree[num].checked
 				else
 					-- if the gadget is a scrollbar gadget...
-					if minGUI.gtree[num].tp == MG_SCROLLBAR then
+					if minGUI.gtree[num].tp == MG_SCROLLBAR or minGUI.gtree[num].tp == MG_INTERNAL_SCROLLBAR then
 						return math.floor(minGUI.gtree[num].value + 0.5)
 					end
 				end
@@ -1254,77 +1277,20 @@ function minGUI_init()
 			return ox, oy
 		end,
 		get_cursor_position = function(self, num)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-
-			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_cursor_position]Wrong num value"); return end
-
-			-- the gadget must exists
-			if minGUI.gtree[num] == nil then return end
-			
-			-- for editor gadget...
-			if minGUI.gtree[num].tp == MG_EDITOR then
-				-- separate sentences
-				local t = {}
-			
-				t = minGUI_explode(minGUI.gtree[num].text, "\n")
-			
-				if minGUI.gtree[num].cursory > #t then minGUI.gtree[num].cursory = #t end
-
-				-- start pos is zero
-				minGUI.gtree[num].position = 0
-			
-				for i = 0, minGUI.gtree[num].cursory - 1 do
-					minGUI.gtree[num].position = minGUI.gtree[num].position + utf8.len(t[i + 1])
-				end
-			
-				minGUI.gtree[num].position = minGUI.gtree[num].position + minGUI.gtree[num].cursorx
-			end
+			local gadget = self.gtree[num]
+			if gadget and gadget.tp == MG_EDITOR then return minGUI_editor_position(gadget) end
 		end,
 		set_cursor_xy = function(self, num, x, y)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-
-			-- check for values and types of values
-			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_cursor_xy]Wrong num value"); return end
-			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[set_cursor_xy]Wrong x for gadget " .. num); return end
-			if not minGUI_check_param2(y, "number") then minGUI:runtime_error("[set_cursor_xy]Wrong y for gadget " .. num); return end
-
-			-- the gadget must exists
-			if minGUI.gtree[num] == nil then return end
-			
-			-- for editor gadget...
-			if minGUI.gtree[num].tp == MG_EDITOR then
-				if x == nil then x = 0 end
-				if y == nil then y = 0 end
-			
-				-- set cursor position by coordinates
-				minGUI.gtree[num].cursorx = x
-				minGUI.gtree[num].cursory = y
-
-				-- separate sentences
-				local t = {}
-	
-				t = minGUI_explode(minGUI.gtree[num].text, "\n")
-				
-				-- correction of y
-				if y == -1 then
-					y = #t - 1
-					minGUI.gtree[num].cursory = y
-				end			
-
-				-- correction of x
-				if x == -1 then
-					if t[y + 1] == nil then
-						minGUI.gtree[num].cursorx = 0
-					else
-						minGUI.gtree[num].cursorx = utf8.len(t[y + 1])
-					end
-				end
-			
-				minGUI:get_cursor_position(num)
-			end
+			local gadget = self.gtree[num]
+			if not gadget or gadget.tp ~= MG_EDITOR then return end
+			local lines = minGUI_explode(gadget.text, "\n")
+			y = y == -1 and (#lines - 1) or (y or 0)
+			y = math.max(0, math.min(#lines - 1, y))
+			x = x == -1 and utf8.len(lines[y + 1]) or (x or 0)
+			gadget.cursory, gadget.cursorx = y, math.max(0, math.min(utf8.len(lines[y + 1]), x))
+			gadget.selectionAnchor, gadget.preferredColumn = nil, nil
+			minGUI_editor_position(gadget)
+			minGUI_editor_layout(gadget, true)
 		end,
 		-- Remove a subtree without changing IDs held by the application.
 		private_delete_gadget = function(self, num)
@@ -1999,6 +1965,7 @@ function minGUI_init()
 							rpengreyed = minGUI.greyedtxtcolor.r, gpengreyed = minGUI.greyedtxtcolor.g, bpengreyed = minGUI.greyedtxtcolor.b, apengreyed = minGUI.greyedtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							editable = true, cursorx = 0, cursory = 0, position = 0,
+							overwrite = false, keyrepeat = {}, scrollX = 0, scrollY = 0,
 							backspace = 0, delete = 0, up = 0, down = 0, left = 0, right = 0, ret = 0,
 							can_have_sons = false,
 							can_have_menu = false,

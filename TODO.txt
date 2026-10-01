@@ -1,10 +1,7 @@
 TODO List:
 ----------
 
-- Corriger et finir l'editor gadget.
 - Finir menus et drop down menus
-- Finir les scrollbars dans l'editor gadget.
 - Faire une list gadget.
 - Faire une combobox.
 - Ajouter des couleurs customs et des fonts customs personalisables pour chaque gadget.
-

@@ -396,6 +396,7 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- reset scissor			
 		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_EDITOR then
+		minGUI_editor_layout(w)
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
 		
@@ -416,20 +417,34 @@ function minGUI_draw_gadget(num, ox, oy)
 			love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
 		end
 
-		-- print the text
-		local ln = 0
-		
-		if w.text ~= "" then
-			t = {}
-			t = minGUI_explode(w.text, "\n")
-			
-			for y = 1, #t do
-				love.graphics.print(t[y], 0, ln)
-				
-				ln = ln + minGUI.font[minGUI.numFont]:getHeight()
+		local font = minGUI.font[minGUI.numFont]
+		local lines = minGUI_explode(w.text, "\n")
+		local first, last = minGUI_editor_selection(w)
+		local position = 0
+		for row, line in ipairs(lines) do
+			local y = (row - 1) * font:getHeight() - w.scrollY
+			if y + font:getHeight() > 0 and y < w.viewHeight then
+				if w.editable then
+					love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+				else
+					love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
+				end
+				love.graphics.print(line, -w.scrollX, y)
+				local start = math.max(0, first - position)
+				local finish = math.min(utf8.len(line), last - position)
+				if minGUI.gfocus == num and first < last and first <= position + utf8.len(line) and last > position then
+					local x = font:getWidth(minGUI_sub_string(line, 1, start)) - w.scrollX
+					local selected = minGUI_sub_string(line, start + 1, finish)
+					local width = font:getWidth(selected)
+					if last > position + utf8.len(line) then width = width + font:getWidth(' ') end
+					love.graphics.rectangle('fill', x, y, width, font:getHeight())
+					love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
+					love.graphics.print(selected, x, y)
+				end
 			end
+			position = position + utf8.len(line) + 1
 		end
-		
+
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 
@@ -533,7 +548,7 @@ function minGUI_draw_gadget(num, ox, oy)
 		end
 		
 		-- calculate offset of the scrollbar central button
-		local offset = math.floor((w.value - w.minValue) / w.inc) * w.min_size
+		local offset = w.thumbOffset or (math.floor((w.value - w.minValue) / w.inc) * w.min_size)
 		
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			love.graphics.draw(w.canvas1, ox + w.x, oy + w.y)
@@ -661,7 +676,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		end
 		
 		-- calculate offset of the scrollbar central button
-		local offset = math.floor((w.value - w.minValue) / w.inc) * w.min_size
+		local offset = w.thumbOffset or (math.floor((w.value - w.minValue) / w.inc) * w.min_size)
 		
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			love.graphics.draw(w.canvas1, ox + w.x, oy + w.y)
@@ -928,65 +943,23 @@ function minGUI_draw_text_cursor(num, ox, oy)
 end
 
 -- draw the editor cursor
-function minGUI_draw_editor_cursor(num, ox, oy)	
+function minGUI_draw_editor_cursor(num, ox, oy)
 	local w = minGUI.gtree[num]
-
-	local xc1 = ox + w.x + 2
-	local yc1 = oy + w.y + 2
-	local xc2 = 0
-	local yc2 = 0
-
-	-- get scissors from parent gadgets
-	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
-
-	-- explode utf8 text
-	local t = {}
-	t = minGUI_explode(w.text, "\n")
-	
-	--search for cursor y position
-	for y = 0, w.cursory - 1 do
-		yc2 = yc2 + minGUI.font[minGUI.numFont]:getHeight(t[y + 1])
-	end
-	
-	--search for cursor x position
-	if w.cursory == #t then
-		-- don't move xc if at last line...
-	else
-		for x = 0, w.cursorx - 1 do
-			local c = minGUI_sub_string(t[w.cursory + 1], x + 1, x + 1)
-			
-			xc2 = xc2 + minGUI.font[minGUI.numFont]:getWidth(c)
-		end
-	end
-	
-	-- resize cursor's canvas
-	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|")
-		or w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
-		w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
-	end
-
-	-- draw the cursor on its canvas
-	love.graphics.setCanvas(w.cursor_canvas)
-	love.graphics.clear(0, 0, 0, 0)
-	love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
-	love.graphics.print("|", 0, 0)
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setCanvas()
-
-	-- draw the cursor on the editor's canvas
+	if not w.editable then return end
+	minGUI_editor_layout(w)
+	local font = minGUI.font[minGUI.numFont]
+	local line = minGUI_explode(w.text, "\n")[w.cursory + 1]
+	local x = font:getWidth(minGUI_sub_string(line, 1, w.cursorx)) - w.scrollX
+	local y = w.cursory * font:getHeight() - w.scrollY
 	love.graphics.setCanvas(w.canvas)
+	love.graphics.setFont(font)
 	love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
-	love.graphics.draw(w.cursor_canvas, xc2, yc2 - 1)
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.print(w.overwrite and '_' or '|', x, y)
 	love.graphics.setCanvas()
-
-	-- set scissor
-	love.graphics.setScissor(scx, scy, scw, sch)
-
-		-- draw the full gadget's canvas
-	love.graphics.draw(w.canvas, xc1, yc1)
-
-	-- reset scissor			
+	love.graphics.setColor(1, 1, 1, 1)
+	local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(w.parent)
+	love.graphics.setScissor(sx, sy, sw, sh)
+	love.graphics.draw(w.canvas, ox + w.x + 2, oy + w.y + 2)
 	love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 

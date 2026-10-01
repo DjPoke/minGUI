@@ -13,3 +13,5 @@ require "minGUI.init"
 require "minGUI.events"
 require "minGUI.draw"
 require "minGUI.tools"
+
+require "minGUI.editor"

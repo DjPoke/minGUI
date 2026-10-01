@@ -71,7 +71,7 @@ function love.load()
 	g[20] = minGUI:add_spin(120, 60, 60, 25, 1, 1, 100, nil, g[2])
 	g[21] = minGUI:add_spin(390, 10, 60, 25, 1, 1, 100, nil, w[2])
 	
-	g[22] = minGUI:add_editor(10, 260, 620, 200, "This is an example of editor gadget. You can use arrows, backspace,\ndelete, home, and end keys.\nW.I.P", nil, w[2])
+	g[22] = minGUI:add_editor(10, 260, 620, 200, "This is an example of editor gadget.", nil, w[2])
 
 	g[23] = minGUI:add_canvas(390, 60, 100, 25, nil, w[2])
 	
