@@ -96,6 +96,9 @@ function minGUI_init()
 	MG_EVENT_RIGHT_MOUSE_RELEASED = 6
 	MG_EVENT_RIGHT_MOUSE_CLICK = 6
 	MG_EVENT_DRAG_DROPPED = 7
+
+	MG_EVENT_LEFT_MOUSE_DOUBLECLICK = 8
+	MG_EVENT_RIGHT_MOUSE_DOUBLECLICK = 9
 	
 	MG_EVENT_TIMER_TICK = 1
 
@@ -285,10 +288,25 @@ function minGUI_init()
 				local eventType = minGUI.gstack[1].eventType
 				local eventSource = minGUI.gstack[1].eventSource
 				local eventDrop = minGUI.gstack[1].eventDrop
+				local gadget = minGUI.gtree[eventGadget]
+				local eventInfo
+				if gadget and gadget.tp == MG_IMAGE then
+					eventInfo = {filePath = gadget.filePath, fileName = gadget.fileName,
+						parent = gadget.parent}
+					local parent = gadget.parent
+					while parent and minGUI.gtree[parent] do
+						local container = minGUI.gtree[parent]
+						if container.tp == MG_SCROLLAREA then
+							eventInfo.scrollarea = parent
+							break
+						end
+						parent = container.parent
+					end
+				end
 				
 				table.remove(minGUI.gstack, 1)
 
-				return eventGadget, eventType, eventSource, eventDrop
+				return eventGadget, eventType, eventSource, eventDrop, eventInfo
 			end
 
 			return nil, nil

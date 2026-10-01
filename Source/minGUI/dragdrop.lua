@@ -67,6 +67,7 @@ function minGUI_update_gadget_drag()
 	local dx, dy = minGUI.mouse.x - drag.x, minGUI.mouse.y - drag.y
 	if not drag.active and dx * dx + dy * dy >= 25 then
 		drag.active = true
+		minGUI.lastGadgetClicks = nil
 		minGUI.lastStringClick = nil
 		if g.tp == MG_STRING then
 			g.selectionAnchor, g.cursorx = 0, utf8.len(g.text)
