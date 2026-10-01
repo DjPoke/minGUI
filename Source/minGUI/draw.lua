@@ -188,7 +188,10 @@ function minGUI_draw_gadget(num, ox, oy)
 		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 
 		-- print the text with differents alignments
-		if w.flags == MG_FLAG_ALIGN_LEFT then
+		if w.wrapText then
+			local align = w.flags == MG_FLAG_ALIGN_CENTER and "center" or w.flags == MG_FLAG_ALIGN_RIGHT and "right" or "left"
+			love.graphics.printf(w.text, 0, 0, w.width, align)
+		elseif w.flags == MG_FLAG_ALIGN_LEFT then
 			love.graphics.print(w.text, 0, ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
 		elseif w.flags == MG_FLAG_ALIGN_RIGHT then
 			love.graphics.print(w.text, w.width - minGUI.font[minGUI.numFont]:getWidth(w.text), ((w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1)
