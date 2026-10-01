@@ -5,6 +5,7 @@ function minGUI_init()
 	
 	-- constants:
 	MG_WINDOW_TITLEBAR_HEIGHT = 25
+	MG_WINDOW_BORDER_WIDTH = 4
 	MG_WINDOW_FOOTERBAR_HEIGHT = 25
 	MG_WINDOW_MINIMAL_WIDTH = 256
 	MG_WINDOW_MINIMAL_HEIGHT = 128
@@ -1110,6 +1111,7 @@ function minGUI_init()
 					minGUI.gtree[num].y = 0
 					minGUI.gtree[num].canvas = love.graphics.newCanvas(minGUI.gtree[num].width, minGUI.gtree[num].height)
 				end
+				minGUI_resize_window_menus(num)
 			end
 		end,
 		-- return the height of the menu in the window
@@ -1219,8 +1221,8 @@ function minGUI_init()
 						width = love.graphics.getWidth() - minGUI.gtree[num].x - 1
 					end
 
-					if height > love.graphics.getWidth() - minGUI.gtree[num].y - 1 then
-						height = love.graphics.getWidth() - minGUI.gtree[num].y - 1
+					if height > love.graphics.getHeight() - minGUI.gtree[num].y - 1 then
+						height = love.graphics.getHeight() - minGUI.gtree[num].y - 1
 					end
 				end
 
@@ -1229,6 +1231,7 @@ function minGUI_init()
 				minGUI.gtree[num].height = height
 				
 				minGUI.gtree[num].canvas = love.graphics.newCanvas(width, height)
+				minGUI_resize_window_menus(num)
 			end
 		end,
 		-- get the offset for the internal gadget
@@ -2409,6 +2412,7 @@ function minGUI_init()
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
+							rightMargin = parent and (minGUI.gtree[parent].width - x - width) or nil,
 							canvas = love.graphics.newCanvas(width, height),
 							canvas1 = love.graphics.newCanvas(width, 1)
 						}

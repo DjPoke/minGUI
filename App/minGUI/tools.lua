@@ -198,13 +198,14 @@ function minGUI_get_gadget_parents_scissor(num, includeMenu)
 		if not parent then break end
 		local ox, oy = minGUI_get_parent_gadget_offset(num)
 		local x, y = ox + parent.x, oy + parent.y
-		left = math.max(left, x)
+		local border = parent.tp == MG_WINDOW and MG_WINDOW_BORDER_WIDTH or 0
+		left = math.max(left, x + border)
 		-- A menu occupies its own parent's menu strip, above the content area.
 		local menuHeight = includeMenu and 0 or minGUI:window_menu_height(num)
-		top = math.max(top, y + minGUI:window_titlebar_height(num) + menuHeight)
+		top = math.max(top, y + math.max(border, minGUI:window_titlebar_height(num) + menuHeight))
 		includeMenu = false -- Ancestor menu strips still clip nested windows.
-		right = math.min(right, x + parent.width)
-		bottom = math.min(bottom, y + parent.height - minGUI:window_footerbar_height(num))
+		right = math.min(right, x + parent.width - border)
+		bottom = math.min(bottom, y + parent.height - math.max(border, minGUI:window_footerbar_height(num)))
 		num = parent.parent
 	end
 	return left, top, math.max(0, right - left), math.max(0, bottom - top)
@@ -223,4 +224,18 @@ function minGUI_get_gadget_absolute_coordinates(num)
 	end
 
 	return x, y
+end
+
+-- Keep window menus stretched between their original left and right margins.
+function minGUI_resize_window_menus(num)
+    local window = minGUI.gtree[num]
+    for _, menu in minGUI_each_gadget() do
+        if menu.tp == MG_INTERNAL_MENU and menu.parent == num then
+            local width = math.max(1, window.width - menu.x - (menu.rightMargin or menu.x))
+            if menu.width ~= width then
+                menu.width = width
+                menu.canvas = love.graphics.newCanvas(width, menu.height)
+            end
+        end
+    end
 end
