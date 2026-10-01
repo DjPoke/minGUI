@@ -107,20 +107,7 @@ function minGUI_activate_window_at_pointer()
                 and y >= oy + window.y and y < oy + window.y + window.height
                 and x >= sx and x < sx + sw and y >= sy and y < sy + sh then
                 if active ~= id then
-                    local highest = minGUI.lastGadgetID
-                    for _, gadget in minGUI_each_gadget() do highest = math.max(highest, gadget.zOrder or 0) end
-                    -- Raise this window among its siblings, then its ancestor branch.
-                    local current = id
-                    while current do
-                        highest = highest + 1
-                        minGUI.gtree[current].zOrder = highest
-                        current = minGUI.gtree[current].parent
-                    end
-                    minGUI.activeWindow, minGUI.gfocus = id, nil
-                    minGUI.stringDrag, minGUI.editorDrag, minGUI.editorScrollCapture = nil, nil, nil
-                    for _, gadget in minGUI_each_gadget() do
-                        if gadget.tp == MG_INTERNAL_MENU then gadget.menu.selected, gadget.menu.hover = 0, 0 end
-                    end
+                    minGUI:set_window_on_top(id)
                 end
                 return id
             end

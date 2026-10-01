@@ -324,6 +324,31 @@ function minGUI_init()
 			
 			minGUI.gfocus = num
 		end,
+		-- Activate and raise a window within its stacking priority.
+		set_window_on_top = function(self, num)
+			if self.exitProcess then return end
+			if type(num) ~= "number" or not self.gtree[num] or self.gtree[num].tp ~= MG_WINDOW then
+				self:runtime_error("[set_window_on_top]Wrong window number " .. tostring(num))
+				return
+			end
+			local highest = self.lastGadgetID
+			for _, gadget in minGUI_each_gadget() do
+				highest = math.max(highest, gadget.zOrder or 0)
+			end
+			-- Raise the window among its siblings, then its ancestor branch.
+			local current = num
+			while current do
+				highest = highest + 1
+				self.gtree[current].zOrder = highest
+				current = self.gtree[current].parent
+			end
+			self.activeWindow, self.gfocus = num, nil
+			self.windowDrag, self.stringDrag, self.editorDrag, self.editorScrollCapture = nil, nil, nil, nil
+			for _, gadget in minGUI_each_gadget() do
+				if gadget.tp == MG_INTERNAL_MENU then gadget.menu.selected, gadget.menu.hover = 0, 0 end
+			end
+			return num
+		end,
 		set_gadget_text = function(self, num, text)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
@@ -1309,6 +1334,7 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height)
 						}
 						
+						minGUI:set_window_on_top(num)
 						return num
 					else
 						minGUI:runtime_error("[add_window]Wrong gadget size for gadget " .. num)

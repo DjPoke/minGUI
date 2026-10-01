@@ -149,8 +149,20 @@ function minGUI_update_window_drag()
 	if window and window.tp == MG_WINDOW and not window.maximized
 		and minGUI_flag_active(window.flags, MG_FLAG_WINDOW_TITLEBAR) then
 		local ox, oy = minGUI_get_parent_gadget_offset(drag.num)
-		window.x = minGUI.mouse.x - ox - drag.x
-		window.y = minGUI.mouse.y - oy - drag.y
+		local x = minGUI.mouse.x - drag.x
+		local y = minGUI.mouse.y - drag.y
+		local left, top, width, height = minGUI_get_gadget_parents_scissor(window.parent)
+		local titleHeight = minGUI:window_titlebar_height(drag.num)
+		-- Leave enough of the title bar visible to grab it again, including
+		-- when the window is larger than the screen or clipped by its parent.
+		if width > 0 then
+			local visibleWidth = math.min(window.width, width, math.max(64, titleHeight * 3))
+			x = math.max(left - window.width + visibleWidth, math.min(x, left + width - visibleWidth))
+		end
+		if height > 0 then
+			y = math.max(top, math.min(y, top + math.max(0, height - titleHeight)))
+		end
+		window.x, window.y = x - ox, y - oy
 	else
 		minGUI.windowDrag = nil
 	end
