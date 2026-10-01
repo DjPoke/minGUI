@@ -17,3 +17,4 @@ require "minGUI.editor"
 require "minGUI.spin"
 
 require "minGUI.scrollarea"
+require "minGUI.dragdrop"

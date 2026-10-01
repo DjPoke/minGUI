@@ -46,12 +46,12 @@ function love.load()
 	-- add gadgets
 	g[3] = minGUI:add_button(10, 10, 80, 25, "Button 1", nil, g[1])
 	g[4] = minGUI:add_label(10, 40, 80, 25, "Label 1", nil, g[1])
-	g[5] = minGUI:add_string(10, 70, 80, 25, "String 1", nil, g[1])
+	g[5] = minGUI:add_string(10, 70, 80, 25, "String 1", MG_FLAG_DRAG_DROPPABLE, g[1])
 	g[6] = minGUI:add_canvas(100, 10, 160, 80, nil, g[1])
 	
 	g[7] = minGUI:add_button(10, 10, 80, 25, "Button 2", nil, w[2])
 	g[8] = minGUI:add_label(10, 40, 80, 25, "Label 2", nil, w[2])
-	g[9] = minGUI:add_string(10, 70, 80, 25, "String 2", nil, w[2])
+	g[9] = minGUI:add_string(10, 70, 80, 25, "String 2", MG_FLAG_DRAG_DROPPABLE, w[2])
 	g[10] = minGUI:add_canvas(100, 10, 160, 80, nil, w[2])
 
 	g[11] = minGUI:add_checkbox(10, 10, 100, 25, "Checkbox 1", nil, g[2])
@@ -71,7 +71,7 @@ function love.load()
 	g[20] = minGUI:add_spin(120, 60, 60, 25, 1, 1, 100, nil, g[2])
 	g[21] = minGUI:add_spin(390, 10, 60, 25, 1, 1, 100, nil, w[2])
 	
-	g[22] = minGUI:add_editor(10, 260, 620, 200, "This is an example of editor gadget.", nil, w[2])
+	g[22] = minGUI:add_editor(10, 260, 620, 200, "This is an example of editor gadget.", MG_FLAG_DRAG_DROPPABLE, w[2])
 
 	g[23] = minGUI:add_canvas(390, 60, 100, 25, nil, w[2])
 	
@@ -126,9 +126,27 @@ function love.update(dt)
 	
     -- Drain the queues each frame so held-button events cannot delay clicks.
     while true do
-        local gadget, event = minGUI:get_gadget_events()
+        local gadget, event, source, drop = minGUI:get_gadget_events()
         if gadget == nil then break end
-        if event == MG_EVENT_LEFT_MOUSE_CLICK then
+        if event == MG_EVENT_DRAG_DROPPED then
+            local from, to = minGUI.gtree[source], minGUI.gtree[gadget]
+            if minGUI_gadget_drag_droppable(from) and minGUI_gadget_drag_droppable(to)
+                and (from.tp == MG_STRING or from.tp == MG_EDITOR)
+                and (to.tp == MG_STRING or to.tp == MG_EDITOR) and to.editable then
+                local text = drop and drop.text or minGUI:get_gadget_text(source)
+                if to.tp == MG_STRING then
+                    text = text:gsub("\r\n", "\n"):gsub("[\r\n]", " ")
+                    minGUI:set_gadget_text(gadget, text)
+                else
+                    if drop and drop.position then minGUI_editor_set_position(to, drop.position) end
+                    to.selectionAnchor = nil
+                    local overwrite = to.overwrite
+                    to.overwrite = false
+                    minGUI_editor_replace(to, text)
+                    to.overwrite = overwrite
+                end
+            end
+        elseif event == MG_EVENT_LEFT_MOUSE_CLICK then
             if gadget == g[3] then
                 minGUI:set_gadget_text(g[5], "")
             elseif gadget == g[7] then

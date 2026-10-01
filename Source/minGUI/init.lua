@@ -72,7 +72,7 @@ function minGUI_init()
 	MG_FLAG_WINDOW_MOVABLE = 16
 	MG_FLAG_WINDOW_TOP_PRIORITY = 32
 	MG_FLAG_WINDOW_CENTERED = 64
-	
+
 	MG_FLAG_NOT_EDITABLE = 1
 	MG_FLAG_NO_SCROLLBARS = 2
 
@@ -82,6 +82,8 @@ function minGUI_init()
 	MG_FLAG_ALIGN_LEFT = 1
 	MG_FLAG_ALIGN_RIGHT = 2
 	MG_FLAG_ALIGN_CENTER = 3
+
+	MG_FLAG_DRAG_DROPPABLE = 4
 	
 	-- events
 	MG_EVENT_LEFT_MOUSE_PRESSED = 1
@@ -93,6 +95,7 @@ function minGUI_init()
 	MG_EVENT_RIGHT_MOUSE_DOWN = 5
 	MG_EVENT_RIGHT_MOUSE_RELEASED = 6
 	MG_EVENT_RIGHT_MOUSE_CLICK = 6
+	MG_EVENT_DRAG_DROPPED = 7
 	
 	MG_EVENT_TIMER_TICK = 1
 
@@ -280,10 +283,12 @@ function minGUI_init()
 			if #minGUI.gstack ~= 0 then
 				local eventGadget = minGUI.gstack[1].eventGadget
 				local eventType = minGUI.gstack[1].eventType
+				local eventSource = minGUI.gstack[1].eventSource
+				local eventDrop = minGUI.gstack[1].eventDrop
 				
 				table.remove(minGUI.gstack, 1)
 
-				return eventGadget, eventType
+				return eventGadget, eventType, eventSource, eventDrop
 			end
 
 			return nil, nil
@@ -1281,8 +1286,9 @@ function minGUI_init()
 			end
 			for id in pairs(removed) do self.gtree[id] = nil end
 			if removed[self.gfocus] then self.gfocus = nil end
+			if self.gadgetDrag and removed[self.gadgetDrag.source] then self.gadgetDrag = nil end
 			for index = #self.gstack, 1, -1 do
-				if removed[self.gstack[index].eventGadget] then
+				if removed[self.gstack[index].eventGadget] or removed[self.gstack[index].eventSource] then
 					table.remove(self.gstack, index)
 				end
 			end

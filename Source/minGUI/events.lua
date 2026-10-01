@@ -50,6 +50,16 @@ local function mouseCursor(gadget)
 end
 
 function minGUI_string_mouse_pressed(gadget)
+	local previous = minGUI.lastStringClick
+	local x, y = minGUI.mouse.x, minGUI.mouse.y
+	if previous and previous.num == gadget.num and minGUI.timer - previous.time <= 0.3
+		and (x - previous.x) ^ 2 + (y - previous.y) ^ 2 <= 25 then
+		gadget.selectionAnchor, gadget.cursorx = 0, utf8.len(gadget.text)
+		minGUI.stringDrag, minGUI.lastStringClick = nil, nil
+		minGUI_shift_text(gadget.num, gadget.text)
+		return
+	end
+	minGUI.lastStringClick = {num = gadget.num, time = minGUI.timer, x = x, y = y}
 	if shiftDown() then
 		gadget.selectionAnchor = gadget.selectionAnchor or gadget.cursorx
 	else
@@ -218,25 +228,31 @@ function minGUI_update_events(dt)
 		end
 	end
 
+    local gadgetDragHandled = minGUI_update_gadget_drag()
     local windowDragHandled = minGUI_update_window_drag()
-    if not windowDragHandled and (minGUI.mouse.mpressed[MG_LEFT_BUTTON] or minGUI.mouse.mpressed[MG_RIGHT_BUTTON]) then
+    if not windowDragHandled and not gadgetDragHandled and (minGUI.mouse.mpressed[MG_LEFT_BUTTON] or minGUI.mouse.mpressed[MG_RIGHT_BUTTON]) then
         minGUI_activate_window_at_pointer()
     end
 
 	-- flag used to check if a gadget is still focused
 	getfocusFlag = false
 	
-	local editorScrollHandled = not windowDragHandled and minGUI_update_editor_scrollbars()
+	local editorScrollHandled = not windowDragHandled and not gadgetDragHandled and minGUI_update_editor_scrollbars()
 
 	-- click loops
 	for b = 1, 3 do
 		-- click on a gadget ?
 		selected_gadget = nil
 		
-		if next(minGUI.gtree) ~= nil and not (b == MG_LEFT_BUTTON and (editorScrollHandled or windowDragHandled)) then
+		if next(minGUI.gtree) ~= nil and not (b == MG_LEFT_BUTTON and (editorScrollHandled or windowDragHandled or gadgetDragHandled)) then
 			-- button pressed
 			if minGUI.mouse.mpressed[b] == true then
 				selected_gadget = minGUI_check_gadget_clicked(b, false, nil)
+				if b == MG_LEFT_BUTTON then
+					local clicked = minGUI.gtree[selected_gadget]
+					if not clicked or clicked.tp ~= MG_STRING then minGUI.lastStringClick = nil end
+					minGUI_begin_gadget_drag(selected_gadget)
+				end
 			end
 		
 			-- button continue to be down on a gadget ?
@@ -260,9 +276,11 @@ function minGUI_update_events(dt)
 	-- keyboard events
 	--=====================================================================
 		
-	minGUI_update_string_keyboard()
-	minGUI_update_editor_keyboard()
-	minGUI_update_spin_clipboard()
+	if not gadgetDragHandled then
+		minGUI_update_string_keyboard()
+		minGUI_update_editor_keyboard()
+		minGUI_update_spin_clipboard()
+	end
 
 end
 

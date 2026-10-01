@@ -86,7 +86,7 @@ function minGUI_editor_replace(g, text, deleting)
 	minGUI_editor_layout(g, true)
 end
 
-local function mousePosition(g)
+function minGUI_editor_mouse_position(g)
 	local ox, oy = minGUI_get_parent_gadget_offset(g.num)
 	local font = minGUI.font[minGUI.numFont]
 	local lines = minGUI_explode(g.text, '\n')
@@ -105,7 +105,7 @@ end
 
 function minGUI_editor_mouse_pressed(g)
 	minGUI_editor_layout(g)
-	local position = mousePosition(g)
+	local position = minGUI_editor_mouse_position(g)
 	g.selectionAnchor = shift() and (g.selectionAnchor or minGUI_editor_position(g)) or position
 	minGUI_editor_set_position(g, position)
 	g.preferredColumn = nil
@@ -120,7 +120,7 @@ function minGUI_update_editor_keyboard()
 	minGUI_editor_layout(g)
 	if minGUI.editorDrag == g.num then
 		if minGUI.mouse.mbtn[MG_LEFT_BUTTON] then
-			minGUI_editor_set_position(g, mousePosition(g)); minGUI_editor_layout(g, true)
+			minGUI_editor_set_position(g, minGUI_editor_mouse_position(g)); minGUI_editor_layout(g, true)
 		else minGUI.editorDrag = nil end
 	end
 	for _, key in ipairs(keys) do
