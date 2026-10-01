@@ -1,3 +1,146 @@
+local stringKeys = {"left", "right", "backspace", "delete", "home", "end", "insert", "a", "c", "x", "v"}
+local function shiftDown()
+	return love.keyboard.isDown("lshift", "rshift")
+end
+local function shortcutDown()
+	return love.keyboard.isDown("lctrl", "rctrl", "lgui", "rgui")
+end
+
+-- Selection bounds are UTF-8 character positions between characters.
+function minGUI_string_selection(gadget)
+	local anchor = gadget.selectionAnchor or gadget.cursorx
+	return math.min(anchor, gadget.cursorx), math.max(anchor, gadget.cursorx)
+end
+
+function minGUI_string_replace(gadget, text)
+	text = text:gsub("[\r\n]", "")
+	if text == "" then return end
+	minGUI_shift_text(gadget.num, gadget.text)
+	local first, last = minGUI_string_selection(gadget)
+	if first == last and gadget.overwrite then last = last + utf8.len(text) end
+	gadget.text = minGUI_sub_string(gadget.text, 1, first)
+		.. text .. minGUI_sub_string(gadget.text, last + 1)
+	gadget.cursorx = first + utf8.len(text)
+	gadget.selectionAnchor = nil
+	minGUI_shift_text(gadget.num, gadget.text)
+end
+
+local function deleteSelection(gadget)
+	local first, last = minGUI_string_selection(gadget)
+	if first == last then return false end
+	gadget.text = minGUI_sub_string(gadget.text, 1, first)
+		.. minGUI_sub_string(gadget.text, last + 1)
+	gadget.cursorx = first
+	gadget.selectionAnchor = nil
+	return true
+end
+
+-- Map a mouse X to the nearest character boundary in the visible text.
+local function mouseCursor(gadget)
+	local ox = minGUI_get_parent_gadget_offset(gadget.num)
+	local x = minGUI.mouse.x - ox - gadget.x - 2
+	local font = minGUI.font[minGUI.numFont]
+	local previous = 0
+	for cursor = gadget.offset + 1, utf8.len(gadget.text) do
+		local width = font:getWidth(minGUI_sub_string(gadget.text, gadget.offset + 1, cursor))
+		if x < (previous + width) / 2 then return cursor - 1 end
+		previous = width
+	end
+	return utf8.len(gadget.text)
+end
+
+function minGUI_string_mouse_pressed(gadget)
+	if shiftDown() then
+		gadget.selectionAnchor = gadget.selectionAnchor or gadget.cursorx
+	else
+		gadget.selectionAnchor = mouseCursor(gadget)
+	end
+	gadget.cursorx = mouseCursor(gadget)
+	minGUI.stringDrag = gadget.num
+	minGUI_shift_text(gadget.num, gadget.text)
+end
+
+function minGUI_update_string_keyboard()
+	local gadget = minGUI.gtree[minGUI.gfocus]
+	if not gadget or gadget.tp ~= MG_STRING then
+		minGUI.stringKeyboardFocus = nil
+		minGUI.stringDrag = nil
+		return
+	end
+	if minGUI.stringKeyboardFocus ~= gadget.num then
+		gadget.keyrepeat = {}
+		minGUI.stringKeyboardFocus = gadget.num
+	end
+	if minGUI.stringDrag == gadget.num then
+		if minGUI.mouse.mbtn[MG_LEFT_BUTTON] then
+			local ox = minGUI_get_parent_gadget_offset(gadget.num)
+			local x = minGUI.mouse.x - ox - gadget.x - 2
+			if x < 0 then
+				gadget.cursorx = math.max(0, gadget.offset - 1)
+			elseif x > gadget.width - 4 then
+				gadget.cursorx = math.min(utf8.len(gadget.text), gadget.cursorx + 1)
+			else
+				gadget.cursorx = mouseCursor(gadget)
+			end
+			minGUI_shift_text(gadget.num, gadget.text)
+		else
+			minGUI.stringDrag = nil
+		end
+	end
+	minGUI_shift_text(gadget.num, gadget.text)
+	local shortcut = shortcutDown()
+	for _, key in ipairs(stringKeys) do
+		local state = gadget.keyrepeat[key]
+		local command = key == "a" or key == "c" or key == "x" or key == "v"
+		local active = love.keyboard.isDown(key) and (not command or shortcut)
+		if not active then
+			gadget.keyrepeat[key] = nil
+		elseif state == nil or (key ~= "insert" and not command and minGUI.timer >= state.nextTime) then
+			local first, last = minGUI_string_selection(gadget)
+			local cursor = gadget.cursorx
+			local length = utf8.len(gadget.text)
+			if command then
+				if key == "a" then
+					gadget.selectionAnchor, gadget.cursorx = 0, length
+				elseif key == "c" or key == "x" then
+					if first ~= last then
+						love.system.setClipboardText(minGUI_sub_string(gadget.text, first + 1, last))
+						if key == "x" and gadget.editable then deleteSelection(gadget) end
+					end
+				elseif key == "v" and gadget.editable then
+					minGUI_string_replace(gadget, love.system.getClipboardText())
+				end
+			elseif key == "left" or key == "right" or key == "home" or key == "end" then
+				local selecting = shiftDown()
+				if selecting then gadget.selectionAnchor = gadget.selectionAnchor or cursor end
+				if key == "home" then gadget.cursorx = 0
+				elseif key == "end" then gadget.cursorx = length
+				elseif first ~= last and not selecting then
+					gadget.cursorx = key == "left" and first or last
+				else
+					gadget.cursorx = math.max(0, math.min(length, cursor + (key == "left" and -1 or 1)))
+				end
+				if not selecting then gadget.selectionAnchor = nil end
+			elseif gadget.editable then
+				if key == "insert" then
+					gadget.overwrite = not gadget.overwrite
+				elseif key == "backspace" or key == "delete" then
+					if not deleteSelection(gadget) then
+						if key == "backspace" and cursor > 0 then
+							gadget.selectionAnchor = cursor - 1
+						elseif key == "delete" and cursor < length then
+							gadget.selectionAnchor = cursor + 1
+						end
+						deleteSelection(gadget)
+					end
+				end
+			end
+			gadget.keyrepeat[key] = {nextTime = minGUI.timer + (state and MG_QUICK_DELAY or MG_SLOW_DELAY)}
+			minGUI_shift_text(gadget.num, gadget.text)
+		end
+	end
+end
+
 -- minGUI events loop, must be call by love.update
 function minGUI_update_events(dt)
 	--=====================================================================
@@ -8,14 +151,16 @@ function minGUI_update_events(dt)
 	minGUI.timer = minGUI.timer + dt
 
 	-- scan for ptimers
-	for i, v in ipairs(minGUI.ptimer) do
+	for i, v in pairs(minGUI.ptimer) do
 		-- a timer should send an event...
 		if math.floor(minGUI.timer * 1000) - v.timer >= v.delay then
 			-- send the good event
 			table.insert(minGUI.tstack, {eventTimer = i, eventType = MG_EVENT_TIMER_TICK})
 			
-			-- restart timer
-			v.timer = math.floor(minGUI.timer * 1000)
+			-- Keep the original cadence; coalesce missed ticks into one event.
+			local elapsed = math.floor(minGUI.timer * 1000) - v.timer
+			local periods = math.floor(elapsed / v.delay)
+			v.timer = v.timer + periods * v.delay
 		end
 	end
 
@@ -52,14 +197,14 @@ function minGUI_update_events(dt)
 		-- click on a gadget ?
 		selected_gadget = nil
 		
-		if #minGUI.gtree > 0 then
+		if next(minGUI.gtree) ~= nil then
 			-- button pressed
 			if minGUI.mouse.mpressed[b] == true then
 				selected_gadget = minGUI_check_gadget_clicked(b, false, nil)
 			end
 		
 			-- button continue to be down on a gadget ?
-			if minGUI.mouse.mbtn[b] == true then
+			if minGUI.mouse.mbtn[b] == true and not (b == MG_LEFT_BUTTON and minGUI.stringDrag) then
 				selected_gadget = minGUI_check_gadget_mousedown(b, false, nil)
 			end
 
@@ -79,79 +224,14 @@ function minGUI_update_events(dt)
 	-- keyboard events
 	--=====================================================================
 		
+	minGUI_update_string_keyboard()
+
 	-- if a gadget has the focus...
 	if minGUI.gfocus ~= nil then
 		-- if the gadget exists
 		if minGUI.gtree[minGUI.gfocus] ~= nil then
-			-- if it is a string gadget...
-			if minGUI.gtree[minGUI.gfocus].tp == MG_STRING then
-				-- if the string gadget is editable
-				if minGUI.gtree[minGUI.gfocus].editable == true then
-					-- if backspace has not yet been pressed...
-					if minGUI.gtree[minGUI.gfocus].backspace == 0 then
-						-- if backspace is pressed now...
-						if love.keyboard.isDown("backspace") == true then
-							-- remove the last UTF-8 character.
-							local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
-
-							if byteoffset then
-								minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
-							end
-
-							-- calculate the new offset value for the text
-							minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
-
-							-- count the first backspace, and get the timer
-							minGUI.gtree[minGUI.gfocus].backspace = 1
-							minGUI.kbdelay = minGUI.timer
-						end
-					-- if backspace has been pressed...
-					elseif minGUI.gtree[minGUI.gfocus].backspace > 0 then
-						-- if backspace is released now...
-						if love.keyboard.isDown("backspace") == false then
-							minGUI.gtree[minGUI.gfocus].backspace = 0
-						else
-							-- if backspace is still pressed, and has been pressed only one time
-							if minGUI.gtree[minGUI.gfocus].backspace == 1 then
-								-- wait for keyboard slow delay
-								if minGUI.timer - minGUI.kbdelay >= MG_SLOW_DELAY then
-									-- remove the last UTF-8 character.
-									local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
-
-									if byteoffset then
-										minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
-									end
-
-									-- calculate the new offset value for the text
-									minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
-									
-									-- reset kbdelay and increment backspace
-									minGUI.kbdelay = minGUI.timer
-									minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
-								end
-							-- if backspace is still pressed, and has been pressed for multiple times
-							elseif minGUI.gtree[minGUI.gfocus].backspace > 1 then
-								-- wait for keyboard quick delay
-								if minGUI.timer - minGUI.kbdelay >= MG_QUICK_DELAY then
-									-- remove the last UTF-8 character.
-									local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
-
-									if byteoffset then
-										minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
-									end
-
-									-- calculate the new offset value for the text
-									minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
-									
-									-- reset kbdelay and increment backspace
-									minGUI.kbdelay = minGUI.timer
-									minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
-								end
-							end
-						end
-					end
-				end
-			elseif minGUI.gtree[minGUI.gfocus].tp == MG_SPIN then
+			-- Strings are handled by minGUI_update_string_keyboard above.
+			if minGUI.gtree[minGUI.gfocus].tp == MG_SPIN then
 				-- if backspace has not yet been pressed...
 				if minGUI.gtree[minGUI.gfocus].backspace == 0 then
 					-- if backspace is pressed now...
@@ -356,30 +436,18 @@ function minGUI_update_events(dt)
 
 					-- remove character at right from cursor
 					local remove_right_char = function(self)
-						-- if there is a text on the line to delete a character...
-						if t[minGUI.gtree[minGUI.gfocus].cursory + 1] ~= nil then
-							if t[minGUI.gtree[minGUI.gfocus].cursory + 2] == nil and minGUI.gtree[minGUI.gfocus].cursorx == utf8.len(t[minGUI.gtree[minGUI.gfocus].cursory + 1]) then
-							elseif utf8.len(t[minGUI.gtree[minGUI.gfocus].cursory + 1]) > 0 then
-								-- if the cursor is at the beginning of the text
-								if minGUI.gtree[minGUI.gfocus].cursorx == 0 then
-									t[minGUI.gtree[minGUI.gfocus].cursory + 1] = minGUI_sub_string(t[minGUI.gtree[minGUI.gfocus].cursory + 1], 2, utf8.len(t[minGUI.gtree[minGUI.gfocus].cursory + 1]))
-	
-									minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
-								-- if the cursor is in the middle of the text
-								elseif minGUI.gtree[minGUI.gfocus].cursorx < utf8.len(t[minGUI.gtree[minGUI.gfocus].cursory + 1]) then
-									local lt = minGUI_sub_string(t[minGUI.gtree[minGUI.gfocus].cursory + 1], 1, minGUI.gtree[minGUI.gfocus].cursorx)
-									local rt = minGUI_sub_string(t[minGUI.gtree[minGUI.gfocus].cursory + 1], minGUI.gtree[minGUI.gfocus].cursorx + 2)
-	
-									t[minGUI.gtree[minGUI.gfocus].cursory + 1] = lt .. rt
-	
-									minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
-								else
-									t[minGUI.gtree[minGUI.gfocus].cursory + 1] = t[minGUI.gtree[minGUI.gfocus].cursory + 1] .. t[minGUI.gtree[minGUI.gfocus].cursory + 2]
-									table.remove(t, minGUI.gtree[minGUI.gfocus].cursory + 2)
-		
-									minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
-								end
+						local gadget = minGUI.gtree[minGUI.gfocus]
+						local row = gadget.cursory + 1
+						local line = t[row]
+						if line then
+							if gadget.cursorx < utf8.len(line) then
+								t[row] = minGUI_sub_string(line, 1, gadget.cursorx)
+									.. minGUI_sub_string(line, gadget.cursorx + 2)
+							elseif t[row + 1] then
+								t[row] = line .. t[row + 1]
+								table.remove(t, row + 1)
 							end
+							gadget.text = minGUI_assemble(t, "\n")
 						end
 					end
 					
@@ -744,14 +812,12 @@ function minGUI_textinput(c)
 			if minGUI.gtree[minGUI.gfocus].tp == MG_STRING then
 				-- if the gadget is editable...
 				if minGUI.gtree[minGUI.gfocus].editable == true then
-					-- add last character to the text
-					minGUI.gtree[minGUI.gfocus].text = minGUI.gtree[minGUI.gfocus].text .. c
-
-					-- calculate the new offset value for the text
-					minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
+					if not shortcutDown() then
+						minGUI_string_replace(minGUI.gtree[minGUI.gfocus], c)
+					end
 				end
 			elseif minGUI.gtree[minGUI.gfocus].tp == MG_SPIN then
-				if c >= "0" and c <= "9" then
+				if c:match("^%d+$") then
 					-- add last character to the text
 					minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text .. c, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue)
 						
@@ -761,30 +827,23 @@ function minGUI_textinput(c)
 			elseif minGUI.gtree[minGUI.gfocus].tp == MG_EDITOR then
 				-- if the gadget is editable...
 				if minGUI.gtree[minGUI.gfocus].editable == true then
-					-- explode text
-					local t = {}
-					
-					t = minGUI_explode(minGUI.gtree[minGUI.gfocus].text, "\n")
-
-					-- add the character to the text
-					if minGUI.gtree[minGUI.gfocus].cursory == #t then
-						t[minGUI.gtree[minGUI.gfocus].cursory + 1] = c
-						minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
-						minGUI.gtree[minGUI.gfocus].cursorx = minGUI.gtree[minGUI.gfocus].cursorx + 1
-					elseif minGUI.gtree[minGUI.gfocus].cursorx == 0 then
-						local rt = minGUI_sub_string(t[minGUI.gtree[minGUI.gfocus].cursory + 1], minGUI.gtree[minGUI.gfocus].cursorx + 1)
-					
-						t[minGUI.gtree[minGUI.gfocus].cursory + 1] = c .. rt
-						minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
-						minGUI.gtree[minGUI.gfocus].cursorx = minGUI.gtree[minGUI.gfocus].cursorx + 1
-					else
-						local lt = minGUI_sub_string(t[minGUI.gtree[minGUI.gfocus].cursory + 1], 1, minGUI.gtree[minGUI.gfocus].cursorx)
-						local rt = minGUI_sub_string(t[minGUI.gtree[minGUI.gfocus].cursory + 1], minGUI.gtree[minGUI.gfocus].cursorx + 1)
-					
-						t[minGUI.gtree[minGUI.gfocus].cursory + 1] = lt .. c .. rt
-						minGUI.gtree[minGUI.gfocus].text = minGUI_assemble(t, "\n")
-						minGUI.gtree[minGUI.gfocus].cursorx = minGUI.gtree[minGUI.gfocus].cursorx + 1
+					local gadget = minGUI.gtree[minGUI.gfocus]
+					local lines = minGUI_explode(gadget.text, "\n")
+					local row = gadget.cursory + 1
+					local line = lines[row] or ""
+					local left = minGUI_sub_string(line, 1, gadget.cursorx)
+					local right = minGUI_sub_string(line, gadget.cursorx + 1)
+					local inserted = minGUI_explode(c, "\n")
+					lines[row] = left .. inserted[1]
+					for index = 2, #inserted do
+						table.insert(lines, row + index - 1, inserted[index])
 					end
+					local lastRow = row + #inserted - 1
+					lines[lastRow] = lines[lastRow] .. right
+					gadget.text = minGUI_assemble(lines, "\n")
+					gadget.cursory = lastRow - 1
+					gadget.cursorx = #inserted == 1 and (gadget.cursorx + utf8.len(c))
+						or utf8.len(inserted[#inserted])
 				end
 			end
 		end
@@ -794,7 +853,7 @@ end
 -- check if an internal gadget is clicked
 function minGUI_check_internal_gadget_clicked(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.gtree) do
+	for i, v in minGUI_each_gadget() do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 		
@@ -890,7 +949,7 @@ end
 -- check if an internal gadget is mousedown
 function minGUI_check_internal_gadget_mousedown(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.gtree) do
+	for i, v in minGUI_each_gadget() do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
@@ -901,7 +960,7 @@ end
 -- check if an internal gadget is mouse released
 function minGUI_check_internal_gadget_released(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.gtree) do
+	for i, v in minGUI_each_gadget() do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
@@ -910,7 +969,7 @@ end
 -- check if an internal gadget is mouseup/hovered
 function minGUI_check_internal_gadget_mouseup(b)
 	-- check for internal gadgets first
-	for i, v in ipairs(minGUI.gtree) do
+	for i, v in minGUI_each_gadget() do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 		
@@ -984,7 +1043,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 	
 	if not find_sons then
 		-- check the focused window
-		if v.tp == MG_WINDOW then
+		if v and v.tp == MG_WINDOW then
 			-- check for close button pressed
 			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
 			
@@ -1035,8 +1094,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 	end
 	
 	-- check for gadget clicked
-	for i = #minGUI.gtree, 1, -1 do
-		local v = minGUI.gtree[i]
+	for i, v in minGUI_each_gadget(true) do
 
 		-- calculate parents offset
 		local ox, oy = minGUI_get_parent_gadget_offset(i)
@@ -1091,7 +1149,10 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 			elseif v.tp == MG_STRING then
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
-						minGUI.gfocus = i
+						if b == MG_LEFT_BUTTON then
+							minGUI.gfocus = i
+							minGUI_string_mouse_pressed(v)
+						end
 						getfocusFlag = true
 							
 						return v.num
@@ -1121,7 +1182,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 					if minGUI.mouse.y >= oy + v.y + ((v.height - height) / 2) and minGUI.mouse.y < oy + v.y + ((v.height - height) * 3 / 2) then
 						if b == MG_LEFT_BUTTON then
 							-- uncheck all options of the same parent
-							for j, w in ipairs(minGUI.gtree) do
+							for j, w in minGUI_each_gadget() do
 								-- if an other gadget than the option one is checked...
 								if j ~= v.num then
 									-- if the new gadget is an option one...
@@ -1321,7 +1382,7 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 	
 	if not find_sons then
 		-- check the focused window
-		if v.tp == MG_WINDOW then
+		if v and v.tp == MG_WINDOW then
 			-- check for window's button down
 			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
 			
@@ -1344,8 +1405,7 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 	end
 
 	-- check for gadget clicked
-	for i = #minGUI.gtree, 1, -1 do
-		local v = minGUI.gtree[i]
+	for i, v in minGUI_each_gadget(true) do
 
 		-- calculate parents offset
 		local ox, oy = minGUI_get_parent_gadget_offset(i)
@@ -1601,7 +1661,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 	
 	if not find_sons then
 		-- check the focused window
-		if v.tp == MG_WINDOW then
+		if v and v.tp == MG_WINDOW then
 			-- check for window's button released
 			local sw, sh = minGUI_get_sprite_size(MG_CLOSE_WINDOW_IMAGE)
 			
@@ -1619,8 +1679,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 	end
 
 	-- check for gadget released
-	for i = #minGUI.gtree, 1, -1 do
-		local v = minGUI.gtree[i]
+	for i, v in minGUI_each_gadget(true) do
 
 		-- calculate parents offset
 		local ox, oy = minGUI_get_parent_gadget_offset(i)
@@ -1701,7 +1760,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 						end
 							
 						if b == MG_RIGHT_BUTTON then
-							if v.down.left == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
+							if v.down.right == true then table.insert(minGUI.gstack, {eventGadget = i, eventType = MG_EVENT_RIGHT_MOUSE_RELEASED}) end
 									
 							v.down.right = false
 						end

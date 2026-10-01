@@ -8,6 +8,9 @@
 -- requires
 require "minGUI/minGUI"
 
+local w, g, menu_array
+local timer = 0
+
 -- default love.load function
 function love.load()
 	-- initialize minGUI
@@ -68,7 +71,7 @@ function love.load()
 	g[20] = minGUI:add_spin(120, 60, 60, 25, 1, 1, 100, nil, g[2])
 	g[21] = minGUI:add_spin(390, 10, 60, 25, 1, 1, 100, nil, w[2])
 	
-	g[22] = minGUI:add_editor(10, 260, 620, 200, "This is an example of editor gadget. You can use arrows, backspace,\ndelete, home, and end keys.\nW.I.P", nil, 2)
+	g[22] = minGUI:add_editor(10, 260, 620, 200, "This is an example of editor gadget. You can use arrows, backspace,\ndelete, home, and end keys.\nW.I.P", nil, w[2])
 
 	g[23] = minGUI:add_canvas(390, 60, 100, 25, nil, w[2])
 	
@@ -96,7 +99,7 @@ function love.load()
 	minGUI:clear_canvas(g[23], 1, 1, 1, 1)			
 	minGUI:draw_text_to_canvas(g[23], tostring(timer), 1, 4, {0, 0, 0, 1})
 	
-	-- add a timer shown in the canvas 25
+	-- add a timer shown in the canvas 23
 	minGUI:start_timer(1, 1000)
 end
 
@@ -116,30 +119,29 @@ function love.update(dt)
 		love.event.quit()
 	end
 	
-	-- get new gadgets events
-	local eventGadget, eventType = minGUI:get_gadget_events()
-	
-	-- if button 1 has been clicked
-	if eventType == MG_EVENT_LEFT_MOUSE_CLICK then
-		if eventGadget == g[3] then
-			minGUI:set_gadget_text(g[5], "")
-		elseif eventGadget == g[7] then
-			minGUI:set_gadget_text(g[9], "")
-		elseif eventGadget == g[19] then
-			love.event.quit(0)
-		end
-	end
+    -- Drain the queues each frame so held-button events cannot delay clicks.
+    while true do
+        local gadget, event = minGUI:get_gadget_events()
+        if gadget == nil then break end
+        if event == MG_EVENT_LEFT_MOUSE_CLICK then
+            if gadget == g[3] then
+                minGUI:set_gadget_text(g[5], "")
+            elseif gadget == g[7] then
+                minGUI:set_gadget_text(g[9], "")
+            elseif gadget == g[19] then
+                love.event.quit(0)
+            end
+        end
+    end
 
-	-- get new timers events
-	local eventTimer, eventType = minGUI:get_timer_events()
-	
-	-- if a timer has changed
-	if eventType == MG_EVENT_TIMER_TICK then
-		if eventTimer == 1 then
-			timer = timer + 1
-		end
-	end
-	
+    while true do
+        local timerID, event = minGUI:get_timer_events()
+        if timerID == nil then break end
+        if timerID == 1 and event == MG_EVENT_TIMER_TICK then
+            timer = timer + 1
+        end
+    end
+
 	minGUI:clear_canvas(g[23], 1, 1, 1, 1)
 	minGUI:draw_text_to_canvas(g[23], tostring(timer), 1, 4, {0, 0, 0, 1})
 	minGUI:draw_text_to_canvas(g[23], tostring(minGUI:get_gadget_state(g[24])), 30, 4, {0, 0, 0, 1})

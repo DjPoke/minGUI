@@ -206,6 +206,7 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- reset scissor			
 		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_STRING then
+		minGUI_shift_text(num, w.text)
 		-- draw the text on the gadget's canvas
 		love.graphics.setCanvas(w.canvas)
 		
@@ -226,14 +227,23 @@ function minGUI_draw_gadget(num, ox, oy)
 			love.graphics.setColor(w.rpengreyed, w.gpengreyed, w.bpengreyed, w.apengreyed)
 		end
 
-		-- print the text
-		if w.text ~= "" then
-			local text = minGUI_sub_string(w.text, w.offset + 1)
-			local y = ((w.height - 4 - minGUI.font[minGUI.numFont]:getHeight()) / 2) - 1
-
-			love.graphics.print(text, 0, y)
+		-- Paint the selected range and redraw its text in the inverted color.
+		local font = minGUI.font[minGUI.numFont]
+		local y = ((w.height - 4 - font:getHeight()) / 2) - 1
+		love.graphics.print(minGUI_sub_string(w.text, w.offset + 1), 0, y)
+		if minGUI.gfocus == num then
+			local first, last = minGUI_string_selection(w)
+			first = math.max(first, w.offset)
+			if first < last then
+				local x = font:getWidth(minGUI_sub_string(w.text, w.offset + 1, first))
+				local selected = minGUI_sub_string(w.text, first + 1, last)
+				love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
+				love.graphics.rectangle("fill", x, y, font:getWidth(selected), font:getHeight())
+				love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
+				love.graphics.print(selected, x, y)
+			end
 		end
-								
+
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 
@@ -480,8 +490,8 @@ function minGUI_draw_gadget(num, ox, oy)
 		local x3 = x1 + math.floor(size / 2)
 
 		-- calculate triangle
-		p1 = {}
-		p2 = {}
+		local p1 = {}
+		local p2 = {}
 		
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			p1 = {x1, x2, x2, x2, x3, x1}
@@ -573,7 +583,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 	local w = minGUI.gtree[num]
 			
 	-- get scissors from parent gadgets
-	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
+	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(w.parent, w.tp == MG_INTERNAL_MENU)
 
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
@@ -608,8 +618,8 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		local x3 = x1 + math.floor(size / 2)
 
 		-- calculate triangle
-		p1 = {}
-		p2 = {}
+		local p1 = {}
+		local p2 = {}
 		
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 			p1 = {x1, x2, x2, x2, x3, x1}
@@ -683,6 +693,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 	-- draw menus
 	elseif w.tp == MG_INTERNAL_MENU then
 		-- draw each 'head' menu
+		love.graphics.setColor(1, 1, 1, 1)
 		minGUI_draw_9slice(MG_MENU_UP_IMAGE, 0, 0, w.width, w.height, w.canvas)
 
 		-- draw the text on the gadget's canvas
@@ -691,12 +702,12 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		-- set current selected font (or default, if not changed)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 
-		x = 0
-		xsel = 0
+		local x = 0
+		local xsel = 0
 		
 		for i = 1, #w.array do
-			menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i].head_menu .. " ")
-			menu_height = minGUI.font[minGUI.numFont]:getHeight()
+			local menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i].head_menu .. " ")
+			local menu_height = minGUI.font[minGUI.numFont]:getHeight()
 			
 			love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 
@@ -704,6 +715,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 			if w.menu.selected == i then xsel = x end
 			
 			if w.menu.selected == i and w.menu.hover == 0 then
+				love.graphics.setColor(1, 1, 1, 1)
 				minGUI_draw_9slice(MG_MENU_DOWN_IMAGE, x, 0, menu_width, w.height, w.canvas)
 				
 				love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
@@ -749,6 +761,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 			w.canvas1 = love.graphics.newCanvas(mw, ((w.height + 2) * ml) + 2)
 			
 			-- draw menu list background
+			love.graphics.setColor(1, 1, 1, 1)
 			minGUI_draw_9slice(MG_SUBMENU_UP_IMAGE, 0, 0, mw, ((w.height + 2) * ml) + 2, w.canvas1)
 			
 			-- draw menu list items
@@ -758,6 +771,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 				
 				if w.array[w.menu.selected].menu_list[i] ~= "-" then
 					if w.menu.hover == i then
+						love.graphics.setColor(1, 1, 1, 1)
 						minGUI_draw_9slice(MG_SUBMENU_DOWN_IMAGE, 0, 1 + ((w.height + 2) * (i - 1)), mw, 2 + w.height, w.canvas1)
 						
 						love.graphics.setCanvas(w.canvas1)
@@ -801,7 +815,7 @@ function minGUI_draw_all()
 	love.graphics.setColor(1, 1, 1, 1)
 
 	-- draw gadgets
-	for i, v in ipairs(minGUI.gtree) do
+	for i, v in minGUI_each_gadget() do
 		if minGUI.gtree[i].isInternal == false then
 			if v.parent == nil then
 				minGUI_draw_gadget(i, 0, 0)
@@ -822,8 +836,9 @@ function minGUI_draw_all()
 	end
 	
 	-- draw internal gadgets
-	for i, v in ipairs(minGUI.gtree) do
+	for i, v in minGUI_each_gadget() do
 		if minGUI.gtree[i].isInternal == true then
+			local ox, oy = 0, 0
 			-- get internal gadget's parent
 			local w = minGUI.gtree[v.parent]
 		
@@ -877,7 +892,7 @@ function minGUI_draw_text_cursor(num, ox, oy)
 	if w.tp == MG_STRING then
 		xc1 = ox + w.x + 2
 		yc1 = oy + w.y + 2
-		xc2 = minGUI.font[minGUI.numFont]:getWidth(minGUI_sub_string(w.text, w.offset + 1))
+		xc2 = minGUI.font[minGUI.numFont]:getWidth(minGUI_sub_string(w.text, w.offset + 1, w.cursorx))
 		yc2 = ((w.height - 4) - minGUI.font[minGUI.numFont]:getHeight()) / 2
 	elseif w.tp == MG_SPIN then
 		xc1 = ox + w.x
@@ -887,16 +902,16 @@ function minGUI_draw_text_cursor(num, ox, oy)
 	end
 	
 	-- resize cursor's canvas
-	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|") then
-		if w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
-			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
-		end
+	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|")
+		or w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
+		w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
 	end
 
 	-- draw the cursor on its canvas
-	love.graphics.setCanvas(w.cursor_canvas)	
+	love.graphics.setCanvas(w.cursor_canvas)
+	love.graphics.clear(0, 0, 0, 0)
 	love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
-	love.graphics.print("|", 0, 0)
+	love.graphics.print(w.tp == MG_STRING and w.overwrite and "_" or "|", 0, 0)
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setCanvas()	
 
@@ -905,8 +920,11 @@ function minGUI_draw_text_cursor(num, ox, oy)
 	love.graphics.draw(w.cursor_canvas, xc2, yc2 - 2)
 	love.graphics.setCanvas()	
 
-	-- draw the full canvas
+	-- Clip the cursor to the same parent area as the field.
+	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(w.parent)
+	love.graphics.setScissor(scx, scy, scw, sch)
 	love.graphics.draw(w.canvas, xc1, yc1)
+	love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 
 -- draw the editor cursor
@@ -922,7 +940,7 @@ function minGUI_draw_editor_cursor(num, ox, oy)
 	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
 
 	-- explode utf8 text
-	t = {}
+	local t = {}
 	t = minGUI_explode(w.text, "\n")
 	
 	--search for cursor y position
@@ -942,14 +960,14 @@ function minGUI_draw_editor_cursor(num, ox, oy)
 	end
 	
 	-- resize cursor's canvas
-	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|") then
-		if w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
-			w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
-		end
+	if w.cursor_canvas:getWidth() ~= minGUI.font[minGUI.numFont]:getWidth("|")
+		or w.cursor_canvas:getHeight() ~= minGUI.font[minGUI.numFont]:getHeight() then
+		w.cursor_canvas = love.graphics.newCanvas(minGUI.font[minGUI.numFont]:getWidth("|"), minGUI.font[minGUI.numFont]:getHeight())
 	end
 
 	-- draw the cursor on its canvas
 	love.graphics.setCanvas(w.cursor_canvas)
+	love.graphics.clear(0, 0, 0, 0)
 	love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 	love.graphics.print("|", 0, 0)
 	love.graphics.setColor(1, 1, 1, 1)
@@ -1097,7 +1115,7 @@ function minGUI_draw_cursor_on_focused_gadget(num, ox, oy)
 	local v = minGUI.gtree[num]
 	
 	-- if the focused gadget is a string gadget...
-	if v.tp == MG_STRING then
+	if v.tp == MG_STRING and v.editable then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 			
 		if t < 500 then
@@ -1124,10 +1142,10 @@ end
 function minGUI_draw_sons(num, ox, oy)
 	local v = minGUI.gtree[num]
 	
-	for j, w in ipairs(minGUI.gtree) do
+	for j, w in minGUI_each_gadget() do
 		if w.parent == v.num then
 			-- parent is a window with a menu ?
-			menu_y = minGUI:window_menu_height(num)
+			local menu_y = minGUI:window_menu_height(num)
 			menu_y = menu_y + minGUI:window_titlebar_height(num)
 
 			-- draw the current gadget

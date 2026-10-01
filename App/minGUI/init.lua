@@ -112,7 +112,8 @@ function minGUI_init()
 		txtcolor = {r = 0, g = 0, b = 0, a = 1}, -- text color
 		greyedbgcolor = {r = 0.75, g = 0.75, b = 0.75, a = 1}, -- greyed background color
 		greyedtxtcolor = {r = 0.25, g = 0.25, b = 0.25, a = 1}, -- greyed text color
-		gtree = {}, -- gadgets's tree
+		gtree = {}, -- gadgets indexed by stable ID
+		lastGadgetID = 0,
 		mouse = {x = 0, y = 0, oldmbtn = {}, mbtn = {}, mpressed = {}, mreleased = {}}, -- mouse events
 		gstack = {}, -- gadget events stack
 		mstack = {}, -- menu events stack
@@ -149,7 +150,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 
 			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[start_timer]Wrong num value"); return end
-			if not minGUI_check_param(delay, "number") then minGUI:runtime_error("[start_timer]Wrong delay value"); return end
+			if not minGUI_check_param(delay, "number") or delay <= 0 or delay ~= delay or delay == math.huge then minGUI:runtime_error("[start_timer]Wrong delay value"); return end
 			
 			minGUI.ptimer[num] = {delay = delay, timer = math.floor(minGUI.timer * 1000)}
 		end,
@@ -195,12 +196,12 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[set_theme]Wrong theme"); return end
+			if not minGUI_check_param(text, "string") then minGUI:runtime_error("[set_theme]Wrong theme"); return end
 
 			minGUI.theme = text
 			
 			-- update theme sprites
-			self.load_sprites()
+			self:load_sprites()
 		end,
 		-- set background color (red, green, blue, alpha)
 		set_background_color = function(self, r, g, b, a)
@@ -275,10 +276,10 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 			
 			if #minGUI.gstack ~= 0 then
-				local eventGadget = minGUI.gstack[#minGUI.gstack].eventGadget
-				local eventType = minGUI.gstack[#minGUI.gstack].eventType
+				local eventGadget = minGUI.gstack[1].eventGadget
+				local eventType = minGUI.gstack[1].eventType
 				
-				table.remove(minGUI.gstack, #minGUI.gstack)
+				table.remove(minGUI.gstack, 1)
 
 				return eventGadget, eventType
 			end
@@ -291,10 +292,10 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 			
 			if #minGUI.mstack ~= 0 then
-				local eventMenu = minGUI.mstack[#minGUI.mstack].eventMenu
-				local eventSubMenu = minGUI.mstack[#minGUI.mstack].eventSubMenu
+				local eventMenu = minGUI.mstack[1].eventMenu
+				local eventSubMenu = minGUI.mstack[1].eventSubMenu
 				
-				table.remove(minGUI.mstack, #minGUI.mstack)
+				table.remove(minGUI.mstack, 1)
 
 				return eventMenu, eventSubMenu
 			end
@@ -306,10 +307,10 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 			
 			if #minGUI.tstack ~= 0 then
-				local eventTimer = minGUI.tstack[#minGUI.tstack].eventTimer
-				local eventType = minGUI.tstack[#minGUI.tstack].eventType
+				local eventTimer = minGUI.tstack[1].eventTimer
+				local eventType = minGUI.tstack[1].eventType
 				
-				table.remove(minGUI.tstack, #minGUI.tstack)
+				table.remove(minGUI.tstack, 1)
 
 				return eventTimer, eventType
 			end
@@ -327,7 +328,7 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 			
 			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_gadget_text]Wrong num value"); return end
-			if not minGUI_check_param2(text, "string") then minGUI:runtime_error("[set_gadget_text]Wrong text for gadget " .. num); return end
+			if not minGUI_check_param(text, "string") then minGUI:runtime_error("[set_gadget_text]Wrong text for gadget " .. num); return end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -337,6 +338,9 @@ function minGUI_init()
 					if minGUI.gtree[num].tp == MG_STRING then
 						-- replace the text
 						minGUI.gtree[num].text = text
+						minGUI.gtree[num].cursorx = utf8.len(text)
+						minGUI.gtree[num].selectionAnchor = nil
+						minGUI.gtree[num].keyrepeat = {}
 					
 						minGUI_shift_text(num, text)
 					elseif minGUI.gtree[num].tp == MG_LABEL then
@@ -345,7 +349,7 @@ function minGUI_init()
 					-- if the gadget is a spin gadget...
 					elseif minGUI.gtree[num].tp == MG_SPIN then
 						-- replace the value
-						minGUI.gtree[num].text = frameTextValue(math.floor(tonumber(text) + 0.5), minGUI.gtree[num].minValue, minGUI.gtree[num].maxValue)
+						minGUI.gtree[num].text = frameTextValue(math.floor((tonumber(text) or 0) + 0.5), minGUI.gtree[num].minValue, minGUI.gtree[num].maxValue)
 
 						minGUI_shift_text(num, text)		
 					end
@@ -394,7 +398,7 @@ function minGUI_init()
 					-- if the gadget is an option gadget...
 					if minGUI.gtree[num].tp == MG_OPTION then
 						-- uncheck all options of the same parent
-						for j, w in ipairs(minGUI.gtree) do
+						for j, w in minGUI_each_gadget() do
 							-- if an other gadget than the option one is checked...
 							if j ~= num then
 								-- if the new gadget is an option one...
@@ -1093,7 +1097,7 @@ function minGUI_init()
 			local v = minGUI.gtree[num]
 
 			if v.tp == MG_WINDOW then
-				for j, w in ipairs(minGUI.gtree) do
+				for j, w in minGUI_each_gadget() do
 					if w.parent == num then
 						if w.tp == MG_INTERNAL_MENU then
 							return w.height
@@ -1142,7 +1146,7 @@ function minGUI_init()
 			local w = nil
 	
 			-- check for windows only
-			for i, v in ipairs(minGUI.gtree) do
+			for i, v in minGUI_each_gadget() do
 				if v.tp == MG_WINDOW then
 					w = i
 				end
@@ -1158,7 +1162,7 @@ function minGUI_init()
 			local w = nil
 	
 			-- check for windows only
-			for i, v in ipairs(minGUI.gtree) do
+			for i, v in minGUI_each_gadget() do
 				if v.tp == MG_WINDOW then
 					w = i
 				end
@@ -1322,54 +1326,39 @@ function minGUI_init()
 				minGUI:get_cursor_position(num)
 			end
 		end,
-		-- delete one gadget
+		-- Remove a subtree without changing IDs held by the application.
 		private_delete_gadget = function(self, num)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-
-			-- check for values and types of values
-			if num == nil or minGUI.gtree[num] == nil then minGUI:runtime_error("[delete_one_gadget]Wrong gadget number " .. num); return end
-			
-			-- delete one gadget
-			table.remove(minGUI.gtree, num)
-			
-			-- find & delete internal sons
-			for i = #minGUI.gtree, 1, -1 do
-				if minGUI.gtree[i].parent == num then
-					-- delete one internal gadget
-					table.remove(minGUI.gtree, i)
-				end
-			end
-
+			return self:delete_gadget(num)
 		end,
-		-- delete gadget with all its sons
 		delete_gadget = function(self, num)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-			
-			-- find & delete sons
-			for i = #minGUI.gtree, 1, -1 do
-				local p = minGUI.gtree[i].parent
-				
-				while p ~= num and p ~= nil do
-					p = minGUI.gtree[p].parent
-				end
-				
-				if p == num then
-					-- delete next son
-					minGUI:private_delete_gadget(i)
+			if self.exitProcess then return end
+			if num == nil or self.gtree[num] == nil then
+				self:runtime_error("[delete_gadget]Wrong gadget number " .. tostring(num))
+				return
+			end
+			local removed = {[num] = true}
+			-- Find all descendants before changing the tree.
+			for id, gadget in minGUI_each_gadget() do
+				local parent = gadget.parent
+				while parent ~= nil do
+					if parent == num then removed[id] = true; break end
+					parent = self.gtree[parent].parent
 				end
 			end
-
-			-- delete next son
-			minGUI:private_delete_gadget(num)
+			for id in pairs(removed) do self.gtree[id] = nil end
+			if removed[self.gfocus] then self.gfocus = nil end
+			for index = #self.gstack, 1, -1 do
+				if removed[self.gstack[index].eventGadget] then
+					table.remove(self.gstack, index)
+				end
+			end
 		end,
 		-- add a window to the gadget's tree
 		add_window = function(self, x, y, width, height, title, flags, parent)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 			
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_window]Wrong x for gadget " .. num); return end
@@ -1398,7 +1387,8 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_WINDOW, isInternal = false, x = x, y = y, width = width, height = height, title = title, flags = flags, parent = parent, down = {left = false, right = false},
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
@@ -1409,7 +1399,7 @@ function minGUI_init()
 							maximized = false, default_x = x, default_y = y, default_width = width, default_height = height,
 							resizing = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1430,7 +1420,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 			
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_panel]Wrong x for gadget " .. num); return end
@@ -1450,12 +1440,13 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_PANEL, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
 							can_have_sons = true,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1476,7 +1467,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 			
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_button]Wrong x for gadget " .. num); return end
@@ -1502,13 +1493,14 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_BUTTON, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down = {left = false, right = false},
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1529,7 +1521,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 			
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_button_image]Wrong x for gadget " .. num); return end
@@ -1553,13 +1545,14 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_BUTTON_IMAGE, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
 							image = image,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1580,7 +1573,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_label]Wrong x for gadget " .. num); return end
@@ -1618,14 +1611,15 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_LABEL, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rpaper = minGUI.bgcolor.r, gpaper = minGUI.bgcolor.g, bpaper = minGUI.bgcolor.b, apaper = minGUI.bgcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1646,7 +1640,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_string]Wrong x for gadget " .. num); return end
@@ -1675,19 +1669,20 @@ function minGUI_init()
 						-- editable by default
 						if flags == nil then flags = 0 end
 						
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_STRING, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpapergreyed = minGUI.greyedbgcolor.r, gpapergreyed = minGUI.greyedbgcolor.g, bpapergreyed = minGUI.greyedbgcolor.b, apapergreyed = minGUI.greyedbgcolor.a,
 							rpengreyed = minGUI.greyedtxtcolor.r, gpengreyed = minGUI.greyedtxtcolor.g, bpengreyed = minGUI.greyedtxtcolor.b, apengreyed = minGUI.greyedtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
-							offset = 0, editable = true, backspace = 0,
+							offset = 0, editable = true, cursorx = utf8.len(text), overwrite = false, keyrepeat = {},
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width - 4, height - 4),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
-						})
+						}
 						
 						-- set to not editable ?
 						if minGUI_flag_active(flags, MG_FLAG_NOT_EDITABLE) then
@@ -1719,7 +1714,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_canvas]Wrong x for gadget " .. num); return end
@@ -1744,12 +1739,13 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_CANVAS, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent, down = {left = false, right = false},
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1780,7 +1776,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_checkbox]Wrong x for gadget " .. num); return end
@@ -1806,14 +1802,15 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_CHECKBOX, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1834,7 +1831,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_option]Wrong x for gadget " .. num); return end
@@ -1860,14 +1857,15 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_OPTION, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							checked = false,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -1888,7 +1886,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_spin]Wrong x for gadget " .. num); return end
@@ -1924,7 +1922,8 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_SPIN, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = {left = false, right = false}, btnUp = false, btnDown = false,
 							text = tostring(value), minValue = minValue, maxValue = maxValue, timer = 0,
@@ -1935,7 +1934,7 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
-						})
+						}
 												
 						-- shift text left, if needed
 						minGUI_shift_text(num, text)
@@ -1962,7 +1961,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number", 0) then minGUI:runtime_error("[add_editor]Wrong x for gadget " .. num); return end
@@ -1991,7 +1990,8 @@ function minGUI_init()
 						-- editable by default
 						if flags == nil then flags = 0 end
 						
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_EDITOR, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent,
 							rborder = minGUI.txtcolor.r, gborder = minGUI.txtcolor.g, bborder = minGUI.txtcolor.b, aborder = minGUI.txtcolor.a,
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
@@ -2004,7 +2004,7 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width - 4, height - 4),
 							cursor_canvas = love.graphics.newCanvas(1, 1)
-						})
+						}
 						
 						-- set to not editable ?
 						if minGUI_flag_active(flags, MG_FLAG_NOT_EDITABLE) then
@@ -2045,7 +2045,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_scrollbar]Wrong x for gadget " .. num); return end
@@ -2072,7 +2072,14 @@ function minGUI_init()
 			if minValue == nil then minValue = 0 end
 			if inc == nil then inc = 1 end
 			
-			stepsValue = math.floor((maxValue - minValue) / inc) + 1
+			if maxValue == nil then
+				maxValue = minGUI_flag_active(flags, MG_FLAG_SCROLLBAR_VERTICAL) and height or width
+			end
+			if inc <= 0 or maxValue < minValue then
+				self:runtime_error("[scrollbar]Invalid range or increment")
+				return
+			end
+			local stepsValue = math.floor((maxValue - minValue) / inc) + 1
 			
 			if stepsValue < 1 then stepsValue = 1 end
 
@@ -2103,6 +2110,10 @@ function minGUI_init()
 				internalBarSize = real_width
 			end
 			
+			if real_width <= 0 or real_height <= 0 then
+				self:runtime_error("[scrollbar]Track size must be positive")
+				return
+			end
 			-- correction of value...
 			minValue = math.floor(minValue + 0.5)
 			maxValue = math.floor(maxValue + 0.5)
@@ -2133,7 +2144,8 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_SCROLLBAR, isInternal = false, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = false, down1 = false, down2 = false,
 							real_width = real_width, real_height = real_height, size = size, internalBarSize = internalBarSize,
@@ -2147,7 +2159,7 @@ function minGUI_init()
 							canvas1 = love.graphics.newCanvas(size, size),
 							canvas2 = love.graphics.newCanvas(size, size),
 							canvas3 = love.graphics.newCanvas(size_width, size_height)
-						})
+						}
 						
 						return num
 					else
@@ -2168,7 +2180,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_image]Wrong x for gadget " .. num); return end
@@ -2192,13 +2204,14 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_IMAGE, isInternal = false, x = x, y = y, width = width, height = height, text = text, flags = flags, parent = parent, down =  {left = false, right = false},
 							image = image,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 						
 						return num
 					else
@@ -2219,7 +2232,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_internal_scrollbar]Wrong x for gadget " .. num); return end
@@ -2246,7 +2259,14 @@ function minGUI_init()
 			if minValue == nil then minValue = 0 end
 			if inc == nil then inc = 1 end
 			
-			stepsValue = math.floor((maxValue - minValue) / inc) + 1
+			if maxValue == nil then
+				maxValue = minGUI_flag_active(flags, MG_FLAG_SCROLLBAR_VERTICAL) and height or width
+			end
+			if inc <= 0 or maxValue < minValue then
+				self:runtime_error("[scrollbar]Invalid range or increment")
+				return
+			end
+			local stepsValue = math.floor((maxValue - minValue) / inc) + 1
 			
 			if stepsValue < 1 then stepsValue = 1 end
 
@@ -2277,6 +2297,10 @@ function minGUI_init()
 				internalBarSize = real_width
 			end
 			
+			if real_width <= 0 or real_height <= 0 then
+				self:runtime_error("[scrollbar]Track size must be positive")
+				return
+			end
 			-- correction of value...
 			minValue = math.floor(minValue + 0.5)
 			maxValue = math.floor(maxValue + 0.5)
@@ -2307,7 +2331,8 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_INTERNAL_SCROLLBAR, isInternal = true, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							down = false, down1 = false, down2 = false,
 							real_width = real_width, real_height = real_height, size = size, internalBarSize = internalBarSize,
@@ -2321,7 +2346,7 @@ function minGUI_init()
 							canvas1 = love.graphics.newCanvas(size, size),
 							canvas2 = love.graphics.newCanvas(size, size),
 							canvas3 = love.graphics.newCanvas(size_width, size_height)
-						})
+						}
 					else
 						minGUI:runtime_error("[add_internal_scrollbar]Wrong gadget size for gadget " .. num)
 					end
@@ -2336,7 +2361,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_internal_box]Wrong x for gadget " .. num); return end
@@ -2358,12 +2383,13 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or minGUI.gtree[parent] ~= nil then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_INTERNAL_BOX, isInternal = true, x = x, y = y, width = width, height = height, flags = flags, parent = parent,
 							can_have_sons = false,
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height)
-						})
+						}
 					else
 						minGUI:runtime_error("[add_internal_box]Wrong gadget size for gadget " .. num)
 					end
@@ -2379,7 +2405,7 @@ function minGUI_init()
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 
-			local num = #minGUI.gtree + 1
+			local num = minGUI.lastGadgetID + 1
 
 			-- check for values and types of values
 			if not minGUI_check_param2(x, "number") then minGUI:runtime_error("[add_menu]Wrong x for gadget " .. num); return end
@@ -2409,7 +2435,8 @@ function minGUI_init()
 			if minGUI.gtree[num] == nil then
 				if parent == nil or (minGUI.gtree[parent] ~= nil and minGUI.gtree[parent].can_have_sons) then
 					if width > 0 and height > 0 then
-						table.insert(minGUI.gtree, {
+						minGUI.lastGadgetID = num
+						minGUI.gtree[num] = {
 							num = num, tp = MG_INTERNAL_MENU, isInternal = true, x = x, y = y, width = width, height = height, array = array, flags = flags, parent = parent, down = {left = false, right = false}, menu = {selected = 0, hover = 0},
 							rpaper = minGUI.invtxtcolor.r, gpaper = minGUI.invtxtcolor.g, bpaper = minGUI.invtxtcolor.b, apaper = minGUI.invtxtcolor.a,
 							rpen = minGUI.txtcolor.r, gpen = minGUI.txtcolor.g, bpen = minGUI.txtcolor.b, apen = minGUI.txtcolor.a,
@@ -2417,7 +2444,7 @@ function minGUI_init()
 							can_have_menu = false,
 							canvas = love.graphics.newCanvas(width, height),
 							canvas1 = love.graphics.newCanvas(width, 1)
-						})
+						}
 					else
 						minGUI:runtime_error("[add_menu]Wrong gadget size for gadget " .. num)
 					end
@@ -2442,7 +2469,7 @@ function minGUI_init()
 	end
 	
 	-- load all sprites for the theme
-	minGUI.load_sprites()
+	minGUI:load_sprites()
 
 	-- load default fonts
 	minGUI.font[MG_DEFAULT_FONT] = love.graphics.newFont(12)
