@@ -41,8 +41,13 @@ function minGUI_each_gadget(reverse)
         local pa, pb = paths[a], paths[b]
         for i = 1, math.min(#pa, #pb) do
             if pa[i] ~= pb[i] then
-                local za = minGUI.gtree[pa[i]].zOrder or pa[i]
-                local zb = minGUI.gtree[pb[i]].zOrder or pb[i]
+                local ga, gb = minGUI.gtree[pa[i]], minGUI.gtree[pb[i]]
+                -- Priority windows stay above ordinary siblings, with all their children.
+                local priorityA = ga.tp == MG_WINDOW and minGUI_flag_active(ga.flags or 0, MG_FLAG_WINDOW_TOP_PRIORITY)
+                local priorityB = gb.tp == MG_WINDOW and minGUI_flag_active(gb.flags or 0, MG_FLAG_WINDOW_TOP_PRIORITY)
+                if priorityA ~= priorityB then return not priorityA end
+                local za = ga.zOrder or pa[i]
+                local zb = gb.zOrder or pb[i]
                 if za ~= zb then return za < zb end
                 return pa[i] < pb[i]
             end
