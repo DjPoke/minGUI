@@ -106,6 +106,18 @@ function minGUI_activate_window_at_pointer()
             if x >= ox + window.x and x < ox + window.x + window.width
                 and y >= oy + window.y and y < oy + window.y + window.height
                 and x >= sx and x < sx + sw and y >= sy and y < sy + sh then
+                -- Launcher images act on another window without activating the desktop.
+                for childID, child in minGUI_each_gadget(true) do
+                    if child.parent == id and child.preserveWindowFocus then
+                        local cx, cy = minGUI_get_parent_gadget_offset(childID)
+                        local clipX, clipY, clipW, clipH = minGUI_get_gadget_parents_scissor(id)
+                        if x >= cx + child.x and x < cx + child.x + child.width
+                            and y >= cy + child.y and y < cy + child.y + child.height
+                            and x >= clipX and x < clipX + clipW and y >= clipY and y < clipY + clipH then
+                            return id
+                        end
+                    end
+                end
                 if active ~= id then
                     minGUI:set_window_on_top(id)
                 end

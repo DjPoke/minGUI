@@ -476,6 +476,10 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
 							v.down.left = true
+							if v.tp == MG_IMAGE then
+								minGUI.gfocus = i
+								minGUI.stringDrag, minGUI.editorDrag = nil, nil
+							end
 							getfocusFlag = true
 							
 							return v.num

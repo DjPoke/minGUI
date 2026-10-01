@@ -598,6 +598,15 @@ function minGUI_draw_gadget(num, ox, oy)
 			love.graphics.draw(w.image, 8, 8, 0, (w.width - 16) / w.image:getWidth(), (w.height - 16) / w.image:getHeight())
 		end
 		
+		-- The focus outline stays visible after the mouse button is released.
+		if minGUI.gfocus == num then
+			love.graphics.push("all")
+			love.graphics.setColor(minGUI.txtcolor.r, minGUI.txtcolor.g, minGUI.txtcolor.b, minGUI.txtcolor.a)
+			love.graphics.setLineWidth(1)
+			love.graphics.rectangle("line", 0.5, 0.5, w.width - 1, w.height - 1)
+			love.graphics.pop()
+		end
+
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 		
