@@ -376,11 +376,24 @@ function minGUI_draw_gadget(num, ox, oy)
 			minGUI_draw_quad(MG_SPIN_BUTTON_DOWN_IMAGE, btnDown, w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth(), (w.height - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getHeight() / 2))
 		end
 
-		-- draw the text value in its area
-		love.graphics.setFont(minGUI.font[minGUI.numFont])
+		-- Draw the selected part of the numeric value.
+		minGUI_spin_sync(w)
+		local font = minGUI.font[minGUI.numFont]
+		local textWidth = font:getWidth(w.text)
+		local x = (w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth() - textWidth) / 2
+		local y = (w.height - font:getHeight()) / 2
+		love.graphics.setFont(font)
 		love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
-		love.graphics.print(w.text, (((w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()) - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2), (w.height - minGUI.font[minGUI.numFont]:getHeight()) / 2)
-		
+		love.graphics.print(w.text, x, y)
+		local first, last = minGUI_spin_selection(w)
+		if minGUI.gfocus == num and first ~= last then
+			local selected = minGUI_sub_string(w.text, first + 1, last)
+			local sx = x + font:getWidth(minGUI_sub_string(w.text, 1, first))
+			love.graphics.rectangle("fill", sx, y, font:getWidth(selected), font:getHeight())
+			love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
+			love.graphics.print(selected, sx, y)
+		end
+
 		-- restore drawing on the window's canvas
 		love.graphics.setCanvas()
 		
@@ -912,7 +925,7 @@ function minGUI_draw_text_cursor(num, ox, oy)
 	elseif w.tp == MG_SPIN then
 		xc1 = ox + w.x
 		yc1 = oy + w.y
-		xc2 = (((w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()) - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) + minGUI.font[minGUI.numFont]:getWidth(w.text)
+		xc2 = (((w.width - minGUI.sprite[MG_SPIN_BUTTON_UP_IMAGE]:getWidth()) - minGUI.font[minGUI.numFont]:getWidth(w.text)) / 2) + minGUI.font[minGUI.numFont]:getWidth(minGUI_sub_string(w.text, 1, w.cursorx))
 		yc2 = ((w.height + 2) - minGUI.font[minGUI.numFont]:getHeight()) / 2
 	end
 	
@@ -1095,7 +1108,7 @@ function minGUI_draw_cursor_on_focused_gadget(num, ox, oy)
 			minGUI_draw_text_cursor(v.num, ox, oy)
 		end
 	-- if the focused gadget is a spin gadget...
-	elseif v.tp == MG_SPIN then
+	elseif v.tp == MG_SPIN and not v.valueSelected then
 		local t = math.floor(minGUI.timer * 1000) % 1000
 						
 		if t < 500 then

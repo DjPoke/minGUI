@@ -228,89 +228,8 @@ function minGUI_update_events(dt)
 		
 	minGUI_update_string_keyboard()
 	minGUI_update_editor_keyboard()
+	minGUI_update_spin_clipboard()
 
-	-- if a gadget has the focus...
-	if minGUI.gfocus ~= nil then
-		-- if the gadget exists
-		if minGUI.gtree[minGUI.gfocus] ~= nil then
-			-- Strings are handled by minGUI_update_string_keyboard above.
-			if minGUI.gtree[minGUI.gfocus].tp == MG_SPIN then
-				-- if backspace has not yet been pressed...
-				if minGUI.gtree[minGUI.gfocus].backspace == 0 then
-					-- if backspace is pressed now...
-					if love.keyboard.isDown("backspace") == true then
-						-- remove the last UTF-8 character.
-						local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
-
-						if byteoffset then
-							minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
-							
-							if minGUI.gtree[minGUI.gfocus].text == "" then minGUI.gtree[minGUI.gfocus].text = "" end
-							if minGUI.gtree[minGUI.gfocus].text ~= "" then minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue) end
-						end
-
-						-- calculate the new offset value for the text
-						minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
-
-						-- count the first backspace, and get the timer
-						minGUI.gtree[minGUI.gfocus].backspace = 1
-						minGUI.kbdelay = minGUI.timer
-					end
-					
-				-- if backspace has been pressed...
-				elseif minGUI.gtree[minGUI.gfocus].backspace > 0 then
-					-- if backspace is released now...
-					if love.keyboard.isDown("backspace") == false then
-						minGUI.gtree[minGUI.gfocus].backspace = 0
-					else
-						-- if backspace is still pressed, and has been pressed only one time
-						if minGUI.gtree[minGUI.gfocus].backspace == 1 then
-							-- wait for keyboard slow delay
-							if minGUI.timer - minGUI.kbdelay >= MG_SLOW_DELAY then
-								-- remove the last UTF-8 character.
-								local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
-
-								if byteoffset then
-									minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
-							
-									if minGUI.gtree[minGUI.gfocus].text == "" then minGUI.gtree[minGUI.gfocus].text = "" end
-									if minGUI.gtree[minGUI.gfocus].text ~= "" then minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue) end
-								end
-
-								-- calculate the new offset value for the text
-								minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
-									
-								-- reset kbdelay and increment backspace
-								minGUI.kbdelay = minGUI.timer
-								minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
-							end
-						-- if backspace is still pressed, and has been pressed for multiple times
-						elseif minGUI.gtree[minGUI.gfocus].backspace > 1 then
-							-- wait for keyboard quick delay
-							if minGUI.timer - minGUI.kbdelay >= MG_QUICK_DELAY then
-								-- remove the last UTF-8 character.
-								local byteoffset = utf8.offset(minGUI.gtree[minGUI.gfocus].text, -1)
-
-								if byteoffset then
-									minGUI.gtree[minGUI.gfocus].text = string.sub(minGUI.gtree[minGUI.gfocus].text, 1, byteoffset - 1)
-							
-									if minGUI.gtree[minGUI.gfocus].text == "" then minGUI.gtree[minGUI.gfocus].text = "" end
-									if minGUI.gtree[minGUI.gfocus].text ~= "" then minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue) end
-								end
-
-								-- calculate the new offset value for the text
-								minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
-									
-								-- reset kbdelay and increment backspace
-								minGUI.kbdelay = minGUI.timer
-								minGUI.gtree[minGUI.gfocus].backspace = minGUI.gtree[minGUI.gfocus].backspace + 1
-							end
-						end
-					end
-				end
-			end
-		end
-	end
 end
 
 -- function to input text, and
@@ -329,12 +248,8 @@ function minGUI_textinput(c)
 					end
 				end
 			elseif minGUI.gtree[minGUI.gfocus].tp == MG_SPIN then
-				if c:match("^%d+$") then
-					-- add last character to the text
-					minGUI.gtree[minGUI.gfocus].text = frameTextValue(minGUI.gtree[minGUI.gfocus].text .. c, minGUI.gtree[minGUI.gfocus].minValue, minGUI.gtree[minGUI.gfocus].maxValue)
-						
-					-- calculate the new offset value for the text
-					minGUI_shift_text(minGUI.gfocus, minGUI.gtree[minGUI.gfocus].text)
+				if not shortcutDown() and c:match("^%d+$") then
+					minGUI_spin_replace(minGUI.gtree[minGUI.gfocus], c)
 				end
 			elseif minGUI.gtree[minGUI.gfocus].tp == MG_EDITOR then
 				local gadget = minGUI.gtree[minGUI.gfocus]
@@ -709,6 +624,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 						if b == MG_LEFT_BUTTON then
 							v.timer = minGUI.timer
 							v.btnUp = true
+							v.valueSelected = false
 							v.press = 0
 							getfocusFlag = true
 										
@@ -724,6 +640,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 						if b == MG_LEFT_BUTTON then
 							v.timer = minGUI.timer
 							v.btnDown = true
+							v.valueSelected = false
 							v.press = 0
 							getfocusFlag = true
 										
@@ -738,6 +655,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
 							minGUI.gfocus = i
+							v.valueSelected = v.text ~= ""
 							v.down.left = true
 							getfocusFlag = true
 								

@@ -1903,7 +1903,7 @@ function minGUI_init()
 						}
 												
 						-- shift text left, if needed
-						minGUI_shift_text(num, text)
+						minGUI_shift_text(num, minGUI.gtree[num].text)
 
 						-- set the focus to the last editable gadget
 						minGUI.gfocus = num
