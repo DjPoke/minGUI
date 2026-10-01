@@ -1236,49 +1236,13 @@ function minGUI_init()
 		end,
 		-- get the offset for the internal gadget
 		get_parent_internal_gadget_offset = function(self, num, tp)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-
-			-- get internal's gadget parent
-			local w = minGUI.gtree[minGUI.gtree[num].parent]
-	
-			local ox = 0
-			local oy = 0
-	
-			-- if there is a parent...
-			if w ~= nil then
-				-- get parents offsets
-				ox = w.x
-				oy = w.y
-										
-				if tp ~= MG_INTERNAL_MENU then
-					oy = oy + minGUI:window_menu_height(w.num)
-				end
-		
-				oy = oy + minGUI:window_titlebar_height(w.num)
-		
-				-- while parent has parents
-				while w.parent ~= nil do
-					-- get grand-parents and others
-					w = minGUI.gtree[w.parent]
-			
-					-- if they exists...
-					if w ~= nil then
-						-- add their offset
-						ox = ox + w.x
-						oy = oy + w.y
-										
-						if tp ~= MG_INTERNAL_MENU then
-							oy = oy + minGUI:window_menu_height(w.num)
-						end
-				
-						oy = oy + minGUI:window_titlebar_height(w.num)
-					end
-				end
-			end
-			
-			return ox, oy
-		end,
+            local ox, oy = minGUI_get_parent_gadget_offset(num)
+            local parent = minGUI.gtree[num].parent
+            if tp == MG_INTERNAL_MENU and parent then
+                oy = oy - minGUI:window_menu_height(parent)
+            end
+            return ox, oy
+        end,
 		get_cursor_position = function(self, num)
 			local gadget = self.gtree[num]
 			if gadget and gadget.tp == MG_EDITOR then return minGUI_editor_position(gadget) end
@@ -2416,6 +2380,7 @@ function minGUI_init()
 							canvas = love.graphics.newCanvas(width, height),
 							canvas1 = love.graphics.newCanvas(width, 1)
 						}
+						if parent then minGUI_resize_window_menus(parent) end
 					else
 						minGUI:runtime_error("[add_menu]Wrong gadget size for gadget " .. num)
 					end

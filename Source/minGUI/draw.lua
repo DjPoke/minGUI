@@ -607,7 +607,7 @@ function minGUI_draw_gadget(num, ox, oy)
 	end
 end
 
-function minGUI_draw_internal_gadget(num, ox, oy)
+function minGUI_draw_internal_gadget(num, ox, oy, popupOnly)
 	local w = minGUI.gtree[num]
 			
 	-- get scissors from parent gadgets
@@ -720,6 +720,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw menus
 	elseif w.tp == MG_INTERNAL_MENU then
+		if not popupOnly then
 		-- draw each 'head' menu
 		love.graphics.setColor(1, 1, 1, 1)
 		minGUI_draw_9slice(MG_MENU_UP_IMAGE, 0, 0, w.width, w.height, w.canvas)
@@ -731,7 +732,6 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		love.graphics.setFont(minGUI.font[minGUI.numFont])
 
 		local x = 0
-		local xsel = 0
 		
 		for i = 1, #w.array do
 			local menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[i].head_menu .. " ")
@@ -739,10 +739,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 			
 			love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 
-			-- memorize selected menu x
-			if w.menu.selected == i then xsel = x end
-			
-			if w.menu.selected == i and w.menu.hover == 0 then
+			if w.menu.selected == i then
 				love.graphics.setColor(1, 1, 1, 1)
 				minGUI_draw_9slice(MG_MENU_DOWN_IMAGE, x, 0, menu_width, w.height, w.canvas)
 				
@@ -771,26 +768,19 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 		-- reset scissor
 		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 		
-		-- if a menu is selected...
-		if w.menu.selected > 0 then
-			-- get number of items in the menu list
-			local ml = #w.array[w.menu.selected].menu_list
-
-			-- get the longest submenu item in pixels
-			local mw = 0
-			
-			for i = 1, ml do
-				if minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[w.menu.selected].menu_list[i] .. " ") > mw then
-					mw = minGUI.font[minGUI.numFont]:getWidth(" " .. w.array[w.menu.selected].menu_list[i] .. " ")
-				end
-			end
-			
-			-- resize canvas1 to fit all the submenus
-			w.canvas1 = love.graphics.newCanvas(mw, ((w.height + 2) * ml) + 2)
-			
+        end
+        -- Popups are drawn in a final pass, above every internal gadget.
+        if popupOnly and w.menu.selected > 0 then
+            local ml = #w.array[w.menu.selected].menu_list
+            local px, py, mw, popupHeight, rowHeight = minGUI_menu_popup_geometry(w)
+            if w.canvas1:getWidth() ~= mw or w.canvas1:getHeight() ~= popupHeight then
+                w.canvas1 = love.graphics.newCanvas(mw, popupHeight)
+            end
+            love.graphics.setScissor()
+            love.graphics.setFont(minGUI.font[minGUI.numFont])
 			-- draw menu list background
 			love.graphics.setColor(1, 1, 1, 1)
-			minGUI_draw_9slice(MG_SUBMENU_UP_IMAGE, 0, 0, mw, ((w.height + 2) * ml) + 2, w.canvas1)
+			minGUI_draw_9slice(MG_SUBMENU_UP_IMAGE, 0, 0, mw, popupHeight, w.canvas1)
 			
 			-- draw menu list items
 			for i = 1, ml do
@@ -800,7 +790,7 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 				if w.array[w.menu.selected].menu_list[i] ~= "-" then
 					if w.menu.hover == i then
 						love.graphics.setColor(1, 1, 1, 1)
-						minGUI_draw_9slice(MG_SUBMENU_DOWN_IMAGE, 0, 1 + ((w.height + 2) * (i - 1)), mw, 2 + w.height, w.canvas1)
+						minGUI_draw_9slice(MG_SUBMENU_DOWN_IMAGE, 0, 1 + (rowHeight * (i - 1)), mw, rowHeight, w.canvas1)
 						
 						love.graphics.setCanvas(w.canvas1)
 						love.graphics.setColor(w.rpaper, w.gpaper, w.bpaper, w.apaper)
@@ -810,12 +800,12 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 					end
 
 					-- draw the text on the gadget's canvas
-					love.graphics.print(" " .. w.array[w.menu.selected].menu_list[i] .. " ", 0, 2 + ((w.height + 2) * (i - 1)))
+					love.graphics.print(" " .. w.array[w.menu.selected].menu_list[i] .. " ", 0, 2 + (rowHeight * (i - 1)))
 				else
 					-- set the right color
 					love.graphics.setColor(w.rpen, w.gpen, w.bpen, w.apen)
 					
-					love.graphics.line(0, ((w.height + 2) * (i - 1 + 0.5)), mw - 1, 2 + ((w.height + 2) * (i - 1 + 0.5)))
+					love.graphics.line(0, (rowHeight * (i - 1 + 0.5)), mw - 1, 2 + (rowHeight * (i - 1 + 0.5)))
 				end
 			end
 			
@@ -826,10 +816,10 @@ function minGUI_draw_internal_gadget(num, ox, oy)
 			love.graphics.setColor(1, 1, 1, 1)
 			
 			-- set scissor
-			love.graphics.setScissor(scx, scy, scw, sch)		
+			love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
 			-- draw
-			love.graphics.draw(w.canvas1, ox + w.x + xsel, oy + w.y + w.height)
+			love.graphics.draw(w.canvas1, px, py)
 
 			-- reset scissor
 			love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
@@ -866,44 +856,18 @@ function minGUI_draw_all()
 	-- draw internal gadgets
 	for i, v in minGUI_each_gadget() do
 		if minGUI.gtree[i].isInternal == true then
-			local ox, oy = 0, 0
-			-- get internal gadget's parent
-			local w = minGUI.gtree[v.parent]
-		
-			if w ~= nil then
-				-- get parents offsets
-				ox = w.x
-				oy = w.y
-			
-				if v.tp ~= MG_INTERNAL_MENU then
-					oy = oy + minGUI:window_menu_height(w.num)
-				end
+			local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 
-				oy = oy + minGUI:window_titlebar_height(w.num)
-			
-				-- while parent has parents
-				while w.parent ~= nil do
-					-- get grand-parents and others
-					w = minGUI.gtree[w.parent]
-					
-					-- if they exists...
-					if w ~= nil then
-						-- add their offset
-						ox = ox + w.x
-						oy = oy + w.y
-
-						if v.tp ~= MG_INTERNAL_MENU then
-							oy = oy + minGUI:window_menu_height(w.num)
-						end
-
-						oy = oy + minGUI:window_titlebar_height(w.num)
-					end
-				end
-			end
-		
 			minGUI_draw_internal_gadget(i, ox, oy)
 		end
 	end
+
+    for i, w in minGUI_each_gadget() do
+        if w.tp == MG_INTERNAL_MENU and w.menu.selected > 0 then
+            local ox, oy = minGUI:get_parent_internal_gadget_offset(i, w.tp)
+            minGUI_draw_internal_gadget(i, ox, oy, true)
+        end
+    end
 
 end
 
@@ -1132,7 +1096,7 @@ function minGUI_draw_sons(num, ox, oy)
 		if w.parent == v.num then
 			-- parent is a window with a menu ?
 			local menu_y = minGUI:window_menu_height(num)
-			menu_y = menu_y + minGUI:window_titlebar_height(num)
+			menu_y = menu_y + minGUI_window_top_inset(num)
 
 			-- draw the current gadget
 			minGUI_draw_gadget(w.num, ox + v.x, oy + v.y + menu_y)

@@ -162,6 +162,13 @@ function minGUI_flag_active(flags, flag)
 	return bit.band(flags, flag) == flag
 end
 
+-- Reserve the top frame even when a window has no title bar.
+function minGUI_window_top_inset(num)
+    local parent = minGUI.gtree[num]
+    local border = parent and parent.tp == MG_WINDOW and MG_WINDOW_BORDER_WIDTH or 0
+    return math.max(border, minGUI:window_titlebar_height(num))
+end
+
 -- get the offset for the gadget
 function minGUI_get_parent_gadget_offset(num)
 	-- calculate parents offset
@@ -180,7 +187,7 @@ function minGUI_get_parent_gadget_offset(num)
 		ox = ox + minGUI.gtree[k].x
 		oy = oy + minGUI.gtree[k].y
 		oy = oy + minGUI:window_menu_height(k)
-		oy = oy + minGUI:window_titlebar_height(k)
+		oy = oy + minGUI_window_top_inset(k)
 
 		--
 		j = k
@@ -198,11 +205,12 @@ function minGUI_get_gadget_parents_scissor(num, includeMenu)
 		if not parent then break end
 		local ox, oy = minGUI_get_parent_gadget_offset(num)
 		local x, y = ox + parent.x, oy + parent.y
+		-- Menu strips and content both stay inside the window's side borders.
 		local border = parent.tp == MG_WINDOW and MG_WINDOW_BORDER_WIDTH or 0
 		left = math.max(left, x + border)
 		-- A menu occupies its own parent's menu strip, above the content area.
 		local menuHeight = includeMenu and 0 or minGUI:window_menu_height(num)
-		top = math.max(top, y + math.max(border, minGUI:window_titlebar_height(num) + menuHeight))
+		top = math.max(top, y + math.max(border, minGUI_window_top_inset(num) + menuHeight))
 		includeMenu = false -- Ancestor menu strips still clip nested windows.
 		right = math.min(right, x + parent.width - border)
 		bottom = math.min(bottom, y + parent.height - math.max(border, minGUI:window_footerbar_height(num)))
@@ -220,7 +228,7 @@ function minGUI_get_gadget_absolute_coordinates(num)
 		num = minGUI.gtree[num].parent
 
 		x = x + minGUI.gtree[num].x
-		y = y + minGUI.gtree[num].y + minGUI:window_menu_height(num) + minGUI:window_titlebar_height(num)
+		y = y + minGUI.gtree[num].y + minGUI:window_menu_height(num) + minGUI_window_top_inset(num)
 	end
 
 	return x, y
@@ -231,11 +239,61 @@ function minGUI_resize_window_menus(num)
     local window = minGUI.gtree[num]
     for _, menu in minGUI_each_gadget() do
         if menu.tp == MG_INTERNAL_MENU and menu.parent == num then
-            local width = math.max(1, window.width - menu.x - (menu.rightMargin or menu.x))
+            local border = window.tp == MG_WINDOW and MG_WINDOW_BORDER_WIDTH or 0
+            menu.x = math.max(border, menu.x)
+            menu.rightMargin = math.max(border, menu.rightMargin or menu.x)
+            local width = math.max(1, window.width - menu.x - menu.rightMargin)
             if menu.width ~= width then
                 menu.width = width
                 menu.canvas = love.graphics.newCanvas(width, menu.height)
             end
         end
     end
+end
+
+-- Geometry shared by popup rendering and pointer selection.
+function minGUI_menu_popup_geometry(w)
+    local font = minGUI.font[minGUI.numFont]
+    local ox, oy = minGUI:get_parent_internal_gadget_offset(w.num, w.tp)
+    local x, width = ox + w.x, 1
+    for i = 1, w.menu.selected - 1 do
+        x = x + font:getWidth(" " .. w.array[i].head_menu .. " ")
+    end
+    local items = w.array[w.menu.selected].menu_list
+    for _, label in ipairs(items) do
+        width = math.max(width, font:getWidth(" " .. label .. " "))
+    end
+    local rowHeight = math.max(w.height, font:getHeight()) + 2
+    local height = rowHeight * #items + 2
+    x = math.max(0, math.min(x, love.graphics.getWidth() - width))
+    local y = math.max(0, math.min(oy + w.y + w.height, love.graphics.getHeight() - height))
+    return x, y, width, height, rowHeight
+end
+
+function minGUI_menu_hit(w)
+    local mx, my = minGUI.mouse.x, minGUI.mouse.y
+    local ox, oy = minGUI:get_parent_internal_gadget_offset(w.num, w.tp)
+    local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(w.parent, true)
+    if mx >= sx and mx < sx + sw and my >= sy and my < sy + sh
+        and mx >= ox + w.x and mx < ox + w.x + w.width
+        and my >= oy + w.y and my < oy + w.y + w.height then
+        local x = ox + w.x
+        for i, entry in ipairs(w.array) do
+            local width = minGUI.font[minGUI.numFont]:getWidth(" " .. entry.head_menu .. " ")
+            if mx >= x and mx < x + width then return i, nil, true end
+            x = x + width
+        end
+        return nil, nil, true
+    end
+    if w.menu.selected > 0 then
+        local x, y, width, height, rowHeight = minGUI_menu_popup_geometry(w)
+        if mx >= math.max(0, x) and mx < math.min(love.graphics.getWidth(), x + width)
+            and my >= y and my < math.min(love.graphics.getHeight(), y + height) then
+            local row = math.floor((my - y - 1) / rowHeight) + 1
+            local items = w.array[w.menu.selected].menu_list
+            if row >= 1 and row <= #items and items[row] ~= "-" then return nil, row, true end
+            return nil, nil, true
+        end
+    end
+    return nil, nil, false
 end

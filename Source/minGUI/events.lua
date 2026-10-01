@@ -261,98 +261,34 @@ end
 
 -- check if an internal gadget is clicked
 function minGUI_check_internal_gadget_clicked(b)
-	-- check for internal gadgets first
-	for i, v in minGUI_each_gadget() do
-		-- calculate parents offset
-		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
-		
-		if v.tp == MG_INTERNAL_MENU then
-			if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
-				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
-					if b == MG_LEFT_BUTTON then
-						if v.menu.selected == 0 then
-							v.down.left = true
-							
-							-- clicking on a menu to open it
-							x = 0
-							
-							for i = 1, #v.array do
-								menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
-								
-								if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
-									v.menu.selected = i
-									
-									return v.num
-								end
-								
-								x = x + menu_width
-							end
-						else
-							v.down.left = true
-						
-							-- clicking on a menu to close it
-							x = 0
-							
-							for i = 1, #v.array do
-								menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
-								
-								if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
-									if v.menu.selected == i then
-										v.menu.selected = 0
-										v.menu.hover = 0
-										
-										return v.num
-									end
-								end
-								
-								x = x + menu_width
-							end
-						end
-					end
-				end
-			end
-							
-			-- mouseclick on a submenu ?
-			if b == MG_LEFT_BUTTON then
-				if v.menu.selected > 0 then
-					-- find menu x
-					x = 0
-
-					for i = 1, v.menu.selected - 1 do
-						x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
-					end
-				
-					w = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[v.menu.selected].head_menu .. " ")
-					h = minGUI.font[minGUI.numFont]:getHeight() + 2
-				
-					-- find mouseclick submenu y
-					y = v.height + 2
-				
-					for i = 1, #v.array[v.menu.selected].menu_list do
-						if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + w then
-							if minGUI.mouse.y >= oy + v.y + y and minGUI.mouse.y < oy + v.y + y + h then
-								if v.menu.hover == i then
-									table.insert(minGUI.mstack, {eventMenu = v.menu.selected, eventSubMenu = v.menu.hover})
-									v.menu.selected = 0
-									v.menu.hover = 0
-
-									return v.num
-								end
-							end
-						end
-
-						y = y + minGUI.font[minGUI.numFont]:getHeight() + 2
-					end
-
-					-- click outside the menu to close it
-					v.menu.selected = 0
-					v.menu.hover = 0
-				end
-			end
-		end
-	end
-	
-	return nil
+    if b ~= MG_LEFT_BUTTON then return nil end
+    -- Check the open popup before other menu bars.
+    for _, w in minGUI_each_gadget(true) do
+        if w.tp == MG_INTERNAL_MENU and w.menu.selected > 0 then
+            local head, row, inside = minGUI_menu_hit(w)
+            if inside then
+                if head then
+                    w.menu.selected = w.menu.selected == head and 0 or head
+                elseif row then
+                    table.insert(minGUI.mstack, {eventMenu = w.menu.selected, eventSubMenu = row})
+                    w.menu.selected = 0
+                end
+                w.menu.hover = 0
+                return w.num
+            end
+            w.menu.selected, w.menu.hover = 0, 0
+        end
+    end
+    for _, w in minGUI_each_gadget(true) do
+        if w.tp == MG_INTERNAL_MENU then
+            local head, _, inside = minGUI_menu_hit(w)
+            if inside then
+                w.menu.selected, w.menu.hover = head or 0, 0
+                return w.num
+            end
+        end
+    end
+    return nil
 end
 
 -- check if an internal gadget is mousedown
@@ -377,72 +313,23 @@ end
 
 -- check if an internal gadget is mouseup/hovered
 function minGUI_check_internal_gadget_mouseup(b)
-	-- check for internal gadgets first
-	for i, v in minGUI_each_gadget() do
-		-- calculate parents offset
-		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
-		
-		if v.tp == MG_INTERNAL_MENU then
-			-- mousedown on another menu
-			if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
-				if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
-					if v.menu.selected > 0 then
-						-- mousedown on a menu to open it
-						x = 0
-							
-						for i = 1, #v.array do
-							menu_width = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
-								
-							if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + menu_width then
-								v.menu.selected = i
-								break
-							end
-								
-							x = x + menu_width
-						end
-						
-						v.menu.hover = 0
-						
-						return v.num
-					end
-				end
-			end
-			
-			-- mousedown on a submenu ?
-			if v.menu.selected > 0 then
-				-- find menu x
-				x = 0
-
-				for i = 1, v.menu.selected - 1 do
-					x = x + minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[i].head_menu .. " ")
-				end
-				
-				w = minGUI.font[minGUI.numFont]:getWidth(" " .. v.array[v.menu.selected].head_menu .. " ")
-				h = minGUI.font[minGUI.numFont]:getHeight() + 2
-				
-				-- find mousedown submenu y
-				y = v.height + 2
-				
-				for i = 1, #v.array[v.menu.selected].menu_list do
-					if minGUI.mouse.x >= ox + v.x + x and minGUI.mouse.x < ox + v.x + x + w then
-						if minGUI.mouse.y >= oy + v.y + y and minGUI.mouse.y < oy + v.y + y + h then
-							v.menu.hover = i
-						
-							return v.num
-						end
-					end
-
-					y = y + minGUI.font[minGUI.numFont]:getHeight() + 2
-				end
-			end
-		end
-	end
-	
-	return nil
+    for _, w in minGUI_each_gadget(true) do
+        if w.tp == MG_INTERNAL_MENU and w.menu.selected > 0 then
+            local head, row, inside = minGUI_menu_hit(w)
+            w.menu.hover = row or 0
+            if head then w.menu.selected = head end
+            if inside then return w.num end
+        end
+    end
+    return nil
 end
 
 -- check if parented gadget has been clicked
 function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
+	-- if a menu is clicked
+	if minGUI_check_internal_gadget_clicked(b) ~= nil then
+		return nil
+	end
 	-- if a focused window's button is clicked
 	local i = minGUI:get_focused_window_number()
 	local v = minGUI.gtree[i]
@@ -497,10 +384,6 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 		end
 	end
 	
-	-- if a menu is clicked
-	if minGUI_check_internal_gadget_clicked(b) ~= nil then
-		return nil
-	end
 	
 	-- check for gadget clicked
 	for i, v in minGUI_each_gadget(true) do
