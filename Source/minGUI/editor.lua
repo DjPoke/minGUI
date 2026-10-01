@@ -183,7 +183,7 @@ function minGUI_update_editor_scrollbars()
 	local capture = minGUI.editorScrollCapture
 	if capture and not minGUI.gtree[capture.id] then minGUI.editorScrollCapture = nil; capture = nil end
 	if not capture and minGUI.mouse.mpressed[MG_LEFT_BUTTON] then
-		for id, bar in minGUI_each_gadget(true) do
+		for id, bar in minGUI_each_interactive_gadget(true) do
 			local g = minGUI.gtree[bar.parent]
 			if bar.tp == MG_INTERNAL_SCROLLBAR and g and g.tp == MG_EDITOR then
 				local ox, oy = minGUI:get_parent_internal_gadget_offset(id, bar.tp)

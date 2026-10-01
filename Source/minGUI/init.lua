@@ -1165,37 +1165,12 @@ function minGUI_init()
 		end,
 		-- check if a window has the focus
 		get_window_has_focus = function(self, num)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-
-			local w = nil
-	
-			-- check for windows only
-			for i, v in minGUI_each_gadget() do
-				if v.tp == MG_WINDOW then
-					w = i
-				end
-			end
-	
-			return num == w
-		end,
-		-- return the focused window number
-		get_focused_window_number = function(self)
-			-- don't execute next instructions in case of exit process is true
-			if minGUI.exitProcess == true then return end
-			
-			local w = nil
-	
-			-- check for windows only
-			for i, v in minGUI_each_gadget() do
-				if v.tp == MG_WINDOW then
-					w = i
-				end
-			end
-	
-			return w
-		end,
-		resize_window = function(self, num, width, height)
+            return num == minGUI_active_window()
+        end,
+        get_focused_window_number = function(self)
+            return minGUI_active_window()
+        end,
+        resize_window = function(self, num, width, height)
 			-- don't execute next instructions in case of exit process is true
 			if minGUI.exitProcess == true then return end
 			

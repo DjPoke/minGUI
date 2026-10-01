@@ -141,6 +141,23 @@ function minGUI_update_string_keyboard()
 	end
 end
 
+-- Keep dragging even when the pointer leaves the title bar or window.
+function minGUI_update_window_drag()
+	local drag = minGUI.windowDrag
+	if not drag then return false end
+	local window = minGUI.gtree[drag.num]
+	if window and window.tp == MG_WINDOW and not window.maximized
+		and minGUI_flag_active(window.flags, MG_FLAG_WINDOW_TITLEBAR) then
+		local ox, oy = minGUI_get_parent_gadget_offset(drag.num)
+		window.x = minGUI.mouse.x - ox - drag.x
+		window.y = minGUI.mouse.y - oy - drag.y
+	else
+		minGUI.windowDrag = nil
+	end
+	if not minGUI.mouse.mbtn[MG_LEFT_BUTTON] then minGUI.windowDrag = nil end
+	return true
+end
+
 -- minGUI events loop, must be call by love.update
 function minGUI_update_events(dt)
 	--=====================================================================
@@ -189,24 +206,29 @@ function minGUI_update_events(dt)
 		end
 	end
 
+    local windowDragHandled = minGUI_update_window_drag()
+    if not windowDragHandled and (minGUI.mouse.mpressed[MG_LEFT_BUTTON] or minGUI.mouse.mpressed[MG_RIGHT_BUTTON]) then
+        minGUI_activate_window_at_pointer()
+    end
+
 	-- flag used to check if a gadget is still focused
 	getfocusFlag = false
 	
-	local editorScrollHandled = minGUI_update_editor_scrollbars()
+	local editorScrollHandled = not windowDragHandled and minGUI_update_editor_scrollbars()
 
 	-- click loops
 	for b = 1, 3 do
 		-- click on a gadget ?
 		selected_gadget = nil
 		
-		if next(minGUI.gtree) ~= nil and not (b == MG_LEFT_BUTTON and editorScrollHandled) then
+		if next(minGUI.gtree) ~= nil and not (b == MG_LEFT_BUTTON and (editorScrollHandled or windowDragHandled)) then
 			-- button pressed
 			if minGUI.mouse.mpressed[b] == true then
 				selected_gadget = minGUI_check_gadget_clicked(b, false, nil)
 			end
 		
 			-- button continue to be down on a gadget ?
-			if minGUI.mouse.mbtn[b] == true and not (b == MG_LEFT_BUTTON and (minGUI.stringDrag or minGUI.editorDrag)) then
+			if minGUI.mouse.mbtn[b] == true and not (b == MG_LEFT_BUTTON and (minGUI.windowDrag or minGUI.stringDrag or minGUI.editorDrag)) then
 				selected_gadget = minGUI_check_gadget_mousedown(b, false, nil)
 			end
 
@@ -263,7 +285,7 @@ end
 function minGUI_check_internal_gadget_clicked(b)
     if b ~= MG_LEFT_BUTTON then return nil end
     -- Check the open popup before other menu bars.
-    for _, w in minGUI_each_gadget(true) do
+    for _, w in minGUI_each_interactive_gadget(true) do
         if w.tp == MG_INTERNAL_MENU and w.menu.selected > 0 then
             local head, row, inside = minGUI_menu_hit(w)
             if inside then
@@ -279,7 +301,7 @@ function minGUI_check_internal_gadget_clicked(b)
             w.menu.selected, w.menu.hover = 0, 0
         end
     end
-    for _, w in minGUI_each_gadget(true) do
+    for _, w in minGUI_each_interactive_gadget(true) do
         if w.tp == MG_INTERNAL_MENU then
             local head, _, inside = minGUI_menu_hit(w)
             if inside then
@@ -294,7 +316,7 @@ end
 -- check if an internal gadget is mousedown
 function minGUI_check_internal_gadget_mousedown(b)
 	-- check for internal gadgets first
-	for i, v in minGUI_each_gadget() do
+	for i, v in minGUI_each_interactive_gadget() do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
@@ -305,7 +327,7 @@ end
 -- check if an internal gadget is mouse released
 function minGUI_check_internal_gadget_released(b)
 	-- check for internal gadgets first
-	for i, v in minGUI_each_gadget() do
+	for i, v in minGUI_each_interactive_gadget() do
 		-- calculate parents offset
 		local ox, oy = minGUI:get_parent_internal_gadget_offset(i, v.tp)
 	end
@@ -313,7 +335,7 @@ end
 
 -- check if an internal gadget is mouseup/hovered
 function minGUI_check_internal_gadget_mouseup(b)
-    for _, w in minGUI_each_gadget(true) do
+    for _, w in minGUI_each_interactive_gadget(true) do
         if w.tp == MG_INTERNAL_MENU and w.menu.selected > 0 then
             local head, row, inside = minGUI_menu_hit(w)
             w.menu.hover = row or 0
@@ -368,6 +390,16 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 				end
 			end
 
+			-- Capture the title bar after checking its close/maximize buttons.
+			if b == MG_LEFT_BUTTON and not v.maximized
+				and minGUI_flag_active(v.flags, MG_FLAG_WINDOW_TITLEBAR)
+				and minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width
+				and minGUI.mouse.y >= oy + v.y
+				and minGUI.mouse.y < oy + v.y + minGUI:window_titlebar_height(i) then
+				minGUI.windowDrag = {num = i, x = minGUI.mouse.x - ox - v.x, y = minGUI.mouse.y - oy - v.y}
+				return i
+			end
+
 			-- check for resize button pressed
 			if minGUI_flag_active(v.flags, MG_FLAG_WINDOW_RESIZE) then
 				if minGUI.mouse.x >= ox + v.x + v.width - sw and minGUI.mouse.x < ox + v.x + v.width then
@@ -386,7 +418,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 	
 	
 	-- check for gadget clicked
-	for i, v in minGUI_each_gadget(true) do
+	for i, v in minGUI_each_interactive_gadget(true) do
 
 		-- calculate parents offset
 		local ox, oy = minGUI_get_parent_gadget_offset(i)
@@ -474,7 +506,7 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 					if minGUI.mouse.y >= oy + v.y + ((v.height - height) / 2) and minGUI.mouse.y < oy + v.y + ((v.height - height) * 3 / 2) then
 						if b == MG_LEFT_BUTTON then
 							-- uncheck all options of the same parent
-							for j, w in minGUI_each_gadget() do
+							for j, w in minGUI_each_interactive_gadget() do
 								-- if an other gadget than the option one is checked...
 								if j ~= v.num then
 									-- if the new gadget is an option one...
@@ -702,7 +734,7 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 	end
 
 	-- check for gadget clicked
-	for i, v in minGUI_each_gadget(true) do
+	for i, v in minGUI_each_interactive_gadget(true) do
 
 		-- calculate parents offset
 		local ox, oy = minGUI_get_parent_gadget_offset(i)
@@ -976,7 +1008,7 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 	end
 
 	-- check for gadget released
-	for i, v in minGUI_each_gadget(true) do
+	for i, v in minGUI_each_interactive_gadget(true) do
 
 		-- calculate parents offset
 		local ox, oy = minGUI_get_parent_gadget_offset(i)

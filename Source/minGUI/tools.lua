@@ -15,17 +15,112 @@ function minGUI_check_param2(v, t)
 end
 
 -- Iterate live gadgets in creation order, preserving IDs after deletion.
+function minGUI_root_gadget(num)
+    local gadget = minGUI.gtree[num]
+    while gadget and gadget.parent do
+        num = gadget.parent
+        gadget = minGUI.gtree[num]
+    end
+    return num
+end
+
+-- Drawing and pointer traversal share the same stacking order. IDs never move.
 function minGUI_each_gadget(reverse)
-	local index = reverse and (minGUI.lastGadgetID + 1) or 0
-	local step = reverse and -1 or 1
-	return function()
-		index = index + step
-		while index >= 1 and index <= minGUI.lastGadgetID do
-			local gadget = minGUI.gtree[index]
-			if gadget then return index, gadget end
-			index = index + step
-		end
-	end
+    local ids = {}
+    local paths = {}
+    for id in pairs(minGUI.gtree) do
+        ids[#ids + 1] = id
+        local path, current = {}, id
+        while current and minGUI.gtree[current] do
+            table.insert(path, 1, current)
+            current = minGUI.gtree[current].parent
+        end
+        paths[id] = path
+    end
+    table.sort(ids, function(a, b)
+        local pa, pb = paths[a], paths[b]
+        for i = 1, math.min(#pa, #pb) do
+            if pa[i] ~= pb[i] then
+                local za = minGUI.gtree[pa[i]].zOrder or pa[i]
+                local zb = minGUI.gtree[pb[i]].zOrder or pb[i]
+                if za ~= zb then return za < zb end
+                return pa[i] < pb[i]
+            end
+        end
+        return #pa < #pb
+    end)
+    local index = reverse and (#ids + 1) or 0
+    local step = reverse and -1 or 1
+    return function()
+        index = index + step
+        while ids[index] do
+            local id = ids[index]
+            if minGUI.gtree[id] then return id, minGUI.gtree[id] end
+            index = index + step
+        end
+    end
+end
+
+function minGUI_active_window()
+    if minGUI.gtree[minGUI.activeWindow] then return minGUI.activeWindow end
+    for id, gadget in minGUI_each_gadget(true) do
+        if gadget.tp == MG_WINDOW then return id end
+    end
+end
+
+function minGUI_each_interactive_gadget(reverse)
+    local iterator = minGUI_each_gadget(reverse)
+    local active = minGUI_active_window()
+    return function()
+        while true do
+            local id, gadget = iterator()
+            if not id then return end
+            local root = minGUI_root_gadget(id)
+            if minGUI.gtree[root].tp ~= MG_WINDOW or root == minGUI_root_gadget(active) then
+                return id, gadget
+            end
+        end
+    end
+end
+
+function minGUI_activate_window_at_pointer()
+    local active = minGUI_active_window()
+    -- An open menu popup can extend beyond its owning window.
+    for _, menu in minGUI_each_interactive_gadget() do
+        if menu.tp == MG_INTERNAL_MENU and menu.menu.selected > 0 then
+            local x, y, width, height = minGUI_menu_popup_geometry(menu)
+            if minGUI.mouse.x >= x and minGUI.mouse.x < x + width
+                and minGUI.mouse.y >= y and minGUI.mouse.y < y + height then return end
+        end
+    end
+    for id, window in minGUI_each_gadget(true) do
+        if window.tp == MG_WINDOW then
+            local ox, oy = minGUI_get_parent_gadget_offset(id)
+            local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(window.parent)
+            local x, y = minGUI.mouse.x, minGUI.mouse.y
+            if x >= ox + window.x and x < ox + window.x + window.width
+                and y >= oy + window.y and y < oy + window.y + window.height
+                and x >= sx and x < sx + sw and y >= sy and y < sy + sh then
+                if active ~= id then
+                    local highest = minGUI.lastGadgetID
+                    for _, gadget in minGUI_each_gadget() do highest = math.max(highest, gadget.zOrder or 0) end
+                    -- Raise this window among its siblings, then its ancestor branch.
+                    local current = id
+                    while current do
+                        highest = highest + 1
+                        minGUI.gtree[current].zOrder = highest
+                        current = minGUI.gtree[current].parent
+                    end
+                    minGUI.activeWindow, minGUI.gfocus = id, nil
+                    minGUI.stringDrag, minGUI.editorDrag, minGUI.editorScrollCapture = nil, nil, nil
+                    for _, gadget in minGUI_each_gadget() do
+                        if gadget.tp == MG_INTERNAL_MENU then gadget.menu.selected, gadget.menu.hover = 0, 0 end
+                    end
+                end
+                return id
+            end
+        end
+    end
 end
 
 -- Shift a single-line value until its visible suffix fits the gadget.
