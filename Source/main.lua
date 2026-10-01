@@ -77,6 +77,11 @@ function love.load()
 	
 	g[24] = minGUI:add_scrollbar(500, 5, 20, 100, 0, 0, 100, 25, MG_FLAG_SCROLLBAR_VERTICAL, w[2])
 	g[25] = minGUI:add_scrollbar(525, 5, 100, 20, 0, 0, 100, 10, MG_FLAG_SCROLLBAR_HORIZONTAL, w[2])
+
+	-- Scrollarea: child positions are relative to its full content surface.
+	g[26] = minGUI:add_scrollarea(10, 10, 280, 140, 560, 300, nil, w[1])
+	minGUI:add_button(10, 10, 140, 25, "Visible button", nil, g[26])
+	minGUI:add_button(390, 240, 140, 25, "Scroll to see me", nil, g[26])
 	
 	-- clear the canvas in black
 	minGUI:clear_canvas(g[6], 0, 0, 0, 1)

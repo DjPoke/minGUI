@@ -442,9 +442,9 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 			prt = minGUI.gtree[v.parent]
 		end
 
-		if not find_sons or (find_sons and prt ~= nil and forced_parent == prt.num) then
+		if minGUI_pointer_in_parent(v) and (not find_sons or (find_sons and prt ~= nil and forced_parent == prt.num)) then
 			-- check first windows & panels, to find clicked sons
-			if v.tp == MG_WINDOW or v.tp == MG_PANEL then
+			if v.tp == MG_WINDOW or v.tp == MG_PANEL or v.tp == MG_SCROLLAREA then
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
@@ -758,8 +758,18 @@ function minGUI_check_gadget_mousedown(b, find_sons, forced_parent)
 			prt = minGUI.gtree[v.parent]
 		end
 		
-		if not find_sons or (find_sons and prt ~= nil and forced_parent == prt.num) then
-			if v.tp == MG_WINDOW or v.tp == MG_PANEL then
+		local inParent = minGUI_pointer_in_parent(v)
+		if not inParent then
+			if type(v.down) == "table" then
+				if b == MG_LEFT_BUTTON then v.down.left = false
+				elseif b == MG_RIGHT_BUTTON then v.down.right = false end
+			end
+			if b == MG_LEFT_BUTTON then
+				v.down1, v.down2, v.btnUp, v.btnDown = false, false, false, false
+			end
+		end
+		if inParent and (not find_sons or (find_sons and prt ~= nil and forced_parent == prt.num)) then
+			if v.tp == MG_WINDOW or v.tp == MG_PANEL or v.tp == MG_SCROLLAREA then
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
 						if b == MG_LEFT_BUTTON then
@@ -1032,7 +1042,17 @@ function minGUI_check_gadget_released(b, find_sons, forced_parent)
 			prt = minGUI.gtree[v.parent]
 		end
 
-		if not find_sons or (find_sons and prt ~= nil and forced_parent == prt.num) then
+		local inParent = minGUI_pointer_in_parent(v)
+		if not inParent then
+			if type(v.down) == "table" then
+				if b == MG_LEFT_BUTTON then v.down.left = false
+				elseif b == MG_RIGHT_BUTTON then v.down.right = false end
+			end
+			if b == MG_LEFT_BUTTON then
+				v.down1, v.down2, v.btnUp, v.btnDown = false, false, false, false
+			end
+		end
+		if inParent and (not find_sons or (find_sons and prt ~= nil and forced_parent == prt.num)) then
 			if v.tp == MG_WINDOW or v.tp == MG_CANVAS then
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then
 					if minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then

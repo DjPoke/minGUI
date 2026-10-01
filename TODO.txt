@@ -1,6 +1,7 @@
 TODO List:
 ----------
 
+- Ajouter un scrollarea gadget, avec sa zone d'affichage, avec ses scrollbars horizontale et verticale, et ses enfants d'autre types de gadgets
 - Pouvoir afficher des dropdown menus
 - Faire une list gadget.
 - Faire une combobox.

@@ -179,16 +179,16 @@ end
 
 -- Internal scrollbar mouse capture prevents clicks from reaching the editor below.
 function minGUI_update_editor_scrollbars()
-	for _, g in minGUI_each_gadget() do if g.tp == MG_EDITOR then minGUI_editor_layout(g) end end
+	for _, g in minGUI_each_gadget() do if g.tp == MG_EDITOR or g.tp == MG_SCROLLAREA then minGUI_scrollable_layout(g) end end
 	local capture = minGUI.editorScrollCapture
 	if capture and not minGUI.gtree[capture.id] then minGUI.editorScrollCapture = nil; capture = nil end
 	if not capture and minGUI.mouse.mpressed[MG_LEFT_BUTTON] then
 		for id, bar in minGUI_each_interactive_gadget(true) do
 			local g = minGUI.gtree[bar.parent]
-			if bar.tp == MG_INTERNAL_SCROLLBAR and g and g.tp == MG_EDITOR then
+			if bar.tp == MG_INTERNAL_SCROLLBAR and g and (g.tp == MG_EDITOR or g.tp == MG_SCROLLAREA) then
 				local ox, oy = minGUI:get_parent_internal_gadget_offset(id, bar.tp)
 				local x, y = minGUI.mouse.x - ox - bar.x, minGUI.mouse.y - oy - bar.y
-				local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(bar.parent)
+				local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(bar.parent, g.tp == MG_SCROLLAREA)
 				if x >= 0 and y >= 0 and x < bar.width and y < bar.height
 					and minGUI.mouse.x >= sx and minGUI.mouse.x < sx + sw and minGUI.mouse.y >= sy and minGUI.mouse.y < sy + sh then
 					local vertical = minGUI_flag_active(bar.flags, MG_FLAG_SCROLLBAR_VERTICAL)
@@ -227,6 +227,6 @@ function minGUI_update_editor_scrollbars()
 		minGUI.editorScrollCapture = nil
 	end
 	if vertical then g.scrollY = bar.value else g.scrollX = bar.value end
-	minGUI_editor_layout(g)
+	minGUI_scrollable_layout(g)
 	return true
 end

@@ -275,6 +275,13 @@ function minGUI_get_parent_gadget_offset(num)
 		oy = oy + minGUI.gtree[k].y
 		oy = oy + minGUI:window_menu_height(k)
 		oy = oy + minGUI_window_top_inset(k)
+		if minGUI.gtree[k].tp == MG_SCROLLAREA then
+			local child = minGUI.gtree[j]
+			if not child.isInternal then
+				ox = ox - minGUI.gtree[k].scrollX
+				oy = oy - minGUI.gtree[k].scrollY
+			end
+		end
 
 		--
 		j = k
@@ -293,14 +300,15 @@ function minGUI_get_gadget_parents_scissor(num, includeMenu)
 		local ox, oy = minGUI_get_parent_gadget_offset(num)
 		local x, y = ox + parent.x, oy + parent.y
 		-- Menu strips and content both stay inside the window's side borders.
+		local fullScrollarea = includeMenu and parent.tp == MG_SCROLLAREA
 		local border = parent.tp == MG_WINDOW and MG_WINDOW_BORDER_WIDTH or 0
 		left = math.max(left, x + border)
 		-- A menu occupies its own parent's menu strip, above the content area.
 		local menuHeight = includeMenu and 0 or minGUI:window_menu_height(num)
 		top = math.max(top, y + math.max(border, minGUI_window_top_inset(num) + menuHeight))
 		includeMenu = false -- Ancestor menu strips still clip nested windows.
-		right = math.min(right, x + parent.width - border)
-		bottom = math.min(bottom, y + parent.height - math.max(border, minGUI:window_footerbar_height(num)))
+		right = math.min(right, x + ((parent.tp == MG_SCROLLAREA and not fullScrollarea) and parent.viewWidth or parent.width) - border)
+		bottom = math.min(bottom, y + ((parent.tp == MG_SCROLLAREA and not fullScrollarea) and parent.viewHeight or parent.height) - math.max(border, minGUI:window_footerbar_height(num)))
 		num = parent.parent
 	end
 	return left, top, math.max(0, right - left), math.max(0, bottom - top)
@@ -308,17 +316,7 @@ end
 
 -- get gagdet absolute coordinates
 function minGUI_get_gadget_absolute_coordinates(num)
-	local x = 0
-	local y = 0
-
-	while minGUI.gtree[num].parent ~= nil do
-		num = minGUI.gtree[num].parent
-
-		x = x + minGUI.gtree[num].x
-		y = y + minGUI.gtree[num].y + minGUI:window_menu_height(num) + minGUI_window_top_inset(num)
-	end
-
-	return x, y
+	return minGUI_get_parent_gadget_offset(num)
 end
 
 -- Keep window menus stretched between their original left and right margins.

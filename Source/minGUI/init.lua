@@ -24,6 +24,7 @@ function minGUI_init()
 	MG_EDITOR = 11
 	MG_SCROLLBAR = 12
 	MG_IMAGE = 13
+	MG_SCROLLAREA = 14
 	MG_INTERNAL_SCROLLBAR = 101
 	MG_INTERNAL_BOX = 102
 	MG_INTERNAL_MENU = 103
@@ -427,16 +428,16 @@ function minGUI_init()
 			local gadget = self.gtree[num]
 			if gadget and gadget.tp == MG_INTERNAL_SCROLLBAR then
 				local editor = self.gtree[gadget.parent]
-				if editor and editor.tp == MG_EDITOR then
+				if editor and (editor.tp == MG_EDITOR or editor.tp == MG_SCROLLAREA) then
 					if type(value) ~= "number" then self:runtime_error("[set_gadget_state]Wrong state value"); return end
-					minGUI_editor_layout(editor)
+					minGUI_scrollable_layout(editor)
 					value = math.max(0, math.min(gadget.maxValue, value))
 					if minGUI_flag_active(gadget.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
 						editor.scrollY = value
 					else
 						editor.scrollX = value
 					end
-					minGUI_editor_layout(editor)
+					minGUI_scrollable_layout(editor)
 					return
 				end
 			end
@@ -1395,6 +1396,39 @@ function minGUI_init()
 				minGUI:runtime_error("[add_panel]Gadget already exists " .. num)
 				return
 			end
+		end,
+		-- Visible width/height include the internal scrollbar strips.
+		add_scrollarea = function(self, x, y, width, height, realWidth, realHeight, flags, parent)
+			if self.exitProcess then return end
+			if type(width) ~= "number" or type(height) ~= "number" or width < 4 or height < 4
+				or type(realWidth) ~= "number" or type(realHeight) ~= "number"
+				or realWidth < width or realHeight < height then
+				self:runtime_error("[add_scrollarea]Invalid visible or content size")
+				return
+			end
+			local num = self:add_panel(x, y, width, height, flags, parent)
+			if not num then return end
+			local g = self.gtree[num]
+			g.tp, g.realWidth, g.realHeight = MG_SCROLLAREA, realWidth, realHeight
+			local size = math.max(1, math.min(MG_SCROLLBAR_SIZE, math.floor(math.min(width, height) / 4)))
+			local horizontal, vertical = realWidth > width, realHeight > height
+			-- One scrollbar can make the other axis overflow too.
+			for _ = 1, 2 do
+				horizontal = realWidth > width - (vertical and size or 0)
+				vertical = realHeight > height - (horizontal and size or 0)
+			end
+			g.viewWidth = width - (vertical and size or 0)
+			g.viewHeight = height - (horizontal and size or 0)
+			g.maxScrollX, g.maxScrollY = realWidth - g.viewWidth, realHeight - g.viewHeight
+			g.scrollX, g.scrollY = 0, 0
+			if vertical then
+				self:add_internal_scrollbar(g.viewWidth, 0, size, g.viewHeight, 0, 0, g.maxScrollY, 1, MG_FLAG_SCROLLBAR_VERTICAL, num)
+			end
+			if horizontal then
+				self:add_internal_scrollbar(0, g.viewHeight, g.viewWidth, size, 0, 0, g.maxScrollX, 1, nil, num)
+			end
+			minGUI_scrollarea_layout(g)
+			return num
 		end,
 		-- add a button to the gadgets's tree
 		add_button = function(self, x, y, width, height, text, flags, parent)

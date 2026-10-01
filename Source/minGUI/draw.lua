@@ -91,6 +91,11 @@ function minGUI_draw_gadget(num, ox, oy)
 		-- reset scissor			
 		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	-- draw panels
+	elseif w.tp == MG_SCROLLAREA then
+		love.graphics.setScissor(scx, scy, scw, sch)
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.rectangle("fill", ox + w.x, oy + w.y, w.width, w.height)
+		love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 	elseif w.tp == MG_PANEL then
 		minGUI_draw_9slice(MG_PANEL_IMAGE, 0, 0, w.width, w.height, w.canvas)
 
@@ -611,7 +616,7 @@ function minGUI_draw_internal_gadget(num, ox, oy, popupOnly)
 	local w = minGUI.gtree[num]
 			
 	-- get scissors from parent gadgets
-	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(w.parent, w.tp == MG_INTERNAL_MENU)
+	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(w.parent, w.tp == MG_INTERNAL_MENU or (minGUI.gtree[w.parent] and minGUI.gtree[w.parent].tp == MG_SCROLLAREA))
 
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
@@ -1075,23 +1080,22 @@ function minGUI_draw_sons(num, ox, oy)
 	local v = minGUI.gtree[num]
 	
 	for j, w in minGUI_each_gadget() do
-		if w.parent == v.num then
+		if w.parent == v.num and not w.isInternal then
 			-- parent is a window with a menu ?
-			local menu_y = minGUI:window_menu_height(num)
-			menu_y = menu_y + minGUI_window_top_inset(num)
+			local childOX, childOY = minGUI_get_parent_gadget_offset(w.num)
 
 			-- draw the current gadget
-			minGUI_draw_gadget(w.num, ox + v.x, oy + v.y + menu_y)
+			minGUI_draw_gadget(w.num, childOX, childOY)
 			
 			-- draw sons of sons
 			if w.can_have_sons then
-				minGUI_draw_sons(w.num, ox + v.x, oy + v.y + menu_y)
+				minGUI_draw_sons(w.num, childOX, childOY)
 			end
 			
 			-- draw cursor on focused object,if needed
 			if minGUI.gfocus ~= nil and minGUI.gfocus == j then
 				if minGUI.gtree[j] ~= nil then
-					minGUI_draw_cursor_on_focused_gadget(j, ox + v.x, oy + v.y + menu_y)
+					minGUI_draw_cursor_on_focused_gadget(j, childOX, childOY)
 				end
 			end
 		end

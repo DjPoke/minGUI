@@ -15,3 +15,5 @@ require "minGUI.draw"
 require "minGUI.tools"
 require "minGUI.editor"
 require "minGUI.spin"
+
+require "minGUI.scrollarea"
