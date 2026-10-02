@@ -1,5 +1,7 @@
 -- Keep ordinary clicks and add a double-click event after the second release.
 function minGUI_push_click_event(num, eventType)
+    if eventType == MG_EVENT_LEFT_MOUSE_CLICK and minGUI.gtree[num]
+        and minGUI.gtree[num].tp == MG_IMAGE then minGUI_clear_image_selection() end
     table.insert(minGUI.gstack, {eventGadget = num, eventType = eventType})
     local button = eventType == MG_EVENT_LEFT_MOUSE_CLICK and MG_LEFT_BUTTON or MG_RIGHT_BUTTON
     minGUI.lastGadgetClicks = minGUI.lastGadgetClicks or {}
@@ -247,7 +249,8 @@ function minGUI_update_events(dt)
 
 	if minGUI_update_context_menu() then return end
 
-    local gadgetDragHandled = minGUI_update_gadget_drag()
+    local selectionHandled = minGUI_update_image_selection()
+    local gadgetDragHandled = selectionHandled or minGUI_update_gadget_drag()
     local windowDragHandled = minGUI_update_window_drag()
     if not windowDragHandled and not gadgetDragHandled and (minGUI.mouse.mpressed[MG_LEFT_BUTTON] or minGUI.mouse.mpressed[MG_RIGHT_BUTTON]) then
         minGUI_activate_window_at_pointer()
@@ -270,6 +273,10 @@ function minGUI_update_events(dt)
 				if b == MG_LEFT_BUTTON then
 					local clicked = minGUI.gtree[selected_gadget]
 					if not clicked or clicked.tp ~= MG_STRING then minGUI.lastStringClick = nil end
+					if clicked and clicked.tp == MG_IMAGE and (not clicked.selected
+						or not love.keyboard.isDown("lshift", "rshift")) then
+						minGUI_clear_image_selection()
+					end
 					minGUI_begin_gadget_drag(selected_gadget)
 				end
 			end

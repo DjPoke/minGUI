@@ -21,3 +21,4 @@ require "minGUI.dragdrop"
 require "minGUI.contextmenu"
 
 require "minGUI.keyboard"
+require "minGUI.selection"

@@ -155,9 +155,15 @@ function love.update(dt)
                 minGUI:set_gadget_text(g[5], "")
             elseif gadget == g[7] then
                 minGUI:set_gadget_text(g[9], "")
-            elseif gadget == g[19] then
-                love.event.quit(0)
             end
+        end
+    end
+
+    while true do
+        local menu, item = minGUI:get_menu_events()
+        if menu == nil then break end
+        if menu == 1 and item == 3 then -- File > Quit
+            love.event.quit(0)
         end
     end
 

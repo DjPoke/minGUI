@@ -598,6 +598,13 @@ function minGUI_draw_gadget(num, ox, oy)
 			love.graphics.draw(w.image, 8, 8, 0, (w.width - 16) / w.image:getWidth(), (w.height - 16) / w.image:getHeight())
 		end
 		
+		if w.selected then
+			love.graphics.push("all")
+			love.graphics.setColor(0.2, 0.5, 1, 0.3)
+			love.graphics.rectangle("fill", 0, 0, w.width, w.height)
+			love.graphics.pop()
+		end
+
 		-- The focus outline stays visible after the mouse button is released.
 		if minGUI.gfocus == num then
 			love.graphics.push("all")
@@ -868,6 +875,7 @@ function minGUI_draw_all()
             minGUI_draw_internal_gadget(id, ox, oy, true)
         end
     end
+	minGUI_draw_image_selection()
 	minGUI_draw_gadget_drag()
 	minGUI_draw_context_menu()
 end

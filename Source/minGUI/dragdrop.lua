@@ -7,7 +7,17 @@ end
 function minGUI_begin_gadget_drag(num)
 	local g = minGUI.gtree[num]
 	if minGUI_gadget_drag_droppable(g) then
-		minGUI.gadgetDrag = {source = num, x = minGUI.mouse.x, y = minGUI.mouse.y, active = false}
+        local sources = {num}
+        if g.tp == MG_IMAGE and g.selected and love.keyboard.isDown("lshift", "rshift") then
+            sources = {}
+            for id, image in minGUI_each_gadget() do
+                if image.tp == MG_IMAGE and image.selected then
+                    if not minGUI_gadget_drag_droppable(image) then return end
+                    sources[#sources + 1] = id
+                end
+            end
+        end
+		minGUI.gadgetDrag = {source = num, sources = sources, x = minGUI.mouse.x, y = minGUI.mouse.y, active = false}
 	end
 end
 
@@ -61,6 +71,12 @@ function minGUI_update_gadget_drag()
 	local drag = minGUI.gadgetDrag
 	if not drag then return false end
 	local g = minGUI.gtree[drag.source]
+    for _, id in ipairs(drag.sources) do
+        if not minGUI_gadget_drag_droppable(minGUI.gtree[id]) then
+            minGUI.gadgetDrag = nil
+            return drag.active
+        end
+    end
 	if not minGUI_gadget_drag_droppable(g) then
 		minGUI.gadgetDrag = nil
 		return drag.active
@@ -76,7 +92,10 @@ function minGUI_update_gadget_drag()
 		end
 		if g.tp == MG_STRING or g.tp == MG_EDITOR then drag.text = g.text end
 		minGUI.stringDrag, minGUI.editorDrag = nil, nil
-		if type(g.down) == 'table' then g.down.left = false end
+        for _, id in ipairs(drag.sources) do
+            local image = minGUI.gtree[id]
+            if image and type(image.down) == 'table' then image.down.left = false end
+        end
 	end
 	if drag.active then
 		drag.target, drag.position = dropTarget(), nil
@@ -99,7 +118,7 @@ function minGUI_update_gadget_drag()
 					parent = minGUI.gtree[parent].parent
 				end
 				minGUI.gfocus = target
-				table.insert(minGUI.gstack, {eventGadget = target, eventType = MG_EVENT_DRAG_DROPPED, eventSource = drag.source, eventDrop = {text = drag.text, position = drag.position}})
+				table.insert(minGUI.gstack, {eventGadget = target, eventType = MG_EVENT_DRAG_DROPPED, eventSource = drag.source, eventDrop = {text = drag.text, position = drag.position, sources = drag.sources}})
 			end
 		end
 	end
@@ -117,6 +136,10 @@ function minGUI_draw_gadget_drag()
         love.graphics.setScissor(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1, 0.65)
         local x, y = minGUI.mouse.x + 12, minGUI.mouse.y + 16
+        if #drag.sources > 1 then
+            love.graphics.setFont(minGUI.font[minGUI.numFont])
+            love.graphics.print(tostring(#drag.sources), x + source.width, y)
+        end
         love.graphics.draw(source.image, x + 4, y + 4, 0,
             (source.width - 8) / source.image:getWidth(), (source.height - 8) / source.image:getHeight())
         local label = minGUI.gtree[source.dragLabel]
