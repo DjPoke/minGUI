@@ -1,4 +1,2 @@
 TODO List:
 ----------
-
-- Faire la doc de minGUI
