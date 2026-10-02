@@ -31,6 +31,7 @@ local function dropTarget()
             local source = minGUI.gadgetDrag and minGUI.gtree[minGUI.gadgetDrag.source]
             if source and source.tp == MG_IMAGE then
                 if g.isInternal then return end
+                if g.imageDropTarget then return id end
                 local parent = id
                 while parent do
                     local container = minGUI.gtree[parent]
