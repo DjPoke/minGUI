@@ -80,12 +80,22 @@ end
 function minGUI_each_interactive_gadget(reverse)
     local iterator = minGUI_each_gadget(reverse)
     local active = minGUI_active_window()
+    local activeBranch = {}
+    local parent = active
+    while parent and minGUI.gtree[parent] do
+        activeBranch[parent] = true
+        parent = minGUI.gtree[parent].parent
+    end
     return function()
         while true do
             local id, gadget = iterator()
             if not id then return end
-            local root = minGUI_root_gadget(id)
-            if minGUI.gtree[root].tp ~= MG_WINDOW or root == minGUI_root_gadget(active) then
+            local owner = id
+            while owner and minGUI.gtree[owner].tp ~= MG_WINDOW do
+                owner = minGUI.gtree[owner].parent
+            end
+            -- Sibling windows share the desktop root, but not keyboard/menu focus.
+            if not owner or activeBranch[owner] then
                 return id, gadget
             end
         end

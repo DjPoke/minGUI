@@ -864,18 +864,16 @@ end
 function minGUI_draw_all()
     love.graphics.clear(minGUI.bgcolor.r, minGUI.bgcolor.g, minGUI.bgcolor.b, minGUI.bgcolor.a)
     love.graphics.setColor(1, 1, 1, 1)
-    for id, root in minGUI_each_gadget() do
-        if not root.isInternal and root.parent == nil then
-            minGUI_draw_gadget(id, 0, 0)
-            if root.can_have_sons then minGUI_draw_sons(id, 0, 0) end
-            if minGUI.gfocus == id then minGUI_draw_cursor_on_focused_gadget(id, 0, 0) end
-            -- Internal widgets belong to this layer, below the next window.
-            for childID, child in minGUI_each_gadget() do
-                if child.isInternal and minGUI_root_gadget(childID) == id then
-                    local ox, oy = minGUI:get_parent_internal_gadget_offset(childID, child.tp)
-                    minGUI_draw_internal_gadget(childID, ox, oy)
-                end
-            end
+    -- Hierarchical order keeps every window's widgets below its next sibling.
+    -- This also applies to windows nested inside the desktop window.
+    for id, gadget in minGUI_each_gadget() do
+        if gadget.isInternal then
+            local ox, oy = minGUI:get_parent_internal_gadget_offset(id, gadget.tp)
+            minGUI_draw_internal_gadget(id, ox, oy)
+        else
+            local ox, oy = minGUI_get_parent_gadget_offset(id)
+            minGUI_draw_gadget(id, ox, oy)
+            if minGUI.gfocus == id then minGUI_draw_cursor_on_focused_gadget(id, ox, oy) end
         end
     end
     for id, menu in minGUI_each_interactive_gadget() do
