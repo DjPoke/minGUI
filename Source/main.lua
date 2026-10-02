@@ -84,6 +84,13 @@ function love.load()
 	g[27] = minGUI:add_button(10, 10, 140, 25, "Visible button", nil, g[26])
 	contextMenu = minGUI:add_context_menu({"Open", "Save"}, w[1])
 	minGUI:add_button(390, 240, 140, 25, "Scroll to see me", nil, g[26])
+
+	-- No parent: these gadgets live directly on the desktop.
+	minGUI:add_label(770, 20, 220, 25, "Desktop gadgets")
+	g[28] = minGUI:add_string(770, 50, 220, 25, "Desktop text", MG_FLAG_DRAG_DROPPABLE)
+	g[29] = minGUI:add_button(770, 85, 140, 25, "Clear text")
+	g[30] = minGUI:add_list(770, 135, 220, 140, {"Apple", "Banana", "Cherry", "Orange", "Pear", "Peach", "Plum", "Grape"})
+	g[31] = minGUI:add_combo_box(770, 300, 220, 28, {"Red", "Green", "Blue"})
 	
 	-- clear the canvas in black
 	minGUI:clear_canvas(g[6], 0, 0, 0, 1)
@@ -122,7 +129,7 @@ function love.update(dt)
 	minGUI_update_events(dt)
 	
 	-- exit on escape key
-	if love.keyboard.isDown("escape") and not minGUI.contextMenuHandled then
+	if love.keyboard.isDown("escape") and not minGUI.contextMenuHandled and not minGUI.choicePopupHandled then
 		love.event.quit()
 	end
 	
@@ -155,6 +162,8 @@ function love.update(dt)
                 minGUI:set_gadget_text(g[5], "")
             elseif gadget == g[7] then
                 minGUI:set_gadget_text(g[9], "")
+            elseif gadget == g[29] then
+                minGUI:set_gadget_text(g[28], "")
             end
         end
     end

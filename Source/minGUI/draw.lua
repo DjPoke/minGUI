@@ -6,7 +6,9 @@ function minGUI_draw_gadget(num, ox, oy)
 	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(minGUI.gtree[num].parent)
 	
 	-- draw panels
-	if w.tp == MG_WINDOW then
+	if w.tp == MG_LIST or w.tp == MG_COMBO_BOX then
+		minGUI_draw_choice(w, false)
+	elseif w.tp == MG_WINDOW then
 		minGUI_draw_9slice(MG_WINDOW_IMAGE, 0, 0, w.width, w.height, w.canvas)
 		
 		-- draw title bar ?
@@ -633,9 +635,16 @@ end
 
 function minGUI_draw_internal_gadget(num, ox, oy, popupOnly)
 	local w = minGUI.gtree[num]
+	if w.choiceScroll and not popupOnly then return end
 			
 	-- get scissors from parent gadgets
 	local scx, scy, scw, sch = minGUI_get_gadget_parents_scissor(w.parent, w.tp == MG_INTERNAL_MENU or (minGUI.gtree[w.parent] and minGUI.gtree[w.parent].tp == MG_SCROLLAREA))
+
+	if w.choiceScroll then
+		local g = minGUI.gtree[w.parent]
+		if g.tp == MG_COMBO_BOX then scx,scy,scw,sch=0,0,love.graphics.getWidth(),love.graphics.getHeight()
+		else scx,scy,scw,sch=minGUI_get_gadget_parents_scissor(g.parent) end
+	end
 
 	if w.tp == MG_INTERNAL_SCROLLBAR then
 		if minGUI_flag_active(w.flags, MG_FLAG_SCROLLBAR_VERTICAL) then
@@ -877,6 +886,7 @@ function minGUI_draw_all()
     end
 	minGUI_draw_image_selection()
 	minGUI_draw_gadget_drag()
+	minGUI_draw_combo_popup()
 	minGUI_draw_context_menu()
 end
 

@@ -22,3 +22,5 @@ require "minGUI.contextmenu"
 
 require "minGUI.keyboard"
 require "minGUI.selection"
+
+require "minGUI.choices"

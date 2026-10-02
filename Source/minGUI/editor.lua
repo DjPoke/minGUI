@@ -178,17 +178,27 @@ function minGUI_update_editor_keyboard()
 end
 
 -- Internal scrollbar mouse capture prevents clicks from reaching the editor below.
-function minGUI_update_editor_scrollbars()
-	for _, g in minGUI_each_gadget() do if g.tp == MG_EDITOR or g.tp == MG_SCROLLAREA then minGUI_scrollable_layout(g) end end
+function minGUI_update_editor_scrollbars(choiceOnly)
+	for _, g in minGUI_each_gadget() do
+		if choiceOnly and (g.tp == MG_LIST or g.tp == MG_COMBO_BOX) then minGUI_choice_layout(g)
+		elseif not choiceOnly and (g.tp == MG_EDITOR or g.tp == MG_SCROLLAREA) then minGUI_scrollable_layout(g) end
+	end
 	local capture = minGUI.editorScrollCapture
+	if capture and minGUI.gtree[capture.id] then
+		local parent = minGUI.gtree[minGUI.gtree[capture.id].parent]
+		local choice = parent and (parent.tp == MG_LIST or parent.tp == MG_COMBO_BOX)
+		if (choiceOnly and not choice) or (not choiceOnly and choice) then return false end
+	end
 	if capture and not minGUI.gtree[capture.id] then minGUI.editorScrollCapture = nil; capture = nil end
 	if not capture and minGUI.mouse.mpressed[MG_LEFT_BUTTON] then
 		for id, bar in minGUI_each_interactive_gadget(true) do
 			local g = minGUI.gtree[bar.parent]
-			if bar.tp == MG_INTERNAL_SCROLLBAR and g and (g.tp == MG_EDITOR or g.tp == MG_SCROLLAREA) then
+			if bar.tp == MG_INTERNAL_SCROLLBAR and g and ((not choiceOnly and (g.tp == MG_EDITOR or g.tp == MG_SCROLLAREA))
+				or (choiceOnly and (g.tp == MG_LIST or (g.tp == MG_COMBO_BOX and minGUI.comboPopup == g.num)))) then
 				local ox, oy = minGUI:get_parent_internal_gadget_offset(id, bar.tp)
 				local x, y = minGUI.mouse.x - ox - bar.x, minGUI.mouse.y - oy - bar.y
 				local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(bar.parent, g.tp == MG_SCROLLAREA)
+				if g.tp == MG_COMBO_BOX then sx,sy,sw,sh=0,0,love.graphics.getWidth(),love.graphics.getHeight() end
 				if x >= 0 and y >= 0 and x < bar.width and y < bar.height
 					and minGUI.mouse.x >= sx and minGUI.mouse.x < sx + sw and minGUI.mouse.y >= sy and minGUI.mouse.y < sy + sh then
 					local vertical = minGUI_flag_active(bar.flags, MG_FLAG_SCROLLBAR_VERTICAL)

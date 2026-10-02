@@ -42,6 +42,10 @@ function minGUI_each_gadget(reverse)
         for i = 1, math.min(#pa, #pb) do
             if pa[i] ~= pb[i] then
                 local ga, gb = minGUI.gtree[pa[i]], minGUI.gtree[pb[i]]
+                -- Parentless controls belong to the desktop, below all windows.
+                if i == 1 and (ga.tp == MG_WINDOW) ~= (gb.tp == MG_WINDOW) then
+                    return ga.tp ~= MG_WINDOW
+                end
                 -- Priority windows stay above ordinary siblings, with all their children.
                 local priorityA = ga.tp == MG_WINDOW and minGUI_flag_active(ga.flags or 0, MG_FLAG_WINDOW_TOP_PRIORITY)
                 local priorityB = gb.tp == MG_WINDOW and minGUI_flag_active(gb.flags or 0, MG_FLAG_WINDOW_TOP_PRIORITY)

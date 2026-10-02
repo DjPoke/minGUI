@@ -23,7 +23,8 @@ function minGUI_scrollarea_layout(g)
 end
 
 function minGUI_scrollable_layout(g)
-	if g.tp == MG_SCROLLAREA then minGUI_scrollarea_layout(g)
+	if g.tp == MG_LIST or g.tp == MG_COMBO_BOX then minGUI_choice_layout(g)
+	elseif g.tp == MG_SCROLLAREA then minGUI_scrollarea_layout(g)
 	else minGUI_editor_layout(g) end
 end
 

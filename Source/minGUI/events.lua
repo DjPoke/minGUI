@@ -248,6 +248,7 @@ function minGUI_update_events(dt)
 	end
 
 	if minGUI_update_context_menu() then return end
+	if minGUI_update_choices() then return end
 
     local selectionHandled = minGUI_update_image_selection()
     local gadgetDragHandled = selectionHandled or minGUI_update_gadget_drag()
@@ -530,6 +531,13 @@ function minGUI_check_gadget_clicked(b, find_sons, forced_parent)
 							return v.num
 						end
 					end
+				end
+			elseif v.tp == MG_LIST or v.tp == MG_COMBO_BOX then
+				if b == MG_LEFT_BUTTON and minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width
+					and minGUI.mouse.y >= oy + v.y and minGUI.mouse.y < oy + v.y + v.height then
+					minGUI_choice_pressed(v)
+					getfocusFlag = true
+					return v.num
 				end
 			elseif v.tp == MG_STRING then
 				if minGUI.mouse.x >= ox + v.x and minGUI.mouse.x < ox + v.x + v.width then

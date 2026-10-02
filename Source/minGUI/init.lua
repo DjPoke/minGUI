@@ -26,6 +26,8 @@ function minGUI_init()
 	MG_IMAGE = 13
 	MG_SCROLLAREA = 14
 	MG_CONTEXT_MENU = 15
+	MG_LIST = 16
+	MG_COMBO_BOX = 17
 	MG_INTERNAL_SCROLLBAR = 101
 	MG_INTERNAL_BOX = 102
 	MG_INTERNAL_MENU = 103
@@ -97,6 +99,7 @@ function minGUI_init()
 	MG_EVENT_RIGHT_MOUSE_RELEASED = 6
 	MG_EVENT_RIGHT_MOUSE_CLICK = 6
 	MG_EVENT_DRAG_DROPPED = 7
+	MG_EVENT_SELECTION_CHANGED = 10
 
 	MG_EVENT_LEFT_MOUSE_DOUBLECLICK = 8
 	MG_EVENT_RIGHT_MOUSE_DOUBLECLICK = 9
@@ -317,6 +320,12 @@ function minGUI_init()
 
 			return nil, nil
 		end,
+		add_list = function(self, x, y, width, height, items, flags, parent)
+			return minGUI_add_choice(MG_LIST, x, y, width, height, items, flags, parent)
+		end,
+		add_combo_box = function(self, x, y, width, height, items, flags, parent)
+			return minGUI_add_choice(MG_COMBO_BOX, x, y, width, height, items, flags, parent)
+		end,
 		add_context_menu = function(self, items, parent)
 			return minGUI_add_context_menu(items, parent)
 		end,
@@ -439,6 +448,8 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 			
 			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_text]Wrong num value"); return end
+			local choice = self.gtree[num]
+			if choice and (choice.tp == MG_LIST or choice.tp == MG_COMBO_BOX) then return choice.items[choice.value] or "" end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -470,9 +481,12 @@ function minGUI_init()
 			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[set_gadget_state]Wrong num value"); return end
 
 			local gadget = self.gtree[num]
+			if gadget and (gadget.tp == MG_LIST or gadget.tp == MG_COMBO_BOX) then
+				minGUI_choice_select(gadget, value, false); return
+			end
 			if gadget and gadget.tp == MG_INTERNAL_SCROLLBAR then
 				local editor = self.gtree[gadget.parent]
-				if editor and (editor.tp == MG_EDITOR or editor.tp == MG_SCROLLAREA) then
+				if editor and (editor.tp == MG_EDITOR or editor.tp == MG_SCROLLAREA or editor.tp == MG_LIST or editor.tp == MG_COMBO_BOX) then
 					if type(value) ~= "number" then self:runtime_error("[set_gadget_state]Wrong state value"); return end
 					minGUI_scrollable_layout(editor)
 					value = math.max(0, math.min(gadget.maxValue, value))
@@ -537,6 +551,8 @@ function minGUI_init()
 			if minGUI.exitProcess == true then return end
 			
 			if not minGUI_check_param(num, "number") then minGUI:runtime_error("[get_gadget_state]Wrong num value"); return end
+			local choice = self.gtree[num]
+			if choice and (choice.tp == MG_LIST or choice.tp == MG_COMBO_BOX) then return choice.value end
 
 			-- if the gadget exists...
 			if minGUI.gtree[num] ~= nil then
@@ -1281,6 +1297,8 @@ function minGUI_init()
 		end,
 		-- get the offset for the internal gadget
 		get_parent_internal_gadget_offset = function(self, num, tp)
+            local gadget = minGUI.gtree[num]
+            if gadget.choiceScroll then return minGUI_choice_scrollbar_offset(minGUI.gtree[gadget.parent]) end
             local ox, oy = minGUI_get_parent_gadget_offset(num)
             local parent = minGUI.gtree[num].parent
             if tp == MG_INTERNAL_MENU and parent then
@@ -1326,6 +1344,7 @@ function minGUI_init()
 			for id in pairs(removed) do self.gtree[id] = nil end
 			if removed[self.gfocus] then self.gfocus = nil end
 			if removed[self.contextMenu] then self.contextMenu = nil end
+			if removed[self.comboPopup] then self.comboPopup = nil end
 			for index = #self.cstack, 1, -1 do
 				if removed[self.cstack[index].menu] then table.remove(self.cstack, index) end
 			end
