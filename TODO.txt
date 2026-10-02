@@ -1,7 +1,6 @@
 TODO List:
 ----------
 
-- Pouvoir afficher des dropdown menus
 - Faire une list gadget.
 - Faire une combobox.
 - Ajouter des couleurs customs et des fonts customs personalisables pour chaque gadget.

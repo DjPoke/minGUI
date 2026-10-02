@@ -869,6 +869,7 @@ function minGUI_draw_all()
         end
     end
 	minGUI_draw_gadget_drag()
+	minGUI_draw_context_menu()
 end
 
 -- draw the text cursor in the focused gadget

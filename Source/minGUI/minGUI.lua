@@ -18,3 +18,4 @@ require "minGUI.spin"
 
 require "minGUI.scrollarea"
 require "minGUI.dragdrop"
+require "minGUI.contextmenu"

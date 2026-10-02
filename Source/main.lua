@@ -10,6 +10,7 @@ require "minGUI/minGUI"
 
 local w, g, menu_array
 local timer = 0
+local contextMenu
 
 -- default love.load function
 function love.load()
@@ -80,7 +81,8 @@ function love.load()
 
 	-- Scrollarea: child positions are relative to its full content surface.
 	g[26] = minGUI:add_scrollarea(10, 10, 280, 140, 560, 300, nil, w[1])
-	minGUI:add_button(10, 10, 140, 25, "Visible button", nil, g[26])
+	g[27] = minGUI:add_button(10, 10, 140, 25, "Visible button", nil, g[26])
+	contextMenu = minGUI:add_context_menu({"Open", "Save"}, w[1])
 	minGUI:add_button(390, 240, 140, 25, "Scroll to see me", nil, g[26])
 	
 	-- clear the canvas in black
@@ -120,7 +122,7 @@ function love.update(dt)
 	minGUI_update_events(dt)
 	
 	-- exit on escape key
-	if love.keyboard.isDown("escape") then
+	if love.keyboard.isDown("escape") and not minGUI.contextMenuHandled then
 		love.event.quit()
 	end
 	
@@ -147,7 +149,9 @@ function love.update(dt)
                 end
             end
         elseif event == MG_EVENT_LEFT_MOUSE_CLICK then
-            if gadget == g[3] then
+            if gadget == g[27] then
+                minGUI:show_context_menu(contextMenu)
+            elseif gadget == g[3] then
                 minGUI:set_gadget_text(g[5], "")
             elseif gadget == g[7] then
                 minGUI:set_gadget_text(g[9], "")

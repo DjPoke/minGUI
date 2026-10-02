@@ -25,7 +25,7 @@ local function dropTarget()
 		local sx, sy, sw, sh = minGUI_get_gadget_parents_scissor(g.parent,
 			g.isInternal and minGUI.gtree[g.parent] and minGUI.gtree[g.parent].tp == MG_SCROLLAREA)
 		local x, y = minGUI.mouse.x, minGUI.mouse.y
-		if x >= sx and x < sx + sw and y >= sy and y < sy + sh
+		if g.tp ~= MG_CONTEXT_MENU and x >= sx and x < sx + sw and y >= sy and y < sy + sh
 			and x >= ox + g.x and x < ox + g.x + g.width
 			and y >= oy + g.y and y < oy + g.y + g.height then
             local source = minGUI.gadgetDrag and minGUI.gtree[minGUI.gadgetDrag.source]

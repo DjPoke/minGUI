@@ -245,6 +245,8 @@ function minGUI_update_events(dt)
 		end
 	end
 
+	if minGUI_update_context_menu() then return end
+
     local gadgetDragHandled = minGUI_update_gadget_drag()
     local windowDragHandled = minGUI_update_window_drag()
     if not windowDragHandled and not gadgetDragHandled and (minGUI.mouse.mpressed[MG_LEFT_BUTTON] or minGUI.mouse.mpressed[MG_RIGHT_BUTTON]) then
@@ -339,7 +341,7 @@ function minGUI_check_internal_gadget_clicked(b)
                 if head then
                     w.menu.selected = w.menu.selected == head and 0 or head
                 elseif row then
-                    table.insert(minGUI.mstack, {eventMenu = w.menu.selected, eventSubMenu = row})
+                    table.insert(minGUI.mstack, {eventMenu = w.menu.selected, eventSubMenu = row, eventGadget = w.num})
                     w.menu.selected = 0
                 end
                 w.menu.hover = 0

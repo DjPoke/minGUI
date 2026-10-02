@@ -25,6 +25,7 @@ function minGUI_init()
 	MG_SCROLLBAR = 12
 	MG_IMAGE = 13
 	MG_SCROLLAREA = 14
+	MG_CONTEXT_MENU = 15
 	MG_INTERNAL_SCROLLBAR = 101
 	MG_INTERNAL_BOX = 102
 	MG_INTERNAL_MENU = 103
@@ -125,6 +126,7 @@ function minGUI_init()
 		mouse = {x = 0, y = 0, oldmbtn = {}, mbtn = {}, mpressed = {}, mreleased = {}}, -- mouse events
 		gstack = {}, -- gadget events stack
 		mstack = {}, -- menu events stack
+		cstack = {}, -- context menu selections
 		ptimer = {}, -- programmable timers
 		tstack = {}, -- timers events stack
 		timer = 0, -- time from start of the app
@@ -311,6 +313,20 @@ function minGUI_init()
 
 			return nil, nil
 		end,
+		add_context_menu = function(self, items, parent)
+			return minGUI_add_context_menu(items, parent)
+		end,
+		show_context_menu = function(self, num, x, y)
+			return minGUI_show_context_menu(num, x, y)
+		end,
+		hide_context_menu = function(self)
+			self.contextMenu = nil
+		end,
+		get_context_menu_events = function(self)
+			if self.exitProcess or #self.cstack == 0 then return nil, nil end
+			local event = table.remove(self.cstack, 1)
+			return event.menu, event.item
+		end,
 		-- get menu events
 		get_menu_events = function(self)
 			-- don't execute next instructions in case of exit process is true
@@ -319,10 +335,11 @@ function minGUI_init()
 			if #minGUI.mstack ~= 0 then
 				local eventMenu = minGUI.mstack[1].eventMenu
 				local eventSubMenu = minGUI.mstack[1].eventSubMenu
+				local eventGadget = minGUI.mstack[1].eventGadget
 				
 				table.remove(minGUI.mstack, 1)
 
-				return eventMenu, eventSubMenu
+				return eventMenu, eventSubMenu, eventGadget
 			end
 
 			return nil, nil
@@ -1304,6 +1321,10 @@ function minGUI_init()
 			end
 			for id in pairs(removed) do self.gtree[id] = nil end
 			if removed[self.gfocus] then self.gfocus = nil end
+			if removed[self.contextMenu] then self.contextMenu = nil end
+			for index = #self.cstack, 1, -1 do
+				if removed[self.cstack[index].menu] then table.remove(self.cstack, index) end
+			end
 			if self.gadgetDrag and removed[self.gadgetDrag.source] then self.gadgetDrag = nil end
 			for index = #self.gstack, 1, -1 do
 				if removed[self.gstack[index].eventGadget] or removed[self.gstack[index].eventSource] then
@@ -2440,6 +2461,7 @@ function minGUI_init()
 							canvas1 = love.graphics.newCanvas(width, 1)
 						}
 						if parent then minGUI_resize_window_menus(parent) end
+						return num
 					else
 						minGUI:runtime_error("[add_menu]Wrong gadget size for gadget " .. num)
 					end
