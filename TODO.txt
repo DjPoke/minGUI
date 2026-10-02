@@ -1,6 +1,7 @@
 TODO List:
 ----------
 
+- Pouvoir ajouter des gadgets sans fenêtre, directement sur le bureau.
 - Faire une list gadget.
 - Faire une combobox.
 - Ajouter des couleurs customs et des fonts customs personalisables pour chaque gadget.
