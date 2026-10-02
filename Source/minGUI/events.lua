@@ -295,6 +295,7 @@ function minGUI_update_events(dt)
 	-- keyboard events
 	--=====================================================================
 		
+	minGUI_update_keyboard_shortcuts()
 	if not gadgetDragHandled then
 		minGUI_update_string_keyboard()
 		minGUI_update_editor_keyboard()

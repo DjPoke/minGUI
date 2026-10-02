@@ -280,6 +280,10 @@ function minGUI_init()
 			
 			if minGUI.font[num] ~= nil then minGUI.numFont = num end
 		end,
+		-- Register a shortcut for the active window; events use the gadget event queue.
+		add_keyboard_shortcut = function(self, window, shortcut, event)
+			return minGUI_add_keyboard_shortcut(self, window, shortcut, event)
+		end,
 		-- get gadget events
 		get_gadget_events = function(self)
 			-- don't execute next instructions in case of exit process is true
